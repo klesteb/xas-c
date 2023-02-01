@@ -1,0 +1,104 @@
+#!/bin/sh
+#
+# File: build
+# By  : Kevin Esteb
+# Date: 01-Feb-2023
+#
+# Build the XAS-C modules.
+#
+ldir=
+dirs="errors ../messages ../misc ../objects ../queue ../tracer .."
+opts=bcmshi:
+#
+usage() {
+cat << EOF
+
+usage $0 [options] 
+ 
+This script builds the modules for XAS-C
+ 
+OPTIONS
+  -h        Show this message
+  -b        Build the modules
+  -c        Clean the modules cruft
+  -m        Create man pages
+  -s        Create shared libraries
+  -i <dir>  Install to this directory
+
+EOF
+}
+
+build() {
+
+    for dir in $dirs
+    do
+        cd $dir
+        if [ -x Makefile ]; then
+            make 
+        fi
+    done
+
+}
+
+clean() {
+
+    for dir in $dirs
+    do
+        cd $dir
+        if [ -x Makefile ]; then
+            make clean
+        fi
+    done
+
+}
+
+man() {
+
+    for dir in $dirs
+    do
+        cd $dir
+        if [ -x Makefile ]; then
+            make man
+        fi
+    done
+
+}
+
+shared() {
+
+    for dir in $dirs
+    do
+        cd $dir
+        if [ -x Makefile ]; then
+            make shared 
+        fi
+    done
+
+}
+
+install() {
+
+    echo "installing to $ldir"
+    
+}
+
+while getopts $opts options
+do
+    case "$options" 
+    in
+        b) build;;
+        c) clean;;
+        m) man;;
+        s) shared;;
+        i) ldir=$OPTARG
+           install
+           ;;
+        h) usage
+           exit 0
+           ;;
+        ?) usage
+           exit 0
+           ;;
+    esac
+done
+

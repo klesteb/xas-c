@@ -1,0 +1,719 @@
+/*
+ * Function: que_delete.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_delete() will delete the current queue element as pointed 
+ *    to by the cursor. 
+ * 
+ *    WARNING! It is the responsibility of the caller to free any memory. 
+ *    The QUE routines cannot distinguish between pointers to literals and 
+ *    malloced memory. 
+ *
+ *    Invocation:
+ *
+ *        data = que_delete(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            The queue data struture.
+ *
+ *        <data>              - O
+ *            The data held at that location in the queue.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_empty.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_empty() tests if queue has anything in it. 
+ *
+ *    Invocation:
+ *
+ *        status = que_empty(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            The queue data struture.
+ *
+ *        <status>            - O
+ *            The funtion returns QUE_OK if there is any data, otherwise 
+ *            QUE_ERROR.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_end.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_end() will do a boolean test to see if the cursor is at 
+ *    the tail of queue.
+ *
+ *    Invocation:
+ *
+ *        status = que_end(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            The queue data struture.
+ *
+ *        <status>            - O
+ *            This function will return QUE_OK if at the end otherwise 
+ *            QUE_ERROR.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_find.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_find() will do a linear search of queue for match 
+ *    with key in data.
+ *
+ *    Useful for small queues that are constantly changing and would 
+ *    otherwise need constant sorting with the que_seek() function. For 
+ *    description of Comp see que_sort(). Queue cursor left on position 
+ *    found item else at end. 
+ * 
+ *    Invocation:
+ *
+ *        status = que_find(q, data, routine);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            The queue data struture.
+ *
+ *        <data>              - I
+ *            The data item to match against.
+ *
+ *        <routine>           - I
+ *            The routine to do the comparision with.
+ *
+ *        <status>            - O
+ *            This routine will return QUE_OK if found, QUE_ERROR if not 
+ *            in queue. 
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_first.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_first() will position queue cursor to the first element 
+ *    (head) of the queue. 
+ *
+ *    Invocation
+ *
+ *        data = que_first(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            The queue data struture.
+ *
+ *        <data>              - O
+ *            The data held at that location or NULL.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_get.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_get() will return the pointer to the data at the cursor 
+ *    location in the queue.
+ * 
+ *    Invocation
+ *
+ *        data = que_get(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            The queue data struture returned from que_init().
+ *
+ *        <data>              - O
+ *            The data held at that location in the queue.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_init.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_init() will initialise the queue object and pointers. 
+ * 
+ *    Invocation:
+ *
+ *        status = que_init(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            The queue data struture.
+ *
+ *        <status>            - O
+ *            This function will return QUE_OK if init successful else 
+ *            QUE_ERROR.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_insert.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_insert() will insert a data element into the queue at the
+ *    current cursor position.
+ * 
+ *    Invocation
+ *
+ *        status = que_insert(q, d);
+ *
+ *    where
+ *
+ *        <q>                   - I/O
+ *            The queue data structure returned from que_init().
+ *
+ *        <d>                   - I
+ *            The data to be inserted into the queue.
+ *
+ *        <status>              - O
+ *            This function will return QUE_OK if successful, otherwise 
+ *            QUE_ERROR.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_last.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_last() will position the cursor to the tail of the 
+ *    queue and return the data item.
+ * 
+ *    Invocation
+ *
+ *        data = que_last(q);
+ *
+ *    where
+ *
+ *        <q>                   - I
+ *            The queue data structure returned from que_init().
+ *
+ *        <data>                - O
+ *            The data at the tail of the queue or NULL.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_next.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_next() will move to the next element in the queue 
+ *    without popping. This uses the cursor for the current position. 
+ *    que_next() only moves in the direction from the head of the queue 
+ *    to the tail. 
+ *
+ *    Invocation
+ *
+ *        data = que_next(q);
+ *
+ *    where
+ *
+ *        <q>                   - I
+ *            Is the data structure returned for que_init().
+ *
+ *        <data>                - O
+ *            The data item at the current cursor postion.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_pop_head.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_pop_head() will remove and return the top element at 
+ *    the head of the queue. 
+ * 
+ *    Invocation
+ *
+ *        data = que_pop_head(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            Is the data structure returned for que_init().
+ *
+ *        <data>              - O
+ *            Is the data item at the current cursor position or NULL
+ *            if the queue is empty.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_pop_tail.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_pop_tail() will remove and return the data element at 
+ *    the tail of the queue. 
+ * 
+ *    Invocation
+ *
+ *        data = que_pop_tail(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            Is the data structure returned for que_init().
+ *
+ *        <data>              - O
+ *            Is the data item at the current cursor position or NULL
+ *            if the queue is empty.
+ *
+ * Modification History
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_prev.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_prev() will move to the previous element in the queue 
+ *    without popping. This uses the cursor for the current position. 
+ *
+ *    Invocation
+ *
+ *        data = que_prev(q);
+ *
+ *    where
+ *
+ *        <q>                   - I
+ *            Is the data structure returned for que_init().
+ *
+ *        <data>                - O
+ *            The data item at the current cursor postion or NULL if the
+ *            queue is empty.
+ *
+ * Modification History
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_push_head.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_push_head() will put a data pointer at the head of 
+ *    the queue.
+ * 
+ *    Invocation
+ *
+ *        status = que_push_head(q, d);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            Is the data structure returned from que_init().
+ *
+ *        <d>                 - I
+ *            Is the data item to be pushed onto the queue.
+ *
+ *        <status>            - O
+ *            This function will return QUE_OK if success else QUE_ERROR
+ *            if unable to push the data. 
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_push_tail.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_push_tail() will put a data pointer at the tail of 
+ *    the queue.
+ * 
+ *    Invocation
+ *
+ *        status = que_push_tail(q, d);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            Is the data structure returned from que_init().
+ *
+ *        <d>                 - I
+ *            Is the data item to be pushed onto the queue.
+ *
+ *        <status>            - O
+ *            This function will return QUE_OK if success else QUE_ERROR
+ *            if unable to push the data. 
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_put.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_put() will replace the current pointer to data with 
+ *    a new pointer to other data. 
+ * 
+ *    Invocation
+ *
+ *        status = que_put(q, d);
+ *
+ *    where
+ *
+ *        <q>                  - I
+ *            Is the data structure returned from que_init();
+ *
+ *        <d>                  - I
+ *            Is the data item to replace the current data item.
+ *
+ *        <status>             - O
+ *            This function will return QUE_OK if successful, QUE_ERROR
+ *            if cursor at NULL 
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_bsearch.c
+ * Version : 1.0
+ * Created : 02-Jan-2002
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_bsearch() will do a binary search of queue index 
+ *    for node containing the key. See que_sort() for description of 'Comp' 
+ *    function. 
+ * 
+ *    Invocation
+ *
+ *        status = que_bsearch(q, key, routine);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            Is the data structure returned from que_init();
+ *
+ *        <key>               - I
+ *            Is the key to search for.
+ *
+ *        <routine>           - I
+ *            The comparison routine.
+ *
+ *        <status>            - O
+ *            Integer index into array of node pointers, or -1 if not found. 
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_seek.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_seek() will use the index to locate data according to 
+ *    key in 'data' 
+ * 
+ *    Invocation
+ *
+ *        data = que_seek(q, d, routine);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            Is the data structure returned from que_init();
+ *
+ *        <key>               - I
+ *            Is the key to search for.
+ *
+ *        <routine>           - I
+ *            The comparison routine.
+ *
+ *        <data>              - O
+ *            This function returns a pointer to data or NULL if could not 
+ *            find it or could not sort queue. 
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_size.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_size() will return the number of elements in the queue.
+ * 
+ *    Invocation
+ *
+ *        size = que_size(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            The queue data struture returned for que_init().
+ *
+ *        <size>              - O
+ *            The number of elements in the queue.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: _quick_sort
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ * Modification History
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_sort.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_sort() will sort the queue and allow index style access. 
+ *    The Comp function supplied by caller must return:
+ * 
+ *        -1 if data1  < data2 
+ *         0 if data1 == data2 
+ *        +1 if data1  > data2 
+ * 
+ *    For Comp(data1, data2). If the queue is already sorted it frees the 
+ *    memory of the old index and starts again. 
+ * 
+ *    Invocation
+ *
+ *        status = que_sort(q, routine);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            Is the data struture returned from que_init().
+ *
+ *        <routine>           - I
+ *            Is the comparison routine.
+ *
+ *        <status>            - O
+ *            This function returns QUE_OK if sort succeeded. QUE_ERROR if 
+ *            an error occurred. 
+ * 
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+
+/*
+ * Function: que_start.c
+ * Version : 1.0
+ * Created : 02-Jan-1993
+ * Author  : Peter Yard
+ *
+ * Description
+ *
+ *    Function que_start() tests to see if the cursor is at head of queue.
+ * 
+ *    Invocation
+ *
+ *        status = que_start(q);
+ *
+ *    where
+ *
+ *        <q>                 - I
+ *            The queue data struture returned from que_init().
+ *
+ *        <status>            - O
+ *            This function will return QUE_OK if at the head else QUE_ERROR.
+ *
+ * Modification History
+ *
+ *    10-May-2002 K.Esteb
+ *        Reformated the file.
+ *
+ * Variables Used
+ */
+

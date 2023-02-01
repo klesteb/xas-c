@@ -1,0 +1,42 @@
+{"@version":1,"@timestamp":"2021-09-16T13:43:31.698-0700","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":24443,"lineno":15,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-09-16T13:43:31.699-0700","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":24443,"lineno":16,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-09-16T13:43:31.699-0700","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":24443,"lineno":17,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-09-16T13:43:31.699-0700","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":24443,"lineno":18,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-09-16T13:43:31.699-0700","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":24443,"lineno":19,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-09-16T13:43:31.699-0700","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":24443,"lineno":20,"filename":"test3.c","function":"main"}
+[2021-12-16 11:14:37.512] INFO  - info works
+[2021-12-16 11:14:37.512] WARN  - warn works
+[2021-12-16 11:14:37.512] ERROR - error works
+[2021-12-16 11:14:37.512] FATAL - fatal works
+[2021-12-16 11:14:37.512] DEBUG - debug works
+[2021-12-16 11:14:37.512] TRACE - trace works
+[2021-12-16 11:14:54.562] INFO  - info works
+[2021-12-16 11:14:54.563] WARN  - warn works
+[2021-12-16 11:14:54.563] ERROR - error works
+[2021-12-16 11:14:54.563] FATAL - fatal works
+[2021-12-16 11:14:54.563] DEBUG - debug works
+[2021-12-16 11:14:54.563] TRACE - trace works
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.007-0800","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":15,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":16,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":17,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":18,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":19,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2021-12-16T11:14:57.008-0800","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"wsipc-scm-01.wise.wa-k12.net","process":"./test3","pid":21614,"lineno":20,"filename":"test3.c","function":"main"}
+[2021-12-16 11:15:08.553] INFO  - info works
+[2021-12-16 11:15:08.553] WARN  - warn works
+[2021-12-16 11:15:08.553] ERROR - error works
+[2021-12-16 11:15:08.553] FATAL - fatal works
+[2021-12-16 11:15:08.553] DEBUG - debug works
+[2021-12-16 11:15:08.553] TRACE - trace works
+{"@version":1,"@timestamp":"2023-02-01T11:23:44.888-0800","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"compute1","process":"./test3","pid":790984,"lineno":15,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2023-02-01T11:23:44.896-0800","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"compute1","process":"./test3","pid":790984,"lineno":16,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2023-02-01T11:23:44.899-0800","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"compute1","process":"./test3","pid":790984,"lineno":17,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2023-02-01T11:23:44.902-0800","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"compute1","process":"./test3","pid":790984,"lineno":18,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2023-02-01T11:23:44.906-0800","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"compute1","process":"./test3","pid":790984,"lineno":19,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2023-02-01T11:23:44.909-0800","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"compute1","process":"./test3","pid":790984,"lineno":20,"filename":"test3.c","function":"main"}
+[2023-02-01 11:23:50.08] INFO  - info works
+[2023-02-01 11:23:50.14] WARN  - warn works
+[2023-02-01 11:23:50.19] ERROR - error works
+[2023-02-01 11:23:50.23] FATAL - fatal works
+[2023-02-01 11:23:50.26] DEBUG - debug works
+[2023-02-01 11:23:50.29] TRACE - trace works
