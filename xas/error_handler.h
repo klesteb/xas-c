@@ -140,5 +140,11 @@
     }                                            \
 }
 
+#define check_null(value) {                      \
+    if ((value) == NULL) {                       \
+        cause_error(errno);                      \
+    }                                            \
+}
+
 #endif
 
