@@ -366,13 +366,13 @@ A pointer to a fib_t object.
 
 =item B<fd>
 
-A pointer to the store the file descriptor into.
+A pointer to store the file descriptor into.
 
 =back
 
 =head2 I<int fib_get_retries(fib_t *self, int *retries)>
 
-This method returns the retires.
+This method returns the retries.
 
 =over 4
 
@@ -382,13 +382,13 @@ A pointer to a fib_t object.
 
 =item B<retries>
 
-A pointer to store the retiries into.
+A pointer to store the retries into.
 
 =back
 
 =head2 I<int fib_set_retries(fib_t *self, int retries)>
 
-This method sets the retires.
+This method sets the retries.
 
 =over 4
 
@@ -398,13 +398,13 @@ A pointer to a fib_t object.
 
 =item B<retries>
 
-The number of retires that can be preformed.
+The number of retries that can be preformed.
 
 =back
 
 =head2 I<int fib_get_timeout(fib_t *self, int *timeout)>
 
-This method returns the retires.
+This method returns the timeout.
 
 =over 4
 
