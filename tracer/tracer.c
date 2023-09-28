@@ -49,7 +49,7 @@ declare_klass(TRACER_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-tracer_t *tracer_create(errors_t *errors) {
+tracer_t *tracer_create(err_t *errors) {
 
     int stat = ERR;
     item_list_t items[2];
@@ -264,7 +264,7 @@ char *tracer_version(tracer_t *self) {
 int _tracer_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
-    errors_t *errs = NULL;
+    err_t *errs = NULL;
     tracer_t *self = NULL;
 
     if (object != NULL) {
@@ -445,8 +445,8 @@ int _tracer_dump(tracer_t *self, int (*output)(char *)) {
          error != NULL;
          error = que_next(&self->errors)) {
 
-        errors_get_text(self->errs, error->errnum, nemonic, 32);
-        errors_get_message(self->errs, error->errnum, message, 1024);
+        err_get_text(self->errs, error->errnum, nemonic, 32);
+        err_get_message(self->errs, error->errnum, message, 1024);
 
         snprintf(text, 1024, format, nemonic, message, 
                  error->lineno, error->filename, error->function);

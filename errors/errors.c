@@ -26,39 +26,39 @@ require_klass(OBJECT_KLASS);
 /* klass defination                                               */
 /*----------------------------------------------------------------*/
 
-int _errors_ctor(object_t *object, item_list_t *);
-int _errors_dtor(object_t *);
+int _err_ctor(object_t *object, item_list_t *);
+int _err_dtor(object_t *);
 
-int _errors_del(errors_t *, int);
-int _errors_add(errors_t *, int, char *, char *);
-int _errors_set(errors_t *, int, char *, char *);
-int _errors_load(errors_t *, error_code_t *, int);
-int _errors_get_text(errors_t *, int, char *, int);
-int _errors_get_message(errors_t *, int, char *, int);
+int _err_del(err_t *, int);
+int _err_add(err_t *, int, char *, char *);
+int _err_set(err_t *, int, char *, char *);
+int _err_load(err_t *, error_code_t *, int);
+int _err_get_text(err_t *, int, char *, int);
+int _err_get_message(err_t *, int, char *, int);
 
-declare_klass(ERRORS_KLASS) {
-    .size = KLASS_SIZE(errors_t),
-    .name = KLASS_NAME(errors_t),
-    .ctor = _errors_ctor,
-    .dtor = _errors_dtor,
+declare_klass(ERROR_KLASS) {
+    .size = KLASS_SIZE(err_t),
+    .name = KLASS_NAME(err_t),
+    .ctor = _err_ctor,
+    .dtor = _err_dtor,
 };
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-errors_t *errors_create(void) {
+err_t *err_create(void) {
 
     int stat = ERR;
-    errors_t *self = NULL;
+    err_t *self = NULL;
 
-    self = (errors_t *)object_create(ERRORS_KLASS, NULL, &stat);
+    self = (err_t *)object_create(ERROR_KLASS, NULL, &stat);
 
     return self;
 
 }
 
-int errors_destroy(errors_t *self) {
+int err_destroy(err_t *self) {
 
     int stat = OK;
 
@@ -66,7 +66,7 @@ int errors_destroy(errors_t *self) {
 
         if (self != NULL) {
 
-            if (object_assert(self, errors_t)) {
+            if (object_assert(self, err_t)) {
 
                 stat = self->dtor(OBJECT(self));
                 check_status(stat, OK, E_INVOPS);
@@ -98,7 +98,7 @@ int errors_destroy(errors_t *self) {
 
 }
 
-int errors_get_text(errors_t *self, int errnum, char *buffer, int size) {
+int err_get_text(err_t *self, int errnum, char *buffer, int size) {
 
     int stat = OK;
 
@@ -130,7 +130,7 @@ int errors_get_text(errors_t *self, int errnum, char *buffer, int size) {
 
 }
 
-int errors_get_message(errors_t *self, int errnum, char *buffer, int size) {
+int err_get_message(err_t *self, int errnum, char *buffer, int size) {
 
     int stat = OK;
 
@@ -162,7 +162,7 @@ int errors_get_message(errors_t *self, int errnum, char *buffer, int size) {
 
 }
 
-int errors_add(errors_t *self, int errnum, char *text, char *message) {
+int err_add(err_t *self, int errnum, char *text, char *message) {
 
     int stat = OK;
 
@@ -194,7 +194,7 @@ int errors_add(errors_t *self, int errnum, char *text, char *message) {
 
 }
 
-int errors_remove(errors_t *self, int errnum) {
+int err_remove(err_t *self, int errnum) {
 
     int stat = ERR;
 
@@ -226,7 +226,7 @@ int errors_remove(errors_t *self, int errnum) {
 
 }
 
-int errors_set(errors_t *self, int errnum, char *text, char *message) {
+int err_set(err_t *self, int errnum, char *text, char *message) {
 
     int stat = OK;
 
@@ -258,7 +258,7 @@ int errors_set(errors_t *self, int errnum, char *text, char *message) {
 
 }
 
-int errors_load(errors_t *self, error_code_t *codes, int size) {
+int err_load(err_t *self, error_code_t *codes, int size) {
 
     int stat = OK;
 
@@ -294,17 +294,17 @@ int errors_load(errors_t *self, error_code_t *codes, int size) {
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
-static void _load_system_error_codes(errors_t *);
+static void _load_system_error_codes(err_t *);
 
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-int _errors_ctor(object_t *object, item_list_t *items) {
+int _err_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
     int codes_size = 0;
-    errors_t *self = NULL;
+    err_t *self = NULL;
     error_code_t *codes = NULL;
 
     if (object != NULL) {
@@ -320,7 +320,7 @@ int _errors_ctor(object_t *object, item_list_t *items) {
                     (items[x].item_code == 0)) break;
 
                 switch(items[x].item_code) {
-                    case ERRORS_K_ERROR_CODES: {
+                    case ERR_K_ERROR_CODES: {
                         codes = items[x].buffer_address;
                         codes_size = items[x].buffer_length;
                         break;
@@ -342,15 +342,15 @@ int _errors_ctor(object_t *object, item_list_t *items) {
 
         /* assign our methods here */
 
-        self->ctor = _errors_ctor;
-        self->dtor = _errors_dtor;
+        self->ctor = _err_ctor;
+        self->dtor = _err_dtor;
 
-        self->_add_error = _errors_add;
-        self->_del_error = _errors_del;
-        self->_set_error = _errors_set;
-        self->_get_text = _errors_get_text;
-        self->_get_message = _errors_get_message;
-        self->_load_errors = _errors_load;
+        self->_add_error = _err_add;
+        self->_del_error = _err_del;
+        self->_set_error = _err_set;
+        self->_get_text = _err_get_text;
+        self->_get_message = _err_get_message;
+        self->_load_errors = _err_load;
 
         /* initialize internal variables here */
 
@@ -379,10 +379,10 @@ int _errors_ctor(object_t *object, item_list_t *items) {
 
 }
 
-int _errors_dtor(object_t *object) {
+int _err_dtor(object_t *object) {
 
     int stat = OK;
-    errors_t *self = ERRORS(object);
+    err_t *self = ERRORS(object);
     error_code_t *error_code = NULL;
 
     /* free local resources here */
@@ -406,7 +406,7 @@ int _errors_dtor(object_t *object) {
 
 }
 
-int _errors_get_text(errors_t *self, int errnum, char *buffer, int bufsiz) {
+int _err_get_text(err_t *self, int errnum, char *buffer, int bufsiz) {
 
     int stat = ERR;
     error_code_t *error_code = NULL;
@@ -431,7 +431,7 @@ int _errors_get_text(errors_t *self, int errnum, char *buffer, int bufsiz) {
 
 }
 
-int _errors_get_message(errors_t *self, int errnum, char *buffer, int bufsiz) {
+int _err_get_message(err_t *self, int errnum, char *buffer, int bufsiz) {
 
     int stat = ERR;
     error_code_t *error_code = NULL;
@@ -456,7 +456,7 @@ int _errors_get_message(errors_t *self, int errnum, char *buffer, int bufsiz) {
 
 }
 
-int _errors_add(errors_t *self, int errnum, char *text, char *message) {
+int _err_add(err_t *self, int errnum, char *text, char *message) {
 
     int stat = ERR;
     error_code_t *error_code = NULL;
@@ -475,7 +475,7 @@ int _errors_add(errors_t *self, int errnum, char *text, char *message) {
 
 }
 
-int _errors_set(errors_t *self, int errnum, char *text, char *message) {
+int _err_set(err_t *self, int errnum, char *text, char *message) {
 
     int stat = ERR;
     error_code_t *error_code = NULL;
@@ -502,7 +502,7 @@ int _errors_set(errors_t *self, int errnum, char *text, char *message) {
 
 }
 
-int _errors_del(errors_t *self, int errnum) {
+int _err_del(err_t *self, int errnum) {
 
     int stat = ERR;
     error_code_t *error_code = NULL;
@@ -537,7 +537,7 @@ int _errors_del(errors_t *self, int errnum) {
 
 }
 
-int _errors_load(errors_t *self, error_code_t *codes, int size) {
+int _err_load(err_t *self, error_code_t *codes, int size) {
 
     int x;
     int stat = ERR;
@@ -558,7 +558,7 @@ int _errors_load(errors_t *self, error_code_t *codes, int size) {
 /* private methods                                                */
 /*----------------------------------------------------------------*/
 
-static void _load_system_error_codes(errors_t *self) {
+static void _load_system_error_codes(err_t *self) {
 
     /*                                                            */
     /* concept and macro magic taken from:                        */

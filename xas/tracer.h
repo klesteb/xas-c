@@ -32,7 +32,7 @@ struct _tracer_s {
     int (*_override)(tracer_t *, item_list_t *);
     int (*_add)(tracer_t *, error_trace_t *);
     int (*_dump)(tracer_t *, int (*output)(char *));
-    errors_t *errs;
+    err_t *errs;
     queue errors;
 };
 
@@ -104,7 +104,7 @@ struct _tracer_s {
 /* interface                                                   */
 /*-------------------------------------------------------------*/
 
-extern tracer_t *tracer_create(errors_t *);
+extern tracer_t *tracer_create(err_t *);
 extern int tracer_destroy(tracer_t *);
 extern int tracer_compare(tracer_t *, tracer_t *);
 extern int tracer_override(tracer_t *, item_list_t *);

@@ -21,18 +21,18 @@
 /* klass declaration                                              */
 /*----------------------------------------------------------------*/
 
-typedef struct _errors_s errors_t;
+typedef struct _err_s err_t;
 
-struct _errors_s {
+struct _err_s {
     object_t parent_klass;
     int (*ctor)(object_t *, item_list_t *);
     int (*dtor)(object_t *);
-    int (*_del_error)(errors_t *, int);
-    int (*_get_text)(errors_t *, int, char *, int);
-    int (*_get_message)(errors_t *, int, char *, int);
-    int (*_add_error)(errors_t *, int, char *, char *);
-    int (*_set_error)(errors_t *, int, char *, char *);
-    int (*_load_errors)(errors_t *, error_code_t *, int);
+    int (*_del_error)(err_t *, int);
+    int (*_get_text)(err_t *, int, char *, int);
+    int (*_get_message)(err_t *, int, char *, int);
+    int (*_add_error)(err_t *, int, char *, char *);
+    int (*_set_error)(err_t *, int, char *, char *);
+    int (*_load_errors)(err_t *, error_code_t *, int);
     queue error_codes;
 };
 
@@ -40,22 +40,22 @@ struct _errors_s {
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
-#define ERRORS(x) ((errors_t *)(x))
+#define ERRORS(x) ((err_t *)(x))
 
-#define ERRORS_K_ERROR_CODES  1
+#define ERR_K_ERROR_CODES  1
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
 /*-------------------------------------------------------------*/
 
-extern errors_t *errors_create(void);
-extern int errors_destroy(errors_t *);
-extern int errors_remove(errors_t *, int);
-extern int errors_add(errors_t *, int, char *, char *);
-extern int errors_set(errors_t *, int, char *, char *);
-extern int errors_load(errors_t *, error_code_t *, int);
-extern int errors_get_text(errors_t *, int, char *, int);
-extern int errors_get_message(errors_t *, int, char *, int);
+extern err_t *err_create(void);
+extern int err_destroy(err_t *);
+extern int err_remove(err_t *, int);
+extern int err_add(err_t *, int, char *, char *);
+extern int err_set(err_t *, int, char *, char *);
+extern int err_load(err_t *, error_code_t *, int);
+extern int err_get_text(err_t *, int, char *, int);
+extern int err_get_message(err_t *, int, char *, int);
 
 #endif
 
