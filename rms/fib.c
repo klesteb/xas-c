@@ -583,6 +583,161 @@ int fib_unlink(fib_t *self) {
 
 }
 
+int fib_get_fd(fib_t *self, int *fd) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            *fd = self->fd;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int fib_get_retries(fib_t *self, int *retries) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            *retries = self->retries;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int fib_set_retries(fib_t *self, int retries) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            self->retries = retries;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int fib_get_timeout(fib_t *self, int *timeout) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            *timeout = self->timeout;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
+int fib_set_timeout(fib_t *self, int timeout) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            self->timeout = timeout;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+
+        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
+        clear_error();
+
+    } end_when;
+
+    return stat;
+
+}
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
