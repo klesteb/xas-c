@@ -13,11 +13,9 @@ fib - A class for manipulating files
  int main(int argc, char **argv) {
 
      fib_t *temp = NULL;
-     int retries = 10;
-     int timeout = 30;
      char *filename = "files.pod";
-     
-     if ((temp = fib_create(filename, retries, timeout))) {
+
+     if ((temp = fib_create(filename))) {
 
          fib_open(temp, O_RDONLY, 0);
          fib_close(temp);
@@ -39,7 +37,7 @@ The files fib.c and fib.h define the class.
 
 =over 4
 
-=item B<xas/rms/fibs.h>
+=item B<xas/rms/fib.h>
 
 This defines the interface to the class. 
 
@@ -162,59 +160,6 @@ A pointer for a fib_t object.
 
 =back
 
-=head2 I<int fib_read(fib_t *self, void *buffer, size_t size, ssize_t *count)>
-
-This method allows you to read data from the file. This is a wrapper around 
-L<read(2)>.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=item B<buffer>
-
-A pointer to the buffer to read the data into.
-
-=item B<size>
-
-The size of the buffer.
-
-=item B<count>
-
-A pointer to the number of bytes read. 0 bytes would indicate end of
-file. This may also indicate that your process dosen't have access to 
-the file.
-
-=back
-
-=head2 I<int fib_write(fib_t *self, void *buffer, size_t size, ssize_t *count)>
-
-This method allows you to write data to the file. This is a wrapper around 
-L<write(2)>.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=item B<buffer>
-
-A pointer to the buffer to write to the file.
-
-=item B<size>
-
-The size of the buffer.
-
-=item B<count>
-
-A pointer to the number of bytes written. A 0 indicates that nothing
-was written.
-
-=back
-
 =head2 I<int fib_exists(fib_t *self, int *exists)>
 
 This method allows you to check and see if a files exists. This is a
@@ -279,79 +224,6 @@ A pointer to where to write the file size.
 
 =back
 
-=head2 I<int fib_lock(fib_t *self, off_t offset, off_t length)>
-
-This method allows you to lock a range of bytes within the file. A
-offset of 0 and a range of 0, locks the whole file. This is a wrapper 
-around L<fcntl(2)>.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=item offset
-
-The position within the file to start locking.
-
-=item length
-
-The range of bytes to lock.
-
-=back
-
-=head2 I<int fib_unlock(fib_t *self)>
-
-This method allows you to unlock a previous lock. This is a wrapper around 
-L<fcntl(2)>.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=back
-
-=head2 I<int fib_seek(fib_t *self, off_t offset, int whence)>
-
-This method allows you to seek to a particular potion within the file. 
-This is a wrapper around L<lseek(2)>.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=item B<offset>
-
-The offset within the file.
-
-=item B<whence>
-
-This should be one of SEEK_SET, SEEK_CUR, SEEK_END.
-
-=back
-
-=head2 I<int fib_tell(fib_t *self, off_t *offset)>
-
-This method allows you to tell the current position within the file.  This 
-is a wrapper around L<lseek(2)>.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=item B<offset>
-
-A pointer to the current position within the file.
-
-=back
-
 =head1 MUTATORS
 
 =head2 I<int fib_get_fd(fib_t *self, int *fd)>
@@ -367,70 +239,6 @@ A pointer to a fib_t object.
 =item B<fd>
 
 A pointer to store the file descriptor into.
-
-=back
-
-=head2 I<int fib_get_retries(fib_t *self, int *retries)>
-
-This method returns the retries.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=item B<retries>
-
-A pointer to store the retries into.
-
-=back
-
-=head2 I<int fib_set_retries(fib_t *self, int retries)>
-
-This method sets the retries.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=item B<retries>
-
-The number of retries that can be preformed.
-
-=back
-
-=head2 I<int fib_get_timeout(fib_t *self, int *timeout)>
-
-This method returns the timeout.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=item B<timeout>
-
-A pointer to store the timeout into.
-
-=back
-
-=head2 I<int fib_set_timeout(fib_t *self, int timeout)>
-
-This method sets the timeout.
-
-=over 4
-
-=item B<self>
-
-A pointer to a fib_t object.
-
-=item B<timeout>
-
-The timeout.
 
 =back
 

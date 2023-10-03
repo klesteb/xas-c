@@ -36,15 +36,9 @@ int _fib_override(fib_t *, item_list_t *);
 
 int _fib_open(fib_t *, int, mode_t);
 int _fib_close(fib_t *);
-int _fib_read(fib_t *, void *, size_t, ssize_t *);
-int _fib_write(fib_t *, void *, size_t, ssize_t *);
 int _fib_exists(fib_t *, int *);
-int _fib_lock(fib_t *, off_t, off_t);
-int _fib_seek(fib_t *, off_t, int);
 int _fib_stat(fib_t *, struct stat *);
-int _fib_tell(fib_t *, off_t *);
 int _fib_unlink(fib_t *);
-int _fib_unlock(fib_t *);
 int _fib_size(fib_t *, off_t *);
 
 /*----------------------------------------------------------------*/
@@ -62,16 +56,14 @@ declare_klass(FIB_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-fib_t *fib_create(char *filename, int retries, int timeout) {
+fib_t *fib_create(char *filename) {
 
     int stat = ERR;
     fib_t *self = NULL;
-    item_list_t items[4];
+    item_list_t items[2];
 
     SET_ITEM(items[0], FIB_K_PATH, filename, strlen(filename), NULL);
-    SET_ITEM(items[1], FIB_K_RETRIES, &retries, sizeof(int), NULL);
-    SET_ITEM(items[2], FIB_K_TIMEOUT, &timeout, sizeof(int), NULL);
-    SET_ITEM(items[3], 0, 0, 0, 0);
+    SET_ITEM(items[1], 0, 0, 0, 0);
 
     self = (fib_t *)object_create(FIB_KLASS, items, &stat);
 
@@ -263,198 +255,6 @@ int fib_close(fib_t *self) {
 
 }
 
-int fib_read(fib_t *self, void *buffer, size_t size, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL) && (buffer != NULL) && (count != NULL)) {
-
-            stat = self->_read(self, buffer, size, count);
-            check_return(stat, self);
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int fib_write(fib_t *self, void *buffer, size_t size, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL) && (buffer != NULL) && (count != NULL)) {
-
-            stat = self->_write(self, buffer, size, count);
-            check_return(stat, self);
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int fib_seek(fib_t *self, off_t offset, int whence) {
-    
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL)) {
-
-            stat = self->_seek(self, offset, whence);
-            check_return(stat, self);
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int fib_tell(fib_t *self, off_t *offset) {
-    
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL) && (offset != NULL)) {
-
-            stat = self->_tell(self, offset);
-            check_return(stat, self);
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int fib_lock(fib_t *self, off_t offset, off_t length) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL)) {
-
-            stat = self->_lock(self, offset, length);
-            check_return(stat, self);
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int fib_unlock(fib_t *self) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL)) {
-
-            stat = self->_unlock(self);
-            check_return(stat, self);
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
 int fib_exists(fib_t *self, int *exists) {
 
     int stat = OK;
@@ -614,130 +414,6 @@ int fib_get_fd(fib_t *self, int *fd) {
 
 }
 
-int fib_get_retries(fib_t *self, int *retries) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL)) {
-
-            *retries = self->retries;
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int fib_set_retries(fib_t *self, int retries) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL)) {
-
-            self->retries = retries;
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int fib_get_timeout(fib_t *self, int *timeout) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL)) {
-
-            *timeout = self->timeout;
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int fib_set_timeout(fib_t *self, int timeout) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        if ((self != NULL)) {
-
-            self->timeout = timeout;
-
-        } else {
-
-            cause_error(E_INVPARM);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -745,8 +421,6 @@ int fib_set_timeout(fib_t *self, int timeout) {
 int _fib_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
-    int retries = 10;
-    int timeout = 30;
     char path[1024];
     fib_t *self = NULL;
 
@@ -767,18 +441,6 @@ int _fib_ctor(object_t *object, item_list_t *items) {
                 switch(items[x].item_code) {
                     case FIB_K_PATH: {
                         strncpy(path, 
-                               items[x].buffer_address, 
-                               items[x].buffer_length);
-                        break;
-                    }
-                    case FIB_K_TIMEOUT: {
-                        memcpy(&timeout, 
-                               items[x].buffer_address, 
-                               items[x].buffer_length);
-                        break;
-                    }
-                    case FIB_K_RETRIES: {
-                        memcpy(&retries, 
                                items[x].buffer_address, 
                                items[x].buffer_length);
                         break;
@@ -808,24 +470,16 @@ int _fib_ctor(object_t *object, item_list_t *items) {
         
         self->_open   = _fib_open;
         self->_close  = _fib_close;
-        self->_read   = _fib_read;
-        self->_write  = _fib_write;
         self->_exists = _fib_exists;
-        self->_lock   = _fib_lock;
-        self->_seek   = _fib_seek;
         self->_size   = _fib_size;
         self->_stat   = _fib_stat;
-        self->_tell   = _fib_tell;
         self->_unlink = _fib_unlink;
-        self->_unlock = _fib_unlock;
 
         /* mutators */
         
 
         /* initialize internal variables here */
 
-        self->retries = retries;
-        self->timeout = timeout;
         strncpy(self->path, path, 1023);
 
         stat = OK;
@@ -880,36 +534,6 @@ int _fib_override(fib_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
-                case FIB_M_READ: {
-                    self->_read = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_WRITE: {
-                    self->_write = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_SEEK: {
-                    self->_seek = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_TELL: {
-                    self->_tell = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_LOCK: {
-                    self->_lock = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_UNLOCK: {
-                    self->_unlock = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
                 case FIB_M_EXISTS: {
                     self->_exists = items[x].buffer_address;
                     stat = OK;
@@ -951,15 +575,9 @@ int _fib_compare(fib_t *self, fib_t *other) {
         (self->_override == other->_override) &&
         (self->_open == other->_open) &&
         (self->_close == other->_close) &&
-        (self->_read == other->_read) &&
-        (self->_write == other->_write) &&
         (self->_exists == other->_exists) &&
         (self->_stat == other->_stat) &&
         (self->_size == other->_size) &&
-        (self->_seek == other->_seek) &&
-        (self->_tell == other->_tell) &&
-        (self->_lock == other->_lock) &&
-        (self->_unlock == other->_unlock) &&
         (self->_unlink == other->_unlink)) {
 
         stat = OK;
@@ -1018,209 +636,6 @@ int _fib_close(fib_t *self) {
 
         errno = 0;
         if (close(self->fd) == -1) {
-
-            cause_error(errno);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _fib_read(fib_t *self, void *buffer, size_t size, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        errno = 0;
-        if ((*count = read(self->fd, buffer, size)) == -1) {
-
-            cause_error(errno);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _fib_write(fib_t *self, void *buffer, size_t size, ssize_t *count) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        errno = 0;
-        if ((*count = write(self->fd, buffer, size)) == -1) {
-
-            cause_error(errno);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _fib_lock(fib_t *self, off_t offset, off_t length) {
-
-    int stat = OK;
-    int count = 0;
-
-    when_error_in {
-
-        self->lock.l_type = F_WRLCK;
-        self->lock.l_start = offset;
-        self->lock.l_len = length;
-        self->lock.l_whence = SEEK_SET;
-        self->lock.l_pid = getpid();
-
-        for (;;) {
-
-            errno = 0;
-            if (fcntl(self->fd, F_SETLK, &self->lock) == -1) {
-
-                if ((errno == EAGAIN) || (errno == EACCES)) {
-
-                    count++;
-
-                    if (count > self->retries) {
-
-                        cause_error(errno);
-
-                    } else {
-
-                        sleep(self->timeout);
-
-                    }
-
-                } else {
-
-                    cause_error(errno);
-
-                }
-
-            } else {
-
-                break;
-
-            }
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _fib_unlock(fib_t *self) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        self->lock.l_type = F_UNLCK;
-
-        errno = 0;
-        if (fcntl(self->fd, F_SETLK, &self->lock) == -1) {
-
-            cause_error(errno);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _fib_seek(fib_t *self, off_t offset, int whence) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        errno = 0;
-        if (lseek(self->fd, offset, whence) == -1) {
-
-            cause_error(errno);
-
-        }
-
-        exit_when;
-
-    } use {
-
-        stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
-
-    } end_when;
-
-    return stat;
-
-}
-
-int _fib_tell(fib_t *self, off_t *offset) {
-
-    int stat = OK;
-
-    when_error_in {
-
-        errno = 0;
-        if ((*offset = lseek(self->fd, 0, SEEK_CUR)) == -1) {
 
             cause_error(errno);
 
