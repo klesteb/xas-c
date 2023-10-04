@@ -64,13 +64,13 @@ extern int lf_puts(lf_t *, char *, ssize_t *);
 extern int lf_get_eol(lf_t *, char *);
 extern int lf_set_eol(lf_t *, char *);
 
-#define lf_open(self, flags, mode) fib_open(FIB(self), flags, mode);
-#define lf_close(self)             fib_close(FIB(self));
-#define ls_exists(self, flag)      fib_exists(FIB(self), flag);
-#define ls_size(self, length)      fib_size(FIB(self), length);
-#define ls_stat(self, stat)        fib_stat(FIB(self), stat);
-#define ls_unlink(self)            fib_unlink(FIB(self));
-#define ls_get_fd(self, fd)        fib_get_fd(FIB(self), fd);
+#define lf_open(self, flags, mode) fib_open(FIB(self), flags, mode)
+#define lf_close(self)             fib_close(FIB(self))
+#define lf_exists(self, flag)      fib_exists(FIB(self), flag)
+#define lf_size(self, length)      fib_size(FIB(self), length)
+#define lf_stat(self, stat)        fib_stat(FIB(self), stat)
+#define lf_unlink(self)            fib_unlink(FIB(self))
+#define lf_get_fd(self, fd)        fib_get_fd(FIB(self), fd)
 
 #endif
 

@@ -23,11 +23,11 @@ SOPTS = -shared -o
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
 MAN = ../man
 #
-OLBS = $(STATIC) ../lib/libtracer.a ../lib/liberrors.a ../lib/libobjects.a ../lib/libcclibs.a ../lib/libgpl.a 
+OLBS = $(STATIC) ../lib/libtracer.a ../lib/liberrors.a ../lib/libobjects.a ../lib/libmisc.a  
 #
 INCS = btree.h ../xas/rms/fib.h ../xas/rms/lf.h
 #
-OBJS = btree.o fib.o 
+OBJS = btree.o fib.o lf.o
 #
 TESTS = test1 test2 test3 test4 test5 test6 test7 test8
 #

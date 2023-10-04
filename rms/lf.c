@@ -487,12 +487,15 @@ int _lf_compare(lf_t *self, lf_t *other) {
 
 int _lf_puts(lf_t *self, char *buffer, ssize_t *count) {
 
+    int fd;
     int stat = OK;
     char *output = NULL;
-    int fd = FIB(self)->fd;
     int length = strlen(buffer) + 2;
 
     when_error_in {
+
+        stat = fib_get_fd(FIB(self), &fd);
+        check_return(stat, self);
 
         errno = 0;
         if ((output = calloc(1, length + 2)) == NULL) {
@@ -529,10 +532,13 @@ int _lf_puts(lf_t *self, char *buffer, ssize_t *count) {
 
 int _lf_gets(lf_t *self, char *buffer, size_t length, ssize_t *count) {
 
+    int fd;
     int stat = OK;
-    int fd = FIB(self)->fd;
 
     when_error_in {
+
+        stat = fib_get_fd(FIB(self), &fd);
+        check_return(stat, self);
 
         errno = 0;
         if ((*count = xgetline(fd, buffer, length, '\n')) == -1) {

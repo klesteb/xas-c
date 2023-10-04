@@ -31,11 +31,11 @@ clean:
 	rm -f *~
 	rm -f $(LIBS)
 #
-dates.o: dates.c dates.h
+dates.o: dates.c ../xas/misc/dates.h
 	$(CC) $(CFLAGS) dates.c
 	$(LIBR) $(OLBS) dates.o
 #
-sys_date.o: sys_date.c dates.h
+sys_date.o: sys_date.c ../xas/misc/dates.h
 	$(CC) $(CFLAGS) sys_date.c
 	$(LIBR) $(OLBS) sys_date.o
 #
