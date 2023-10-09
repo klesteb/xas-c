@@ -46,9 +46,9 @@ struct _lf_s {
 
 #define LF(x) ((lf_t *)(x))
 
-#define LF_M_DESTRUCTOR 1
-#define LF_M_GETS       2
-#define LF_M_PUTS       3
+#define LF_M_DESTRUCTOR 18
+#define LF_M_GETS       9
+#define LF_M_PUTS       10
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */

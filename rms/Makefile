@@ -25,9 +25,9 @@ MAN = ../man
 #
 OLBS = $(STATIC) ../lib/libtracer.a ../lib/liberrors.a ../lib/libobjects.a ../lib/libmisc.a  
 #
-INCS = btree.h ../xas/rms/fib.h ../xas/rms/lf.h
+INCS = btree.h ../xas/rms/fib.h ../xas/rms/lf.h ../xas/rms/blk.h
 #
-OBJS = btree.o fib.o lf.o
+OBJS = btree.o fib.o lf.o blk.o
 #
 TESTS = test1 test2 test3 test4 test5 test6 test7 test8
 #
@@ -54,6 +54,10 @@ fib.o: fib.c $(INCS)
 lf.o: lf.c $(INCS)
 	$(CC) $(CFLAGS) lf.c
 	$(LIBR) $(STATIC) lf.o
+#
+blk.o: blk.c $(INCS)
+	$(CC) $(CFLAGS) blk.c
+	$(LIBR) $(STATIC) blk.o
 #
 #
 test1: test1.o
@@ -91,11 +95,13 @@ test8: test8.o
 man:
 	pod2man -c " " -r "fib(3)" -s 3 fib.pod fib.3
 	pod2man -c " " -r "lf(3)" -s 3 lf.pod lf.3
+	pod2man -c " " -r "blk(3)" -s 3 blk.pod blk.3
 	pod2man -c " " -r "btree(3)" -s 3 btree.pod btree.3
 #
 shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) fib.o fib.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) lf.o lf.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) blk.o blk.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) btree.o btree.c
 	$(LINK) $(SOPTS) $(SHARED) $(OBJS)
 #
