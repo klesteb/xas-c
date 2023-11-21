@@ -13,13 +13,6 @@
 #ifndef _BLK_H
 #define _BLK_H
 
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
-#include <unistd.h>
-
-#include "xas/object.h"
-#include "xas/types.h"
 #include "xas/rms/fib.h"
 
 /*-------------------------------------------------------------*/

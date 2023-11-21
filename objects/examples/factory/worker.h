@@ -13,8 +13,8 @@
 #ifndef _WORKER_H
 #define _WORKER_H
 
-#include "objects/object.h"
-#include "include/item_list.h"
+#include "xas/object.h"
+#include "xas/types.h"
 
 /*----------------------------------------------------------------*/
 /* klass defination                                               */

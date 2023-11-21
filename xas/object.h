@@ -35,6 +35,7 @@ struct _object_s {
     error_trace_t *error;
     int          (*ctor)(object_t *, item_list_t *);
     int          (*dtor)(object_t *);
+    void         (*trace)(error_trace_t *);
 };
 
 /*----------------------------------------------------------------*/
@@ -75,6 +76,7 @@ extern int object_destroy(object_t *);
 extern int object_compare(object_t *, object_t *);
 extern int object_get_error(object_t *, error_trace_t *);
 extern int object_set_error(object_t *self, int, int, char *, const char *);
+extern int object_set_trace(object_t *self, void (*trace)(error_trace_t *));
 
 static inline int _klass_assert(char *kn1, char *kn2, int ks1, int ks2) {
 

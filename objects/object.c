@@ -94,6 +94,7 @@ int object_compare(object_t *us, object_t *them) {
         (us->size == them->size) &&
         (us->ctor == them->ctor) &&
         (us->dtor == them->dtor) &&
+        (us->trace == them->trace) &&
         (us->error == them->error)) {
 
         stat = OK;
@@ -155,6 +156,27 @@ int object_set_error(object_t *self, int errnum, int lineno, char *file, const c
             stat = ERR;
 
         }
+
+    }
+
+    if ((self->trace != NULL) && (self->error != NULL)) {
+
+        self->trace(self->error);
+
+    }
+
+    return stat;
+
+}
+
+int object_set_trace(object_t *self, void (*trace)(error_trace_t *error)) {
+
+    int stat = ERR;
+
+    if (self != NULL) {
+
+        self->trace = trace;
+        stat = OK;
 
     }
 

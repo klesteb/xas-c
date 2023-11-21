@@ -10,7 +10,7 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#include "objects/object.h"
+#include "xas/object.h"
 #include "factory.h"
 
 require_klass(OBJECT_KLASS);

@@ -109,7 +109,7 @@ A pointer to a object_t object.
 =head2 char *object_version(object_t *self)
 
 This method returns the version of the library. The version number
-follows the guidlines from L<semver.org|https://semver.org/>.
+follows the guidelines from L<semver.org|https://semver.org/>.
 
 =over 4
 
@@ -161,7 +161,24 @@ The C source code file name.
 
 =item B<function>
 
-The C function that the error occured in.
+The C function that the error occurred in.
+
+=back
+
+=head2 int object_set_trace(object_t *self, void (*trace)(error_trace_t *error))
+
+This method sets a callback that can be used to propagate errors
+to a trace handler.
+
+=over 4
+
+=item B<self>
+
+A pointer to an object_t object.
+
+=item B<trace>
+
+A callback that can be used to propagate the error.
 
 =back
 
@@ -233,7 +250,7 @@ The C source code file name.
 
 =item B<function>
 
-The C function that the error occured in.
+The C function that the error occurred in.
 
 =back
 
