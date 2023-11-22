@@ -10,11 +10,7 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#include "objects/object.h"
-#include "include/item_list.h"
-#include "include/error_codes.h"
-#include "template1/template_priv.h"
-#include "template1/template_klass.h"
+#include "template_priv.h"
 
 require_klass(OBJECT_KLASS);
 

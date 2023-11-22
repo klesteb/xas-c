@@ -15,6 +15,7 @@
 
 #include "xas/object.h"
 #include "xas/types.h"
+#include "xas/misc/misc.h"
 
 /*----------------------------------------------------------------*/
 /* klass defination                                               */

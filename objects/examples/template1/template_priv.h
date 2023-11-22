@@ -13,9 +13,9 @@
 #ifndef _TEMPLATE_PRIV_H
 #define _TEMPLATE_PRIV_H
 
-#include "objects/object.h"
-#include "include/item_list.h"
-#include "template1/template_klass.h"
+#include "xas/object.h"
+#include "xas/types.h"
+#include "template_klass.h"
 
 /*----------------------------------------------------------------*/
 /* klass defination                                               */

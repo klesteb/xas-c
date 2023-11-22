@@ -14,13 +14,13 @@ CC = gcc
 LINK = gcc 
 LIBR = ar rs
 WORKING = $(shell pwd)
-INCLUDE = -I ../
+INCLUDE = -I ../../../
 CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c $(INCLUDE)
 LFLAGS = -o 
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -o
 SHARED = -shared -o libtemplate.so
 STATIC = libtemplate.a
-OLBS = ../libs/libobjects.a ../libs/libgpl.a ../libs/libcclibs.a 
+OLBS = ../../../lib/libobjects.a 
 #
 INCS = template.h template_priv.h
 #
