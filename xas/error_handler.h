@@ -146,5 +146,10 @@
     }                                            \
 }
 
+#define process_error(self) {     \
+    object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function); \
+    clear_error();                \
+}
+
 #endif
 

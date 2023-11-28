@@ -34,6 +34,7 @@ struct _blk_s {
     int (*_lock)(blk_t *, off_t, off_t);
     int (*_unlock)(blk_t *);
 
+    int locked;
     int timeout;
     int retries;
     struct flock lock;
@@ -48,13 +49,13 @@ struct _blk_s {
 #define BLK_K_RETRIES    2
 #define BLK_K_TIMEOUT    3
 
-#define BLK_M_DESTRUCTOR 11
-#define BLK_M_SEEK       12
-#define BLK_M_TELL       13
-#define BLK_M_READ       14
-#define BLK_M_WRITE      15
-#define BLK_M_LOCK       16
-#define BLK_M_UNLOCK     17
+#define BLK_M_DESTRUCTOR 10
+#define BLK_M_SEEK       11
+#define BLK_M_TELL       12
+#define BLK_M_READ       13
+#define BLK_M_WRITE      14
+#define BLK_M_LOCK       15
+#define BLK_M_UNLOCK     16
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
@@ -77,14 +78,17 @@ extern int blk_get_retries(blk_t*, int *);
 extern int blk_set_retries(blk_t *, int);
 extern int blk_get_timeout(blk_t*, int *);
 extern int blk_set_timeout(blk_t *, int);
+extern int blk_is_locked(blk_t *m int *);
 
-#define blk_open(self, flags, mode) fib_open(FIB(self), flags, mode)
-#define blk_close(self)             fib_close(FIB(self))
-#define blk_exists(self, flag)      fib_exists(FIB(self), flag)
-#define blk_size(self, length)      fib_size(FIB(self), length)
-#define blk_stat(self, stat)        fib_stat(FIB(self), stat)
-#define blk_unlink(self)            fib_unlink(FIB(self))
-#define blk_get_fd(self, fd)        fib_get_fd(FIB(self), fd)
+#define blk_open(self, flags, mode)  fib_open(FIB(self), flags, mode)
+#define blk_close(self)              fib_close(FIB(self))
+#define blk_exists(self, flag)       fib_exists(FIB(self), flag)
+#define blk_size(self, length)       fib_size(FIB(self), length)
+#define blk_stat(self, stat)         fib_stat(FIB(self), stat)
+#define blk_unlink(self)             fib_unlink(FIB(self))
+#define blk_get_fd(self, fd)         fib_get_fd(FIB(self), fd)
+#define blk_creat(self, flags, mode) fib_creat(FIB(self), flags, mode)
+#define blk_chmod(self, mode)        fib_chmod(FIB(self), mode)
 
 #endif
 

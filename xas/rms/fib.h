@@ -34,6 +34,8 @@ struct _fib_s {
     int (*_compare)(fib_t *, fib_t *);
     int (*_override)(fib_t *, item_list_t *);
     int (*_open)(fib_t *, int, mode_t);
+    int (*_creat)(fib_t *, mode_t);
+    int (*_chmod)(fib_t *, mode_t);
     int (*_close)(fib_t *);
     int (*_exists)(fib_t *, int *);
     int (*_size)(fib_t *, off_t *);
@@ -59,6 +61,8 @@ struct _fib_s {
 #define FIB_M_SIZE       5
 #define FIB_M_STAT       6
 #define FIB_M_UNLINK     7
+#define FIB_M_CREAT      8
+#define FIB_M_CHMOD      9
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
@@ -70,6 +74,8 @@ extern int fib_compare(fib_t *, fib_t *);
 extern int fib_override(fib_t *, item_list_t *);
 extern char *fib_version(fib_t *);
 extern int fib_open(fib_t *, int, mode_t);
+extern int fib_creat(fib_t *, mode_t);
+extern int fib_chmod(fib_t *, mode_t);
 extern int fib_close(fib_t *);
 extern int fib_exists(fib_t *, int *);
 extern int fib_size(fib_t *, off_t *);

@@ -18,7 +18,6 @@
 #include <sys/types.h>
 
 #include "xas/rms/blk.h"
-#include "xas/object.h"
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
 
@@ -102,9 +101,7 @@ int blk_destroy(blk_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -134,9 +131,7 @@ int blk_override(blk_t *self, item_list_t *items) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -174,9 +169,7 @@ int blk_compare(blk_t *us, blk_t *them) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(us);
 
     } end_when;
 
@@ -214,9 +207,7 @@ int blk_seek(blk_t *self, off_t offset, int whence) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -246,9 +237,7 @@ int blk_tell(blk_t *self, off_t *offset) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -278,9 +267,7 @@ int blk_read(blk_t *self, void *buffer, size_t size, ssize_t *count) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -310,9 +297,7 @@ int blk_write(blk_t *self, void *buffer, size_t size, ssize_t *count) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -342,9 +327,7 @@ int blk_lock(blk_t *self, off_t offset, off_t length) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -374,9 +357,7 @@ int blk_unlock(blk_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -405,9 +386,7 @@ int blk_get_timeout(blk_t *self, int *timeout) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -436,9 +415,7 @@ int blk_set_timeout(blk_t *self, int timeout) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -467,9 +444,7 @@ int blk_get_retries(blk_t *self, int *retries) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -498,9 +473,36 @@ int blk_set_retries(blk_t *self, int retries) {
     } use {
 
         stat = ERR;
+        process_error(self);
 
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+    } end_when;
+
+    return stat;
+
+}
+
+int blk_is_locked(blk_t *self, int &locked) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            locked = self->locked;
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
 
     } end_when;
 
@@ -583,6 +585,7 @@ int _blk_ctor(object_t *object, item_list_t *items) {
 
             /* initialize internal variables here */
 
+            self->locked = FALSE;
             self->retries = retries;
             self->timeout = timeout;
 
@@ -591,8 +594,7 @@ int _blk_ctor(object_t *object, item_list_t *items) {
         } use {
 
             stat = ERR;
-            object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-            clear_error();
+            process_error(self);
 
         } end_when;
 
@@ -679,8 +681,7 @@ int _blk_override(blk_t *self, item_list_t *items) {
         } use { 
             
             stat = ERR;
-            object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-            clear_error();
+            process_error(self);
 
         } end_when;
 
@@ -736,9 +737,7 @@ int _blk_seek(blk_t *self, off_t offset, int whence) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -768,9 +767,7 @@ int _blk_tell(blk_t *self, off_t *offset) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -800,9 +797,7 @@ int _blk_read(blk_t *self, void *buffer, size_t size, ssize_t *count) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -832,9 +827,7 @@ int _blk_write(blk_t *self, void *buffer, size_t size, ssize_t *count) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -886,6 +879,7 @@ int _blk_lock(blk_t *self, off_t offset, off_t length) {
 
             } else {
 
+                self->locked = TRUE;
                 break;
 
             }
@@ -897,9 +891,7 @@ int _blk_lock(blk_t *self, off_t offset, off_t length) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -926,14 +918,13 @@ int _blk_unlock(blk_t *self) {
 
         }
 
+        self->locked = FALSE;
         exit_when;
 
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 

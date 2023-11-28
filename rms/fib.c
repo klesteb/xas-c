@@ -18,7 +18,6 @@
 #include <sys/types.h>
 
 #include "xas/rms/fib.h"
-#include "xas/object.h"
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
 
@@ -36,6 +35,8 @@ int _fib_override(fib_t *, item_list_t *);
 
 int _fib_open(fib_t *, int, mode_t);
 int _fib_close(fib_t *);
+int _fib_creat(fib_t *, mode_t);
+int _fib_chmod(fib_t *, mode_t);
 int _fib_exists(fib_t *, int *);
 int _fib_stat(fib_t *, struct stat *);
 int _fib_unlink(fib_t *);
@@ -101,9 +102,7 @@ int fib_destroy(fib_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -133,9 +132,7 @@ int fib_override(fib_t *self, item_list_t *items) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -173,9 +170,7 @@ int fib_compare(fib_t *us, fib_t *them) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(us);
 
     } end_when;
 
@@ -213,9 +208,67 @@ int fib_open(fib_t *self, int flags, mode_t mode) {
     } use {
 
         stat = ERR;
+        process_error(self);
 
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+    } end_when;
+
+    return stat;
+
+}
+
+int fib_creat(fib_t *self, mode_t mode) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            stat = self->_creat(self, mode);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int fib_chmod(fib_t *self, mode_t mode) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL)) {
+
+            stat = self->_chmod(self, mode);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
 
     } end_when;
 
@@ -245,9 +298,7 @@ int fib_close(fib_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -277,9 +328,7 @@ int fib_exists(fib_t *self, int *exists) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -309,9 +358,7 @@ int fib_size(fib_t *self, off_t *size) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -341,9 +388,7 @@ int fib_stat(fib_t *self, struct stat *buf) {
     } use {
 
         xstat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -373,9 +418,7 @@ int fib_unlink(fib_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -404,9 +447,7 @@ int fib_get_fd(fib_t *self, int *fd) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -470,6 +511,8 @@ int _fib_ctor(object_t *object, item_list_t *items) {
         
         self->_open   = _fib_open;
         self->_close  = _fib_close;
+        self->_creat  = _fib_creat;
+        self->_chmod  = _fib_chmod;
         self->_exists = _fib_exists;
         self->_size   = _fib_size;
         self->_stat   = _fib_stat;
@@ -554,6 +597,16 @@ int _fib_override(fib_t *self, item_list_t *items) {
                     stat = OK;
                     break;
                 }
+                case FIB_M_CREAT: {
+                    self->_creat = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case FIB_M_CHMOD: {
+                    self->_chmod = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
             }
 
         }
@@ -578,6 +631,8 @@ int _fib_compare(fib_t *self, fib_t *other) {
         (self->_exists == other->_exists) &&
         (self->_stat == other->_stat) &&
         (self->_size == other->_size) &&
+        (self->_creat == other->_creat) &&
+        (self->_chmod == other->_chmod) &&
         (self->_unlink == other->_unlink)) {
 
         stat = OK;
@@ -595,21 +650,9 @@ int _fib_open(fib_t *self, int flags, mode_t mode) {
     when_error_in {
 
         errno = 0;
-        if (mode != 0) {
+        if ((self->fd = open(self->path, flags, mode)) == -1) {
 
-            if ((self->fd = open(self->path, flags, mode)) == -1) {
-
-                cause_error(errno);
-
-            }
-
-        } else {
-
-            if ((self->fd = open(self->path, flags)) == -1) {
-
-                cause_error(errno);
-
-            }
+            cause_error(errno);
 
         }
 
@@ -618,9 +661,59 @@ int _fib_open(fib_t *self, int flags, mode_t mode) {
     } use {
 
         stat = ERR;
+        process_error(self);
 
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+    } end_when;
+
+    return stat;
+
+}
+
+int _fib_creat(fib_t *self, mode_t mode) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        errno = 0;
+        if ((self->fd = creat(self->path, mode)) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _fib_chmod(fib_t *self, mode_t mode) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        errno = 0;
+        if (chmod(self->path, mode) == -1) {
+
+            cause_error(errno);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
 
     } end_when;
 
@@ -646,9 +739,7 @@ int _fib_close(fib_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -683,9 +774,7 @@ int _fib_exists(fib_t *self, int *exists) {
     } use {
 
         xstat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -711,9 +800,7 @@ int _fib_stat(fib_t *self, struct stat *buf) {
     } use {
 
         xstat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -739,9 +826,7 @@ int _fib_unlink(fib_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -770,9 +855,7 @@ int _fib_size(fib_t *self, off_t *size) {
     } use {
 
         xstat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
