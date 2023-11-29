@@ -71,6 +71,8 @@ extern int lf_set_eol(lf_t *, char *);
 #define lf_stat(self, stat)        fib_stat(FIB(self), stat)
 #define lf_unlink(self)            fib_unlink(FIB(self))
 #define lf_get_fd(self, fd)        fib_get_fd(FIB(self), fd)
+#define lf_creat(self, mode)       fib_creat(FIB(self), mode)
+#define lf_chmod(self, mode)       fib_chmod(FIB(self). mode)
 
 #endif
 

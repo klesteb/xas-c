@@ -27,7 +27,7 @@ OLBS = $(STATIC) ../lib/libtracer.a ../lib/liberrors.a ../lib/libobjects.a ../li
 #
 INCS = btree.h ../xas/rms/fib.h ../xas/rms/lf.h ../xas/rms/blk.h
 #
-OBJS = btree.o fib.o lf.o blk.o
+OBJS = btree.o fib.o lf.o blk.o rel.o
 #
 TESTS = test1 test2 test3 test4 test5 test6 test7 test8
 #
@@ -58,6 +58,10 @@ lf.o: lf.c $(INCS)
 blk.o: blk.c $(INCS)
 	$(CC) $(CFLAGS) blk.c
 	$(LIBR) $(STATIC) blk.o
+#
+rel.o: rel.c $(INCS)
+	$(CC) $(CFLAGS) rel.c
+	$(LIBR) $(STATIC) rel.o
 #
 #
 test1: test1.o
@@ -102,6 +106,7 @@ shared:
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) fib.o fib.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) lf.o lf.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) blk.o blk.c
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) rel.o rel.c
 	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) btree.o btree.c
 	$(LINK) $(SOPTS) $(SHARED) $(OBJS)
 #

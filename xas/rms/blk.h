@@ -78,7 +78,7 @@ extern int blk_get_retries(blk_t*, int *);
 extern int blk_set_retries(blk_t *, int);
 extern int blk_get_timeout(blk_t*, int *);
 extern int blk_set_timeout(blk_t *, int);
-extern int blk_is_locked(blk_t *m int *);
+extern int blk_is_locked(blk_t *, int *);
 
 #define blk_open(self, flags, mode)  fib_open(FIB(self), flags, mode)
 #define blk_close(self)              fib_close(FIB(self))
@@ -87,7 +87,7 @@ extern int blk_is_locked(blk_t *m int *);
 #define blk_stat(self, stat)         fib_stat(FIB(self), stat)
 #define blk_unlink(self)             fib_unlink(FIB(self))
 #define blk_get_fd(self, fd)         fib_get_fd(FIB(self), fd)
-#define blk_creat(self, flags, mode) fib_creat(FIB(self), flags, mode)
+#define blk_creat(self, mode)        fib_creat(FIB(self), mode)
 #define blk_chmod(self, mode)        fib_chmod(FIB(self), mode)
 
 #endif

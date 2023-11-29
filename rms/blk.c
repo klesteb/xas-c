@@ -481,7 +481,7 @@ int blk_set_retries(blk_t *self, int retries) {
 
 }
 
-int blk_is_locked(blk_t *self, int &locked) {
+int blk_is_locked(blk_t *self, int *locked) {
 
     int stat = OK;
 
@@ -489,7 +489,7 @@ int blk_is_locked(blk_t *self, int &locked) {
 
         if ((self != NULL)) {
 
-            locked = self->locked;
+            *locked = self->locked;
 
         } else {
 
