@@ -17,6 +17,7 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "xas/object.h"
 #include "xas/types.h"

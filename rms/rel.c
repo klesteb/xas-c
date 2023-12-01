@@ -10,9 +10,6 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include <stdio.h>
-#include <errno.h>
-
 #include "xas/rms/rel.h"
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
@@ -40,6 +37,7 @@ int _rel_get(rel_t *, off_t, void *);
 int _rel_put(rel_t *, off_t, void *);
 int _rel_read_header(rel_t *);
 int _rel_write_header(rel_t *);
+int _rel_update_header(rel_t *);
 int _rel_build(rel_t *, void *, void *);
 int _rel_next(rel_t *, void *, ssize_t *);
 int _rel_prev(rel_t *, void *, ssize_t *);
@@ -68,14 +66,15 @@ typedef struct header {
     char type[4];
     char recsize[4];
     char records[4];
+    char lastrec[4];
 } rel_header_t;
 
 /*----------------------------------------------------------------*/
 /* klass private macros                                           */
 /*----------------------------------------------------------------*/
 
-#define REL_OFFSET(n, s) ((((n) - 2) * (s)))
-#define REL_RECORD(n, s) (((n) / (s)) + 2)
+#define REL_OFFSET(n, s) ((((n)) * (s)))
+#define REL_RECORD(n, s) (((n) / (s)))
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
@@ -558,10 +557,15 @@ int _rel_ctor(object_t *object, item_list_t *items) {
             self->_normalize = _rel_normalize;
             self->_read_header = _rel_read_header;
             self->_write_header = _rel_write_header;
+            self->_update_header = _rel_update_header;
 
             /* initialize internal variables here */
 
-            self->record = 0;
+            self->record = 1;
+
+            /* these are overwritten by the header */
+
+            self->lastrec = 1;
             self->recsize = recsize;
             self->records = records;
 
@@ -745,7 +749,9 @@ int _rel_compare(rel_t *self, rel_t *other) {
         (self->_normalize == other->_normalize) &&
         (self->_read_header == other->_read_header) &&
         (self->_write_header == other->_write_header) &&
+        (self->_update_header == other->_update_header) &&
         (self->record == other->record) &&
+        (self->lastrec == other->lastrec) &&
         (self->recsize == other->recsize) &&
         (self->records == other->records)) {
 
@@ -784,6 +790,12 @@ int _rel_open(rel_t *self, int flags, mode_t mode) {
             check_return(stat, self);
 
             stat = self->_write_header(self);
+            check_return(stat, self);
+
+            stat = self->_extend(self, self->records);
+            check_return(stat, self);
+
+            stat = self->_init(self);
             check_return(stat, self);
 
         }
@@ -1102,14 +1114,14 @@ int _rel_get(rel_t *self, off_t recnum, void *record) {
         stat = blk_read(BLK(self), ondisk, recsize, &count);
         check_return(stat, self);
 
-        stat = blk_unlock(BLK(self));
-        check_return(stat, self);
-
         if (count != recsize) {
 
             cause_error(EIO);
 
         }
+
+        stat = blk_unlock(BLK(self));
+        check_return(stat, self);
 
         stat = self->_build(self, ondisk, record);
         check_return(stat, self);
@@ -1172,14 +1184,14 @@ int _rel_put(rel_t *self, off_t recnum, void *record) {
         stat = blk_write(BLK(self), record, recsize, &count);
         check_return(stat, self);
 
-        stat = blk_unlock(BLK(self));
-        check_return(stat, self);
-
         if (count != recsize) {
 
             cause_error(EIO);
 
         }
+
+        stat = blk_unlock(BLK(self));
+        check_return(stat, self);
 
         free(ondisk);
 
@@ -1326,6 +1338,7 @@ int _rel_read_header(rel_t *self) {
 
         memcpy(&self->recsize, &header.recsize, 4);
         memcpy(&self->records, &header.records, 4);
+        memcpy(&self->lastrec, &header.lastrec, 4);
 
         exit_when;
 
@@ -1365,6 +1378,7 @@ int _rel_write_header(rel_t *self) {
 
         memcpy(&header.recsize, &self->recsize, 4);
         memcpy(&header.records, &self->records, 4);
+        memcpy(&header.lastrec, &self->lastrec, 4);
         memcpy(ondisk, &header, sizeof(rel_header_t));
 
         stat = blk_seek(BLK(self), 0, SEEK_SET);
@@ -1374,6 +1388,91 @@ int _rel_write_header(rel_t *self) {
         check_return(stat, self);
 
         stat = blk_write(BLK(self), ondisk, recsize, &count);
+        check_return(stat, self);
+
+        if (count != recsize) {
+
+            cause_error(EIO);
+
+        }
+
+        stat = blk_unlock(BLK(self));
+        check_return(stat, self);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+        blk_is_locked(BLK(self), &locked);
+        if (locked) blk_unlock(BLK(self));
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _rel_update_header(rel_t *self) {
+
+    int stat = OK;
+    long records = 0;
+    long lastrec = 0;
+    long xrecsiz = 0;
+    ssize_t count = 0;
+    int locked = FALSE;
+    rel_header_t header;
+    ssize_t recsize = sizeof(rel_header_t);
+
+    when_error_in {
+
+        stat = blk_seek(BLK(self), 0, SEEK_SET);
+        check_return(stat, self);
+
+        stat = blk_lock(BLK(self), 0, recsize);
+        check_return(stat, self);
+
+        stat = blk_read(BLK(self), &header, recsize, &count);
+        check_return(stat, self);
+
+        if (count != recsize) {
+
+            cause_error(EIO);
+
+        }
+
+        memcpy(&xrecsiz, &header.recsize, 4);
+        memcpy(&records, &header.records, 4);
+        memcpy(&lastrec, &header.lastrec, 4);
+
+        if (xrecsiz != self->recsize) {
+
+            cause_error(E_INVREC);
+
+        }
+
+        if (records != self->records) {
+
+            self->records = records;
+
+        }
+
+        if (lastrec != self->lastrec) {
+
+            self->lastrec = lastrec;
+
+        }
+
+        memcpy(&header.recsize, &self->recsize, 4);
+        memcpy(&header.records, &self->records, 4);
+        memcpy(&header.lastrec, &self->lastrec, 4);
+
+        stat = blk_seek(BLK(self), 0, SEEK_SET);
+        check_return(stat, self);
+
+        stat = blk_write(BLK(self), &header, recsize, &count);
         check_return(stat, self);
 
         if (count != recsize) {

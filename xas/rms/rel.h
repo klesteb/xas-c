@@ -40,6 +40,7 @@ struct _rel_s {
     int (*_put)(rel_t *, off_t, void *);
     int (*_read_header)(rel_t *);
     int (*_write_header)(rel_t *);
+    int (*_update_header)(rel_t *);
     int (*_build)(rel_t *, void *, void *);
     int (*_next)(rel_t *, void *, ssize_t *);
     int (*_prev)(rel_t *, void *, ssize_t *);
@@ -52,6 +53,7 @@ struct _rel_s {
     int record;
     int records;
     int recsize;
+    int lastrec;
 };
 
 /*-------------------------------------------------------------*/

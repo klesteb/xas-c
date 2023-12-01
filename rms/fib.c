@@ -10,13 +10,6 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#include <errno.h>
-#include <fcntl.h>
-#include <stdio.h>
-#include <unistd.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-
 #include "xas/rms/fib.h"
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
