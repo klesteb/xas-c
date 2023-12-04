@@ -913,32 +913,36 @@ int _rel_next(rel_t *self, void *data, ssize_t *count) {
 
     when_error_in {
 
-        errno = 0;
-        ondisk = calloc(1, recsize);
-        check_null(ondisk);
-
         stat = blk_tell(BLK(self), &position);
         check_return(stat, self);
 
-        self->record = REL_RECORD(position, recsize);
+        if (position < self->lastrec) {
 
-        stat = blk_lock(BLK(self), position, recsize);
-        check_return(stat, self);
+            errno = 0;
+            ondisk = calloc(1, recsize);
+            check_null(ondisk);
 
-        stat = blk_read(BLK(self), ondisk, recsize, count);
-        check_return(stat, self);
+            self->record = REL_RECORD(position, recsize);
 
-        stat = blk_unlock(BLK(self));
-        check_return(stat, self);
-
-        if (*count == recsize) {
-
-            stat = self->_build(self, ondisk, data);
+            stat = blk_lock(BLK(self), position, recsize);
             check_return(stat, self);
 
-        }
+            stat = blk_read(BLK(self), ondisk, recsize, count);
+            check_return(stat, self);
 
-        free(ondisk);
+            stat = blk_unlock(BLK(self));
+            check_return(stat, self);
+
+            if (*count == recsize) {
+
+                stat = self->_build(self, ondisk, data);
+                check_return(stat, self);
+
+            }
+
+            free(ondisk);
+
+        }
 
         exit_when;
 
@@ -968,17 +972,19 @@ int _rel_prev(rel_t *self, void *data, ssize_t *count) {
 
     when_error_in {
 
-        errno = 0;
-        ondisk = calloc(1, recsize);
-        check_null(ondisk);
+        *count = 0;
+
+        stat = blk_seek(BLK(self), -offset, SEEK_CUR);
+        check_return(stat, self);
 
         stat = blk_tell(BLK(self), &position);
         check_return(stat, self);
 
-        if (position > 0) {
+        if (position > self->recsize) {
 
-            stat = blk_seek(BLK(self), -offset, SEEK_CUR);
-            check_return(stat, self);
+            errno = 0;
+            ondisk = calloc(1, recsize);
+            check_null(ondisk);
 
             stat = blk_lock(BLK(self), position - offset, recsize);
             check_return(stat, self);
@@ -1001,13 +1007,9 @@ int _rel_prev(rel_t *self, void *data, ssize_t *count) {
 
             }
 
-        } else {
-
-            *count = 0;
+            free(ondisk);
 
         }
-
-        free(ondisk);
 
         exit_when;
 
@@ -1034,6 +1036,7 @@ int _rel_last(rel_t *self, void *data, ssize_t *count) {
     ssize_t position = 0;
     off_t offset = self->recsize;
     ssize_t recsize = self->recsize;
+    ssize_t lastrec = self->lastrec;
 
     when_error_in {
 
@@ -1041,10 +1044,7 @@ int _rel_last(rel_t *self, void *data, ssize_t *count) {
         ondisk = calloc(1, recsize);
         check_null(ondisk);
 
-        stat = blk_seek(BLK(self), 0, SEEK_END);
-        check_return(stat, self);
-
-        stat = blk_seek(BLK(self), -offset, SEEK_CUR);
+        stat = blk_seek(BLK(self), lastrec, SEEK_SET);
         check_return(stat, self);
 
         stat = blk_tell(BLK(self), &position);
@@ -1420,50 +1420,59 @@ int _rel_update_header(rel_t *self) {
     int stat = OK;
     long records = 0;
     long lastrec = 0;
-    long xrecsiz = 0;
+    long recsize = 0;
     ssize_t count = 0;
     int locked = FALSE;
     rel_header_t header;
-    ssize_t recsize = sizeof(rel_header_t);
+    ssize_t rsize = sizeof(rel_header_t);
 
     when_error_in {
 
         stat = blk_seek(BLK(self), 0, SEEK_SET);
         check_return(stat, self);
 
-        stat = blk_lock(BLK(self), 0, recsize);
+        stat = blk_lock(BLK(self), 0, rsize);
         check_return(stat, self);
 
-        stat = blk_read(BLK(self), &header, recsize, &count);
+        stat = blk_read(BLK(self), &header, rsize, &count);
         check_return(stat, self);
 
-        if (count != recsize) {
+        if (count != rsize) {
 
             cause_error(EIO);
 
         }
 
-        memcpy(&xrecsiz, &header.recsize, 4);
+        memcpy(&recsize, &header.recsize, 4);
         memcpy(&records, &header.records, 4);
         memcpy(&lastrec, &header.lastrec, 4);
 
-        if (xrecsiz != self->recsize) {
+        if (recsize != self->recsize) {
 
             cause_error(E_INVREC);
 
         }
 
-        if (records != self->records) {
+        if (records < self->records) {
 
-            self->records = records;
+            cause_error(EIO);
+
+        }
+
+        if (lastrec < self->lastrec) {
+
+            cause_error(EIO);
 
         }
 
-        if (lastrec != self->lastrec) {
+        if (self->lastrec > self->records) {
 
-            self->lastrec = lastrec;
+            cause_error(EIO);
 
         }
+
+        self->records = records;
+        self->lastrec = lastrec;
 
         memcpy(&header.recsize, &self->recsize, 4);
         memcpy(&header.records, &self->records, 4);
@@ -1472,10 +1481,10 @@ int _rel_update_header(rel_t *self) {
         stat = blk_seek(BLK(self), 0, SEEK_SET);
         check_return(stat, self);
 
-        stat = blk_write(BLK(self), &header, recsize, &count);
+        stat = blk_write(BLK(self), &header, rsize, &count);
         check_return(stat, self);
 
-        if (count != recsize) {
+        if (count != rsize) {
 
             cause_error(EIO);
 
