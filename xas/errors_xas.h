@@ -31,6 +31,7 @@ error_code_t error_codes[] = {
     { E_NOCOLOR, "E_NOCOLOR", "The terminal doesn't support color" },
     { E_NOQUEUE, "E_NOQUEUE", "Unable to initialize queue" },
     { E_INVREC,  "E_INVREC",  "Invalid record size" },
+    { E_RMSDEL,  "E_RMSDEL",  "Record has been deleted" },
 };
 
 #endif

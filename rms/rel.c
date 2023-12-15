@@ -14,6 +14,7 @@
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
 #include "xas/gpl/fnm_util.h"
+#include "xas/misc/bitops.h"
 
 require_klass(BLK_KLASS);
 
@@ -69,12 +70,18 @@ typedef struct header {
     char lastrec[4];
 } rel_header_t;
 
+typedef struct record {
+    unsigned char flags;
+    void *data;
+} rel_record_t;
+
 /*----------------------------------------------------------------*/
 /* klass private macros                                           */
 /*----------------------------------------------------------------*/
 
-#define REL_OFFSET(n, s) ((((n)) * (s)))
-#define REL_RECORD(n, s) (((n) / (s)))
+#define REL_RECSIZE(s)   ((s) + 1)
+#define REL_RECORD(n, s) (((n) / REL_RECSIZE(s)))
+#define REL_OFFSET(n, s) ((((n)) * REL_RECSIZE(s)))
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
@@ -850,9 +857,9 @@ int _rel_first(rel_t *self, void *data, ssize_t *count) {
 
     int stat = OK;
     int locked = FALSE;
-    void *ondisk = NULL;
     ssize_t position = 0;
-    ssize_t recsize = self->recsize;
+    rel_record_t *ondisk = NULL;
+    ssize_t recsize = REL_RECSIZE(self->recsize);
 
     when_error_in {
 
@@ -863,6 +870,7 @@ int _rel_first(rel_t *self, void *data, ssize_t *count) {
         stat = blk_seek(BLK(self), recsize, SEEK_SET);
         check_return(stat, self);
 
+        REREAD:
         stat = blk_tell(BLK(self), &position);
         check_return(stat, self);
 
@@ -877,9 +885,15 @@ int _rel_first(rel_t *self, void *data, ssize_t *count) {
         stat = blk_unlock(BLK(self));
         check_return(stat, self);
 
+        if (bit_test(ondisk->flags, REL_F_DELETED)) {
+
+            cause_error(E_RMSDEL);
+
+        }
+
         if (*count == recsize) {
 
-            stat = self->_build(self, ondisk, data);
+            stat = self->_build(self, ondisk->data, data);
             check_return(stat, self);
 
         }
@@ -890,8 +904,15 @@ int _rel_first(rel_t *self, void *data, ssize_t *count) {
 
     } use {
 
-        stat = ERR;
-        process_error(self);
+        switch(trace_errnum) {
+            case E_RMSDEL:
+                retry(REREAD);
+                break;
+            default:
+                stat = ERR;
+                process_error(self);
+                break;
+        }
 
         if (ondisk) free(ondisk);
         blk_is_locked(BLK(self), &locked);
@@ -907,49 +928,59 @@ int _rel_next(rel_t *self, void *data, ssize_t *count) {
 
     int stat = OK;
     int locked = FALSE;
-    void *ondisk = NULL;
     ssize_t position = 0;
-    ssize_t recsize = self->recsize;
+    rel_record_t *ondisk = NULL;
+    ssize_t recsize = REL_RECSIZE(self->recsize);
 
     when_error_in {
 
+        errno = 0;
+        ondisk = calloc(1, recsize);
+        check_null(ondisk);
+
+        REREAD:
         stat = blk_tell(BLK(self), &position);
         check_return(stat, self);
 
-        if (position < self->lastrec) {
+        self->record = REL_RECORD(position, recsize);
 
-            errno = 0;
-            ondisk = calloc(1, recsize);
-            check_null(ondisk);
+        stat = blk_lock(BLK(self), position, recsize);
+        check_return(stat, self);
 
-            self->record = REL_RECORD(position, recsize);
+        stat = blk_read(BLK(self), ondisk, recsize, count);
+        check_return(stat, self);
 
-            stat = blk_lock(BLK(self), position, recsize);
-            check_return(stat, self);
+        stat = blk_unlock(BLK(self));
+        check_return(stat, self);
 
-            stat = blk_read(BLK(self), ondisk, recsize, count);
-            check_return(stat, self);
+        if (bit_test(ondisk->flags, REL_F_DELETED)) {
 
-            stat = blk_unlock(BLK(self));
-            check_return(stat, self);
-
-            if (*count == recsize) {
-
-                stat = self->_build(self, ondisk, data);
-                check_return(stat, self);
-
-            }
-
-            free(ondisk);
+            cause_error(E_RMSDEL);
 
         }
+
+        if (*count == recsize) {
+
+            stat = self->_build(self, ondisk->data, data);
+            check_return(stat, self);
+
+        }
+
+        free(ondisk);
 
         exit_when;
 
     } use {
 
-        stat = ERR;
-        process_error(self);
+        switch(trace_errnum) {
+            case E_RMSDEL:
+                retry(REREAD);
+                break;
+            default:
+                stat = ERR;
+                process_error(self);
+                break;
+        }
 
         if (ondisk) free(ondisk);
         blk_is_locked(BLK(self), &locked);
