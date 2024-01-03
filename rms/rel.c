@@ -1300,7 +1300,6 @@ int _rel_add(rel_t *self, void *record) {
 
     int stat = OK;
     ssize_t count = 0;
-    int locked = FALSE;
     int created = FALSE;
     rel_record_t *ondisk = NULL;
     ssize_t recsize = REL_RECSIZE(self->recsize);
@@ -1311,7 +1310,7 @@ int _rel_add(rel_t *self, void *record) {
         ondisk = calloc(1, recsize);
         check_null(ondisk);
 
-        stat = blk_lock(BLK(self), 0, recsize);
+        stat = self->_master_lock(self);
         check_return(stat, self);
 
         stat = self->_first(self, ondisk, &count);
@@ -1346,7 +1345,7 @@ int _rel_add(rel_t *self, void *record) {
 
         }
 
-        stat = blk_unlock(BLK(self));
+        stat = self->_master_unlock(self);
         check_return(stat, self);
 
         free((void *)ondisk);
@@ -1365,8 +1364,7 @@ int _rel_add(rel_t *self, void *record) {
         process_error(self);
 
         if (ondisk) free((void *)ondisk);
-        blk_is_locked(BLK(self), &locked);
-        if (locked) blk_unlock(BLK(self));
+        if (self->master_locked) self->_master_unlock(self);
 
     } end_when;
 
