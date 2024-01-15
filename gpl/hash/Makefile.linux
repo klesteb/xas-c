@@ -1,0 +1,90 @@
+#
+# File: makefile.
+# Date: 05-Feb-2020
+# By  : Kevin Esteb
+#
+# Makefile to build libgpl.a.
+#
+CC = gcc
+CFLAGS = -Wall -c -I ../../
+OLBS = ../../lib/libgpl.a
+LINK = gcc
+LFLAGS = -o 
+LIBS = ../../lib/libgpl.a
+LIBR = ar -r
+#
+INCS = ../../xas/gpl/hash_util.h hash_priv.h
+#
+OBJS = hash_add.o hash_core.o hash_create.o hash_delete.o  \
+	   hash_destroy.o hash_dump.o hash_search.o hash_statistics.o \
+       hash_get.o hash_count.o hash_set_debug.o
+#
+all: $(OBJS) test test2 test3
+#
+debug:
+#
+clean:
+	rm -f *.o
+	rm -f *~
+	rm -f test
+	rm -f test2
+	rm -f test3
+#
+test: test.c $(OBJS)
+	$(CC) $(CFLAGS) test.c
+	$(LINK) $(LFLAGS) test test.o $(OLBS) -lm
+#
+test2: test2.c
+	$(CC) $(CFLAGS) test2.c
+	$(LINK) $(LFLAGS) test2 test2.o $(OLBS) -lm
+#
+test3: test3.c
+	$(CC) $(CFLAGS) test3.c
+	$(LINK) $(LFLAGS) test3 test3.o $(OLBS) -lm
+#
+hash_add.o: hash_add.c $(INCS)
+	$(CC) $(CFLAGS) hash_add.c
+	$(LIBR) $(LIBS) hash_add.o
+#
+hash_core.o: hash_core.c $(INCS)
+	$(CC) $(CFLAGS) hash_core.c
+	$(LIBR) $(LIBS) hash_core.o
+#
+hash_create.o: hash_create.c $(INCS)
+	$(CC) $(CFLAGS) hash_create.c
+	$(LIBR) $(LIBS) hash_create.o
+#
+hash_delete.o: hash_delete.c $(INCS)
+	$(CC) $(CFLAGS) hash_delete.c
+	$(LIBR) $(LIBS) hash_delete.o
+#
+hash_destroy.o: hash_destroy.c $(INCS)
+	$(CC) $(CFLAGS) hash_destroy.c
+	$(LIBR) $(LIBS) hash_destroy.o
+#
+hash_dump.o: hash_dump.c $(INCS)
+	$(CC) $(CFLAGS) hash_dump.c
+	$(LIBR) $(LIBS) hash_dump.o
+#
+hash_search.o: hash_search.c $(INCS)
+	$(CC) $(CFLAGS) hash_search.c
+	$(LIBR) $(LIBS) hash_search.o
+#
+hash_statistics.o: hash_statistics.c $(INCS)
+	$(CC) $(CFLAGS) hash_statistics.c
+	$(LIBR) $(LIBS) hash_statistics.o
+#
+hash_get.o: hash_get.c $(INCS)
+	$(CC) $(CFLAGS) hash_get.c
+	$(LIBR) $(LIBS) hash_get.o
+#
+hash_count.o: hash_count.c $(INCS)
+	$(CC) $(CFLAGS) hash_count.c
+	$(LIBR) $(LIBS) hash_count.o
+#
+hash_set_debug.o: hash_set_debug.c $(INCS)
+	$(CC) $(CFLAGS) hash_set_debug.c
+	$(LIBR) $(LIBS) hash_set_debug.o
+#
+# eof
+#
