@@ -34,7 +34,7 @@ struct _message_s {
     int (*_add_message)(message_t *, int, char *);
     int (*_get_message)(message_t *, int, char *, int);
     int (*_load_messages)(message_t *, message_code_t *, int);
-    queue messages;
+    queue_t messages;
 };
 
 /*-------------------------------------------------------------*/

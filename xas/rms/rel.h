@@ -59,7 +59,7 @@ struct _rel_s {
     int (*_first)(rel_t *, rel_record_t *, ssize_t *);
     int (*_normalize)(rel_t *, void *, void *);
     int (*_find)(rel_t *, void *, int (*compare)(void *, void *), off_t *);
-    int (*_search)(rel_t *, void *, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue *), queue *);
+    int (*_search)(rel_t *, void *, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue_t *), queue_t *);
 
     int record;
     int records;
@@ -124,7 +124,7 @@ extern int rel_record(rel_t *, off_t *);
 extern int rel_get(rel_t *, off_t, void *);
 extern int rel_put(rel_t *, off_t, void *);
 extern int rel_find(rel_t *, void *, int (*compare)(void *, void *), off_t *);
-extern int rel_search(rel_t *, void *, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue *), queue *);
+extern int rel_search(rel_t *, void *, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue_t *), queue_t *);
 
 #define rel_close(self) blk_close(BLK(self))
 

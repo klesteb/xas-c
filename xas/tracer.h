@@ -33,7 +33,7 @@ struct _tracer_s {
     int (*_add)(tracer_t *, error_trace_t *);
     int (*_dump)(tracer_t *, int (*output)(char *));
     err_t *errs;
-    queue errors;
+    queue_t errors;
 };
 
 /*-------------------------------------------------------------*/
@@ -94,11 +94,11 @@ struct _tracer_s {
     }                                                        \
 }
 
-#define process_error(self) {     \
-    capture_trace((self)->trace); \
-    object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function); \
-    clear_error();                \
-}
+/* #define process_error(self) {     \ */
+/*     capture_trace((self)->trace); \ */
+/*     object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function); \ */
+/*     clear_error();                \ */
+/* } */
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
