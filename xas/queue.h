@@ -45,7 +45,7 @@ typedef struct {
     int       item_deleted;
     void     **index; 
     datanode **posn_index; 
-} queue;
+} queue_t;
 
 typedef  struct {
     void  *dataptr;
@@ -62,26 +62,26 @@ typedef int (comp_proc)(void *a, void *b);
 /*    Public functions.                                                 */
 /*----------------------------------------------------------------------*/
 
-extern int    que_init(queue  *q);
-extern int    que_empty(queue *q);
-extern int    que_size(queue *q);
-extern int    que_start(queue *q);
-extern int    que_end(queue *q);
-extern int    que_push_head(queue *q, void *d);
-extern int    que_push_tail(queue *q, void *d);
-extern void  *que_first(queue *q);
-extern void  *que_last(queue *q);
-extern void  *que_pop_head(queue *q);
-extern void  *que_pop_tail(queue *q);
-extern void  *que_next(queue *q);
-extern void  *que_prev(queue *q);
-extern void  *que_delete(queue *q);
-extern void  *que_get(queue *q);
-extern int    que_put(queue *q, void *d);
-extern int    que_insert(queue *q, void *d);
-extern int    que_sort(queue *q, comp_proc *Comp);
-extern int    que_find(queue *q, void *data, comp_proc *Comp);
-extern void  *que_seek(queue *q, void *data, comp_proc *Comp);
+extern int    que_init(queue_t  *q);
+extern int    que_empty(queue_t *q);
+extern int    que_size(queue_t *q);
+extern int    que_start(queue_t *q);
+extern int    que_end(queue_t *q);
+extern int    que_push_head(queue_t *q, void *d);
+extern int    que_push_tail(queue_t *q, void *d);
+extern void  *que_first(queue_t *q);
+extern void  *que_last(queue_t *q);
+extern void  *que_pop_head(queue_t *q);
+extern void  *que_pop_tail(queue_t *q);
+extern void  *que_next(queue_t *q);
+extern void  *que_prev(queue_t *q);
+extern void  *que_delete(queue_t *q);
+extern void  *que_get(queue_t *q);
+extern int    que_put(queue_t *q, void *d);
+extern int    que_insert(queue_t *q, void *d);
+extern int    que_sort(queue_t *q, comp_proc *Comp);
+extern int    que_find(queue_t *q, void *data, comp_proc *Comp);
+extern void  *que_seek(queue_t *q, void *data, comp_proc *Comp);
 
 #ifdef __cplusplus
     }

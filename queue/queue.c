@@ -17,7 +17,7 @@
 
 /*----------------------------------------------------------------------*/
 
-void *que_delete(queue *q) {
+void *que_delete(queue_t *q) {
 
     void     *d = NULL; 
     datanode *n = NULL;
@@ -57,19 +57,19 @@ void *que_delete(queue *q) {
 
 } 
 
-int que_empty(queue *q) {
+int que_empty(queue_t *q) {
 
     return(q->size == 0);
 
 } 
 
-int que_end(queue *q) {
+int que_end(queue_t *q) {
 
     return(q->cursor == q->tail);
 
 } 
 
-int que_find(queue *q, void *data, comp_proc *Comp) {
+int que_find(queue_t *q, void *data, comp_proc *Comp) {
 
     void *d = NULL; 
 
@@ -89,7 +89,7 @@ int que_find(queue *q, void *data, comp_proc *Comp) {
 
 } 
 
-void *que_first(queue *q) {
+void *que_first(queue_t *q) {
 
     if (que_empty(q)) return(NULL); 
 
@@ -99,7 +99,7 @@ void *que_first(queue *q) {
 
 } 
 
-void *que_get(queue *q) {
+void *que_get(queue_t *q) {
 
     if (q->cursor == NULL) return(NULL); 
 
@@ -107,7 +107,7 @@ void *que_get(queue *q) {
 
 } 
 
-int que_init(queue *q) {
+int que_init(queue_t *q) {
 
     node *x = NULL;
 
@@ -136,7 +136,7 @@ int que_init(queue *q) {
 
 } 
 
-int que_insert(queue *q, void *d) {
+int que_insert(queue_t *q, void *d) {
 
     node     *c = NULL;
     node     *n = NULL; 
@@ -170,7 +170,7 @@ int que_insert(queue *q, void *d) {
 
 } 
 
-void *que_last(queue *q) {
+void *que_last(queue_t *q) {
 
     if (que_empty(q)) return(NULL); 
 
@@ -180,7 +180,7 @@ void *que_last(queue *q) {
 
 } 
 
-void *que_next(queue *q) {
+void *que_next(queue_t *q) {
 
     if (q->cursor->next == NULL) return(NULL); 
 
@@ -190,7 +190,7 @@ void *que_next(queue *q) {
 
 } 
 
-void *que_pop_head(queue *q) {
+void *que_pop_head(queue_t *q) {
 
     datanode *n = NULL; 
     void     *d = NULL; 
@@ -222,7 +222,7 @@ void *que_pop_head(queue *q) {
 
 } 
 
-void *que_pop_tail(queue *q) {
+void *que_pop_tail(queue_t *q) {
 
     datanode *p = NULL; 
     void     *d = NULL; 
@@ -254,7 +254,7 @@ void *que_pop_tail(queue *q) {
 
 } 
 
-void *que_prev(queue *q) {
+void *que_prev(queue_t *q) {
 
     if (q->cursor->prev == NULL) return(NULL); 
 
@@ -264,7 +264,7 @@ void *que_prev(queue *q) {
 
 } 
 
-int que_push_head(queue *q, void *d) {
+int que_push_head(queue_t *q, void *d) {
 
     node     *n = NULL;
     datanode *p = NULL;
@@ -294,7 +294,7 @@ int que_push_head(queue *q, void *d) {
 
 } 
 
-int que_push_tail(queue *q, void *d) {
+int que_push_tail(queue_t *q, void *d) {
 
     node     *p = NULL;
     datanode *n = NULL; 
@@ -323,7 +323,7 @@ int que_push_tail(queue *q, void *d) {
 
 } 
 
-int que_put(queue *q, void *data) { 
+int que_put(queue_t *q, void *data) { 
 
     if (q->cursor == NULL) return(ERR); 
 
@@ -333,7 +333,7 @@ int que_put(queue *q, void *data) {
 
 } 
 
-static int _que_bsearch(queue *q, void *key, comp_proc *Comp) {
+static int _que_bsearch(queue_t *q, void *key, comp_proc *Comp) {
 
     int low = 0;
     int mid = 0;
@@ -364,7 +364,7 @@ static int _que_bsearch(queue *q, void *key, comp_proc *Comp) {
 
 } 
 
-void *que_seek(queue *q, void *data, comp_proc *Comp) {
+void *que_seek(queue_t *q, void *data, comp_proc *Comp) {
 
     int idx = 0; 
 
@@ -385,7 +385,7 @@ void *que_seek(queue *q, void *data, comp_proc *Comp) {
 
 } 
 
-int que_size(queue *q) {
+int que_size(queue_t *q) {
 
     return(q->size);
 
@@ -439,7 +439,7 @@ static void _que_quick_sort(void *list[], int low, int high, comp_proc *Comp) {
 
 } 
 
-int que_sort(queue *q, comp_proc *Comp) {
+int que_sort(queue_t *q, comp_proc *Comp) {
 
     int      i = 0; 
     void     *d = NULL; 
@@ -513,7 +513,7 @@ int que_sort(queue *q, comp_proc *Comp) {
 
 } 
 
-int que_start(queue *q) {
+int que_start(queue_t *q) {
 
     return(q->cursor == q->head);
 
