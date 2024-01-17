@@ -52,36 +52,36 @@ struct _tracer_s {
 /* macros                                                         */
 /*----------------------------------------------------------------*/
 
-#undef check_return
+/* #undef check_return */
 
-#define check_return(status, self) {       \
-    if ((status) != (OK)) {                \
-        retrieve_error((self));            \
-        trace_lineno = __LINE__ - 1;       \
-        free(trace_filename);              \
-        trace_filename = strdup(__FILE__); \
-        free(trace_function);              \
-        trace_function = strdup(__func__); \
-        goto handler;                      \
-    }                                      \
-}
+/* #define check_return(status, self) {       \ */
+/*     if ((status) != (OK)) {                \ */
+/*         retrieve_error((self));            \ */
+/*         trace_lineno = __LINE__ - 1;       \ */
+/*         free(trace_filename);              \ */
+/*         trace_filename = strdup(__FILE__); \ */
+/*         free(trace_function);              \ */
+/*         trace_function = strdup(__func__); \ */
+/*         goto handler;                      \ */
+/*     }                                      \ */
+/* } */
 
-#undef check_status2
+/* #undef check_status2 */
     
-#define check_status2(status, expected, error) { \
-    if ((status) != (expected)) {                \
-        capture_error((error));                  \
-        trace_lineno = __LINE__ - 1;             \
-        free(trace_filename);                    \
-        trace_filename = strdup(__FILE__);       \
-        free(trace_function);                    \
-        trace_function = strdup(__func__);       \
-        clear_copied((error));                   \
-        goto handler;                            \
-    }                                            \
-}
-    
-#define capture_trace(dump) {                                \
+/* #define check_status2(status, expected, error) { \ */
+/*     if ((status) != (expected)) {                \ */
+/*         capture_error((error));                  \ */
+/*         trace_lineno = __LINE__ - 1;             \ */
+/*         free(trace_filename);                    \ */
+/*         trace_filename = strdup(__FILE__);       \ */
+/*         free(trace_function);                    \ */
+/*         trace_function = strdup(__func__);       \ */
+/*         clear_copied((error));                   \ */
+/*         goto handler;                            \ */
+/*     }                                            \ */
+/* } */
+
+#define capture_for_tracer(dump) {                           \
     if ((dump) != NULL) {                                    \
         error_trace_t *junk = malloc(sizeof(error_trace_t)); \
         if (junk != NULL) {                                  \

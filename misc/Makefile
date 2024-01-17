@@ -7,7 +7,7 @@
 #
 #
 CC = gcc
-CFLAGS = -Wall -c -I ../../
+CFLAGS = -Wall -c -I ../
 OLBS = ../lib/libmisc.a
 LINK = gcc
 LFLAGS = -o

@@ -23,13 +23,13 @@ SOPTS = -shared -o
 SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
 MAN = ../man
 #
-OLBS = $(STATIC) ../lib/libtracer.a ../lib/liberrors.a ../lib/libobjects.a ../lib/libmisc.a  ../lib/libgpl.a
+OLBS = $(STATIC) ../lib/libtracer.a ../lib/liberrors.a ../lib/libobjects.a ../lib/libmisc.a ../lib/libqueue.a  ../lib/libgpl.a
 #
 INCS = btree.h ../xas/rms/fib.h ../xas/rms/lf.h ../xas/rms/blk.h
 #
 OBJS = btree.o fib.o lf.o blk.o rel.o
 #
-TESTS = test1 test2 test3 test4 test5 test6 test7 test8 rel-test1
+TESTS = test1 test2 test3 test4 test5 test6 test7 test8 rel-test1 rel-test2
 #
 all: $(OBJS) $(TESTS)
 #
@@ -99,6 +99,10 @@ test8: test8.o
 rel-test1: rel-test1.o
 	$(CC) $(CFLAGS) rel-test1.c
 	$(LINK) $(LOPTS) rel-test1 rel-test1.o $(OLBS)
+#
+rel-test2: rel-test2.o
+	$(CC) $(CFLAGS) rel-test2.c
+	$(LINK) $(LOPTS) rel-test2 rel-test2.o $(OLBS)
 #
 man:
 	pod2man -c " " -r "fib(3)" -s 3 fib.pod fib.3

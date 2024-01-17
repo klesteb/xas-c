@@ -24,7 +24,7 @@
  * Just compile this into an object module and link them into your program. 
  */
 
-#include "crc.h"
+#include "xas/misc/crc.h"
 
 /*-Local-Global-Variables---------------------------------------------------*/
 

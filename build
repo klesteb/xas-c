@@ -7,7 +7,7 @@
 # Build the XAS-C modules.
 #
 ldir=
-dirs="errors ../messages ../misc ../objects ../queue ../tracer .."
+dirs="misc ../queue ../errors ../messages ../objects ../tracer ../rms .."
 opts=bcmshi:
 #
 usage() {

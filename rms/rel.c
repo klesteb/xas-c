@@ -46,7 +46,7 @@ int _rel_last(rel_t *, rel_record_t *, ssize_t *);
 int _rel_first(rel_t *, rel_record_t *, ssize_t *);
 int _rel_normalize(rel_t *, void *, void *);
 int _rel_find(rel_t *, void *, int (*compare)(void *, void *), off_t *);
-int _rel_search(rel_t *, void *, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue *), queue *);
+int _rel_search(rel_t *, void *, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue_t *), queue_t *);
 int _rel_master_unlock(rel_t *);
 int _rel_master_lock(rel_t *);
 
@@ -448,7 +448,7 @@ int rel_find(rel_t *self, void *data, int (*compare)(void *, void *), off_t *rec
 
 }
 
-int rel_search(rel_t *self, void *data, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue *), queue *results) {
+int rel_search(rel_t *self, void *data, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue_t *), queue_t *results) {
 
     int stat = OK;
 
@@ -1245,7 +1245,7 @@ int _rel_find(rel_t *self, void *data, int (*compare)(void *, void *), off_t *re
 
 }
 
-int _rel_search(rel_t *self, void *data, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue *), queue *results) {
+int _rel_search(rel_t *self, void *data, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue_t *), queue_t *results) {
 
     int stat = OK;
     ssize_t count = 0;
