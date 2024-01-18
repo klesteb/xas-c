@@ -40,3 +40,15 @@
 [2023-02-01 11:23:50.23] FATAL - fatal works
 [2023-02-01 11:23:50.26] DEBUG - debug works
 [2023-02-01 11:23:50.29] TRACE - trace works
+{"@version":1,"@timestamp":"2024-01-18T08:25:55.075-0800","@message":"info works","category":"test3","priority":"INFO","facility":"system","hostname":"compute1","process":"./test3","pid":3100301,"lineno":15,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2024-01-18T08:25:55.083-0800","@message":"warn works","category":"test3","priority":"WARN","facility":"system","hostname":"compute1","process":"./test3","pid":3100301,"lineno":16,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2024-01-18T08:25:55.087-0800","@message":"error works","category":"test3","priority":"ERROR","facility":"system","hostname":"compute1","process":"./test3","pid":3100301,"lineno":17,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2024-01-18T08:25:55.090-0800","@message":"fatal works","category":"test3","priority":"FATAL","facility":"system","hostname":"compute1","process":"./test3","pid":3100301,"lineno":18,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2024-01-18T08:25:55.094-0800","@message":"debug works","category":"test3","priority":"DEBUG","facility":"system","hostname":"compute1","process":"./test3","pid":3100301,"lineno":19,"filename":"test3.c","function":"main"}
+{"@version":1,"@timestamp":"2024-01-18T08:25:55.098-0800","@message":"trace works","category":"test3","priority":"TRACE","facility":"system","hostname":"compute1","process":"./test3","pid":3100301,"lineno":20,"filename":"test3.c","function":"main"}
+[2024-01-18 08:26:01.435] INFO  - info works
+[2024-01-18 08:26:01.441] WARN  - warn works
+[2024-01-18 08:26:01.445] ERROR - error works
+[2024-01-18 08:26:01.450] FATAL - fatal works
+[2024-01-18 08:26:01.455] DEBUG - debug works
+[2024-01-18 08:26:01.459] TRACE - trace works

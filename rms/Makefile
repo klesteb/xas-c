@@ -25,7 +25,7 @@ MAN = ../man
 #
 OLBS = $(STATIC) ../lib/libtracer.a ../lib/liberrors.a ../lib/libobjects.a ../lib/libmisc.a ../lib/libqueue.a  ../lib/libgpl.a
 #
-INCS = btree.h ../xas/rms/fib.h ../xas/rms/lf.h ../xas/rms/blk.h
+INCS = btree.h ../xas/rms/fib.h ../xas/rms/lf.h ../xas/rms/blk.h ../xas/rms/rel.h
 #
 OBJS = btree.o fib.o lf.o blk.o rel.o
 #
@@ -96,11 +96,11 @@ test8: test8.o
 	$(CC) $(CFLAGS) test8.c
 	$(LINK) $(LOPTS) test8 test8.o $(OLBS)
 #
-rel-test1: rel-test1.o
+rel-test1: rel-test1.o 
 	$(CC) $(CFLAGS) rel-test1.c
 	$(LINK) $(LOPTS) rel-test1 rel-test1.o $(OLBS)
 #
-rel-test2: rel-test2.o
+rel-test2: rel-test2.o rel-test.h
 	$(CC) $(CFLAGS) rel-test2.c
 	$(LINK) $(LOPTS) rel-test2 rel-test2.o $(OLBS)
 #
@@ -108,6 +108,7 @@ man:
 	pod2man -c " " -r "fib(3)" -s 3 fib.pod fib.3
 	pod2man -c " " -r "lf(3)" -s 3 lf.pod lf.3
 	pod2man -c " " -r "blk(3)" -s 3 blk.pod blk.3
+	pod2man -c " " -r "rel(3)" -s 3 rel.pod rel.3
 	pod2man -c " " -r "btree(3)" -s 3 btree.pod btree.3
 #
 shared:

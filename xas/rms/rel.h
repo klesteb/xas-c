@@ -126,7 +126,7 @@ extern int rel_put(rel_t *, off_t, void *);
 extern int rel_find(rel_t *, void *, int (*compare)(void *, void *), off_t *);
 extern int rel_search(rel_t *, void *, int (*compare)(void *, void *), int (*capture)(rel_t *, void *, queue_t *), queue_t *);
 
-#define rel_close(self) blk_close(BLK(self))
-
+#define rel_close(self)               blk_close(BLK(self))
+#define rel_set_trace(self, trace)    object_set_trace(OBJECT(self), trace)
 #endif
 

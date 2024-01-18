@@ -94,7 +94,7 @@ rel_t *rel_create(char *path, char *name, int records, int recsize, int retries,
     memset(xpath, '\0', 256);
     strncpy(xpath, fnm_build(1, FnmPath, name, ".dat", path, NULL), 255);
 
-    SET_ITEM(items[0], FIB_K_PATH, xpath, strlen(path), NULL);
+    SET_ITEM(items[0], FIB_K_PATH, xpath, strlen(xpath), NULL);
     SET_ITEM(items[1], REL_K_NAME, name, strlen(name), NULL);
     SET_ITEM(items[2], BLK_K_RETRIES, &retries, sizeof(int), NULL);
     SET_ITEM(items[3], BLK_K_TIMEOUT, &timeout, sizeof(int), NULL);
@@ -813,26 +813,36 @@ int _rel_open(rel_t *self, int flags, mode_t mode) {
 
             stat = blk_open(BLK(self), flags, mode);
             check_return(stat, self);
+printf("_rel_open: after open\n");
 
             stat = self->_read_header(self);
             check_return(stat, self);
+printf("_rel_open: after _read_header\n");
+printf("_rel_open: records = %d\n", self->records);
+printf("_rel_open: recsize = %d\n", self->recsize);
+printf("_rel_open: lastrec = %d\n", self->lastrec);
 
         } else {
 
             stat = blk_creat(BLK(self), mode);
             check_return(stat, self);
-
+printf("_rel_open: after creat\n");
+            
             stat = blk_open(BLK(self), flags, mode);
             check_return(stat, self);
+printf("_rel_open: after open\n");
 
             stat = self->_write_header(self);
             check_return(stat, self);
+printf("_rel_open: after _write_header\n");
 
             stat = self->_extend(self, self->records);
             check_return(stat, self);
+printf("_rel_open: after _extend\n");
 
             stat = self->_init(self);
             check_return(stat, self);
+printf("_rel_open: after _init\n");
 
         }
 
@@ -1158,7 +1168,7 @@ int _rel_put(rel_t *self, off_t recnum, void *record) {
         stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
         check_return(stat, self);
 
-        memcpy(ondisk->data, record, self->recsize);
+        memcpy(&ondisk->data, record, self->recsize);
         bit_clear(ondisk->flags, REL_F_DELETED);
 
         stat = blk_write(BLK(self), ondisk, recsize, &count);
@@ -1320,7 +1330,7 @@ int _rel_add(rel_t *self, void *record) {
 
             if (bit_test(ondisk->flags, REL_F_DELETED)) {
 
-                memcpy(ondisk->data, record, self->recsize);
+                memcpy(&ondisk->data, record, self->recsize);
                 bit_clear(ondisk->flags, REL_F_DELETED);
 
                 stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
@@ -1407,7 +1417,7 @@ int _rel_del(rel_t *self, off_t recnum) {
         }
 
         bit_set(ondisk->flags, REL_F_DELETED);
-        memset(ondisk->data, '\0', self->recsize);
+        memset(&ondisk->data, '\0', self->recsize);
 
         stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
         check_return(stat, self);
@@ -1457,7 +1467,7 @@ int _rel_extend(rel_t *self, int amount) {
         check_null(ondisk);
 
         bit_set(ondisk->flags, REL_F_DELETED);
-        memset(ondisk->data, '\0', self->recsize);
+        memset(&ondisk->data, '\0', self->recsize);
 
         stat = self->_master_lock(self);
         check_return(stat, self);
@@ -1635,7 +1645,7 @@ int _rel_read_header(rel_t *self) {
         stat = self->_master_unlock(self);
         check_return(stat, self);
 
-        memcpy(&header, ondisk->data, sizeof(rel_header_t));
+        memcpy(&header, &ondisk->data, sizeof(rel_header_t));
 
         self->recsize = header.recsize;
         self->records = header.records;
@@ -1683,7 +1693,7 @@ int _rel_write_header(rel_t *self) {
         header.lastrec = self->lastrec;
 
         ondisk->flags = 0;
-        memcpy(ondisk->data, &header, sizeof(rel_header_t));
+        memcpy(&ondisk->data, &header, sizeof(rel_header_t));
 
         stat = self->_master_lock(self);
         check_return(stat, self);
@@ -1778,7 +1788,7 @@ int _rel_update_header(rel_t *self) {
         header.records = self->records;
         header.lastrec = self->lastrec;
         
-        memcpy(ondisk->data, &header, sizeof(rel_header_t));
+        memcpy(&ondisk->data, &header, sizeof(rel_header_t));
 
         stat = blk_seek(BLK(self), 0, SEEK_SET);
         check_return(stat, self);

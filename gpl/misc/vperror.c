@@ -80,7 +80,7 @@ Purpose:
 
 int  vperror_print = 0;                 /* 0 = no print, !0 = print         */
 FILE  *vperror_file = NULL;             /* VPERROR output device            */
-void (*trace)(error_trace_t *error);    /* callback to propogate the error  */
+void (*xtrace)(error_trace_t *error);   /* callback to propogate the error  */
 
 /**/
 
@@ -88,7 +88,7 @@ void vperror_init(void (*stuff)(error_trace_t *error)) {
 
     if (stuff != NULL) {
 
-        trace = stuff;
+        xtrace = stuff;
 
     }
 
@@ -178,7 +178,7 @@ void  vperror_output (
 
     errno = errno_save ;		/* Restore the error code. */
 
-    if (trace != NULL) {
+    if (xtrace != NULL) {
 
         if ((error = calloc(1, sizeof(error_trace_t)))) {
 
@@ -187,7 +187,7 @@ void  vperror_output (
             error->filename = strdup(file);
             error->function = strdup(function);
 
-            trace(error);
+            xtrace(error);
             
         }
 
