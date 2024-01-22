@@ -1312,11 +1312,9 @@ int _rel_add(rel_t *self, void *record) {
 
         stat = self->_master_lock(self);
         check_return(stat, self);
-printf("_rel_add: after _master_lock\n");
         
         stat = self->_first(self, ondisk, &count);
         check_return(stat, self);
-printf("_rel_add: after _first\n");
         
         while (count > 0) {
 
@@ -1324,15 +1322,12 @@ printf("_rel_add: after _first\n");
 
                 memcpy(&ondisk->data, &record, self->recsize);
                 ondisk->flags = bit_clear(ondisk->flags, REL_F_DELETED);
-printf("_rel_add: after memset\n");
 
                 stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
                 check_return(stat, self);
-printf("_rel_add: after blk_seek\n");
 
                 stat = blk_write(BLK(self), ondisk, recsize, &count);
                 check_return(stat, self);
-printf("_rel_add: after blk_write\n");
 
                 if (count != recsize) {
 
@@ -1347,13 +1342,11 @@ printf("_rel_add: after blk_write\n");
 
             stat = self->_next(self, ondisk, &count);
             check_return(stat, self);
-printf("_rel_add: after _next\n");
 
         }
 
         stat = self->_master_unlock(self);
         check_return(stat, self);
-printf("_rel_add: after _master_unlock\n");
 
         if (! created) {
 
@@ -1362,7 +1355,6 @@ printf("_rel_add: after _master_unlock\n");
         }
 
         free((void *)ondisk);
-printf("_rel_add: after free\n");
 
         exit_when;
 
