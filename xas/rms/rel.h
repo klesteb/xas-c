@@ -128,5 +128,6 @@ extern int rel_search(rel_t *, void *, int (*compare)(void *, void *), int (*cap
 
 #define rel_close(self)               blk_close(BLK(self))
 #define rel_set_trace(self, trace)    object_set_trace(OBJECT(self), trace)
+
 #endif
 

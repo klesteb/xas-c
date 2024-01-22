@@ -813,36 +813,26 @@ int _rel_open(rel_t *self, int flags, mode_t mode) {
 
             stat = blk_open(BLK(self), flags, mode);
             check_return(stat, self);
-printf("_rel_open: after open\n");
 
             stat = self->_read_header(self);
             check_return(stat, self);
-printf("_rel_open: after _read_header\n");
-printf("_rel_open: records = %d\n", self->records);
-printf("_rel_open: recsize = %d\n", self->recsize);
-printf("_rel_open: lastrec = %d\n", self->lastrec);
 
         } else {
 
             stat = blk_creat(BLK(self), mode);
             check_return(stat, self);
-printf("_rel_open: after creat\n");
             
             stat = blk_open(BLK(self), flags, mode);
             check_return(stat, self);
-printf("_rel_open: after open\n");
 
             stat = self->_write_header(self);
             check_return(stat, self);
-printf("_rel_open: after _write_header\n");
 
             stat = self->_extend(self, self->records);
             check_return(stat, self);
-printf("_rel_open: after _extend\n");
 
             stat = self->_init(self);
             check_return(stat, self);
-printf("_rel_open: after _init\n");
 
         }
 
@@ -1169,7 +1159,7 @@ int _rel_put(rel_t *self, off_t recnum, void *record) {
         check_return(stat, self);
 
         memcpy(&ondisk->data, record, self->recsize);
-        bit_clear(ondisk->flags, REL_F_DELETED);
+        ondisk->flags = bit_clear(ondisk->flags, REL_F_DELETED);
 
         stat = blk_write(BLK(self), ondisk, recsize, &count);
         check_return(stat, self);
@@ -1322,22 +1312,27 @@ int _rel_add(rel_t *self, void *record) {
 
         stat = self->_master_lock(self);
         check_return(stat, self);
-
+printf("_rel_add: after _master_lock\n");
+        
         stat = self->_first(self, ondisk, &count);
         check_return(stat, self);
-
+printf("_rel_add: after _first\n");
+        
         while (count > 0) {
 
             if (bit_test(ondisk->flags, REL_F_DELETED)) {
 
-                memcpy(&ondisk->data, record, self->recsize);
-                bit_clear(ondisk->flags, REL_F_DELETED);
+                memcpy(&ondisk->data, &record, self->recsize);
+                ondisk->flags = bit_clear(ondisk->flags, REL_F_DELETED);
+printf("_rel_add: after memset\n");
 
                 stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
                 check_return(stat, self);
+printf("_rel_add: after blk_seek\n");
 
                 stat = blk_write(BLK(self), ondisk, recsize, &count);
                 check_return(stat, self);
+printf("_rel_add: after blk_write\n");
 
                 if (count != recsize) {
 
@@ -1352,19 +1347,22 @@ int _rel_add(rel_t *self, void *record) {
 
             stat = self->_next(self, ondisk, &count);
             check_return(stat, self);
+printf("_rel_add: after _next\n");
 
         }
 
         stat = self->_master_unlock(self);
         check_return(stat, self);
-
-        free((void *)ondisk);
+printf("_rel_add: after _master_unlock\n");
 
         if (! created) {
 
             cause_error(EOVERFLOW);
 
         }
+
+        free((void *)ondisk);
+printf("_rel_add: after free\n");
 
         exit_when;
 
@@ -1416,7 +1414,7 @@ int _rel_del(rel_t *self, off_t recnum) {
 
         }
 
-        bit_set(ondisk->flags, REL_F_DELETED);
+        ondisk->flags = bit_set(ondisk->flags, REL_F_DELETED);
         memset(&ondisk->data, '\0', self->recsize);
 
         stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
@@ -1466,7 +1464,7 @@ int _rel_extend(rel_t *self, int amount) {
         ondisk = calloc(1, recsize);
         check_null(ondisk);
 
-        bit_set(ondisk->flags, REL_F_DELETED);
+        ondisk->flags = bit_set(ondisk->flags, REL_F_DELETED);
         memset(&ondisk->data, '\0', self->recsize);
 
         stat = self->_master_lock(self);
