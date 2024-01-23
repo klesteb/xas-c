@@ -20,7 +20,7 @@ OBJS = dates.o left.o ltrim.o mid.o xinstr.o xindex.o \
        strupr.o trim.o xmalloc.o xstrtok.o \
        ltostr.o stripcr.o sys_date.o \
        xgetline.o crc.o hash.o xgetch.o \
-       getche.o insert.o
+       getche.o insert.o hexdump.o
 #
 all: $(OBJS)
 #
@@ -150,6 +150,10 @@ getche.o: getche.c
 insert.o: insert.c
 	$(CC) $(CFLAGS) insert.c
 	$(LIBR) $(OLBS) insert.o
+#
+hexdump.o: hexdump.c
+	$(CC) $(CFLAGS) hexdump.c
+	$(LIBR) $(OLBS) hexdump.o
 #
 # eof
 #

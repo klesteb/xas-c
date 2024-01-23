@@ -65,6 +65,7 @@ int init(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
+    off_t records = 0;
 
     when_error_in {
 
@@ -74,12 +75,15 @@ int main(int argc, char **argv) {
         stat = rel_open(temp, flags, mode);
         check_return(stat, temp);
 
-        int x = 0;
-        for (; x < 26; x++) {
+        stat = rel_get_records(temp, &records);
+        check_return(stat, temp);
 
+        int x = 0;
+        for (; x < records; x++) {
+
+            printf("adding: %d, %s\n", x, values[x]);
             stat = rel_add(temp, values[x]);
             check_return(stat, temp);
-            printf("after rel_add()\n");
 
         }
 

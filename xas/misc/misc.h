@@ -47,6 +47,7 @@ int stricmp(const char *, const char *);
 int strnicmp(const char *, const char *, int);
 
 void insert(char *, char *, int, int);
+void hexdump(unsigned char *, unsigned long, unsigned long);
 
 /*----------------------------------------------------------------------*/
 /* Borland conio routines                                               */

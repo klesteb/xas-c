@@ -420,6 +420,60 @@ int rel_record(rel_t *self, off_t *recnum) {
 
 }
 
+int rel_get_records(rel_t *self, off_t *recnum) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (recnum == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        *recnum = self->records;
+        
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int rel_get_recsize(rel_t *self, off_t *recsize) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self == NULL) || (recsize == NULL)) {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        *recsize = self->recsize;
+        
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
 int rel_find(rel_t *self, void *data, int (*compare)(void *, void *), off_t *recnum) {
 
     int stat = OK;
@@ -1100,7 +1154,7 @@ int _rel_get(rel_t *self, off_t recnum, void *record) {
         stat = blk_unlock(BLK(self));
         check_return(stat, self);
 
-        stat = self->_build(self, ondisk->data, record);
+        stat = self->_build(self, &ondisk->data, record);
         check_return(stat, self);
 
         free((void *)ondisk);
@@ -1312,15 +1366,15 @@ int _rel_add(rel_t *self, void *record) {
 
         stat = self->_master_lock(self);
         check_return(stat, self);
-        
+
         stat = self->_first(self, ondisk, &count);
         check_return(stat, self);
-        
+
         while (count > 0) {
 
             if (bit_test(ondisk->flags, REL_F_DELETED)) {
 
-                memcpy(&ondisk->data, &record, self->recsize);
+                memcpy(&ondisk->data, record, self->recsize);
                 ondisk->flags = bit_clear(ondisk->flags, REL_F_DELETED);
 
                 stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
@@ -1462,7 +1516,7 @@ int _rel_extend(rel_t *self, int amount) {
         stat = self->_master_lock(self);
         check_return(stat, self);
 
-        int x = 1;
+        int x = 0;
         for (; x < self->records; x++) {
 
             stat = blk_write(BLK(self), ondisk, recsize, &count);
@@ -1815,9 +1869,27 @@ int _rel_update_header(rel_t *self) {
 
 int _rel_build(rel_t *self, void *ondisk, void *data) {
 
-    /* this needs to be overridden */
+    /* default behavior, this should to be overridden */
 
-    return OK;
+    int stat = OK;
+    void *junk = NULL;
+
+    when_error_in {
+
+        errno = ENOMEM;
+        junk = memcpy(data, ondisk, self->recsize);
+        check_null(junk);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
 
 }
 
@@ -1831,9 +1903,27 @@ int _rel_init(rel_t *self) {
 
 int _rel_normalize(rel_t *self, void *ondisk, void *data) {
 
-    /* this needs to be overridden */
+    /* default behavior, this should to be overridden */
 
-    return OK;
+    int stat = OK;
+    void *junk = NULL;
+
+    when_error_in {
+
+        errno = ENOMEM;
+        junk = memcpy(data, ondisk, self->recsize);
+        check_null(junk);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
 
 }
 
