@@ -76,7 +76,7 @@ typedef struct header {
 /* klass private macros                                           */
 /*----------------------------------------------------------------*/
 
-#define REL_RECSIZE(s)   ((s) + 1)
+#define REL_RECSIZE(s)   ((s) + 8)
 #define REL_RECORD(n, s) (((n) / REL_RECSIZE(s)))
 #define REL_OFFSET(n, s) ((((n)) * REL_RECSIZE(s)))
 
@@ -1268,7 +1268,7 @@ int _rel_find(rel_t *self, void *data, int (*compare)(void *, void *), off_t *re
 
             if (! bit_test(ondisk->flags, REL_F_DELETED)) {
 
-                if (compare(data, ondisk->data)) {
+                if (compare(data, &ondisk->data)) {
 
                     *recnum = self->record;
                     break;
@@ -1361,7 +1361,7 @@ int _rel_add(rel_t *self, void *record) {
     when_error_in {
 
         errno = 0;
-        ondisk = calloc(1, recsize);
+        ondisk = calloc(1, self->recsize);
         check_null(ondisk);
 
         stat = self->_master_lock(self);
@@ -1374,15 +1374,15 @@ int _rel_add(rel_t *self, void *record) {
 
             if (bit_test(ondisk->flags, REL_F_DELETED)) {
 
-                memcpy(&ondisk->data, record, self->recsize);
+                memmove(&ondisk->data, record, self->recsize);
                 ondisk->flags = bit_clear(ondisk->flags, REL_F_DELETED);
-
+                
                 stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
                 check_return(stat, self);
 
                 stat = blk_write(BLK(self), ondisk, recsize, &count);
                 check_return(stat, self);
-
+                
                 if (count != recsize) {
 
                     cause_error(EIO);
@@ -1510,6 +1510,7 @@ int _rel_extend(rel_t *self, int amount) {
         ondisk = calloc(1, recsize);
         check_null(ondisk);
 
+        ondisk->flags = bit_set(ondisk->flags, REL_F_MARK);
         ondisk->flags = bit_set(ondisk->flags, REL_F_DELETED);
         memset(&ondisk->data, '\0', self->recsize);
 

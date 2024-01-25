@@ -129,6 +129,9 @@
 #define check_return(status, self) {             \
     if ((status) != (OK)) {                      \
         retrieve_error((self));                  \
+        trace_lineno = __LINE__ - 1;             \
+        trace_filename = strdup(__FILE__);       \
+        trace_function = strdup(__func__);       \
         goto handler;                            \
     }                                            \
 }

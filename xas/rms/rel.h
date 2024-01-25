@@ -21,7 +21,7 @@
 /*-------------------------------------------------------------*/
 
 typedef struct record {
-    unsigned char flags;
+    unsigned char  flags;
     void *data;
 } rel_record_t;
 
@@ -103,7 +103,8 @@ struct _rel_s {
 #define REL_M_READ_HEADER   38
 #define REL_M_UPDATE_HEADER 39
 
-#define REL_F_DELETED   1
+#define REL_F_MARK      1
+#define REL_F_DELETED   2
 
 /*-------------------------------------------------------------*/
 /* klass interface                                             */
