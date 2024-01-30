@@ -69,7 +69,7 @@ int init(void) {
     } use {
 
         stat = ERR;
-        capture_for_tracer(trace);
+        capture_error(trace);
 
     } end_when;
 
@@ -125,7 +125,7 @@ int main(int argc, char **argv) {
 
     } use {
 
-        capture_for_tracer(trace);
+        capture_error(trace);
         tracer_dump(trace, output_trace);
 
     } end_when;

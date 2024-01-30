@@ -44,11 +44,11 @@
 
 #define when_error \
     do { \
-        static error_trace_t _er_trace;
-    
+        error_trace_t _er_trace;
+
 #define when_error_in \
     do { \
-        static error_trace_t _er_trace;
+        error_trace_t _er_trace;
 
 #define end_when \
     } while(0);
@@ -60,6 +60,13 @@
 #define trace_lineno   _er_trace.lineno
 #define trace_filename _er_trace.filename
 #define trace_function _er_trace.function
+
+#define clear_error(error) {            \
+    trace_errnum = 0;                   \
+    trace_lineno = 0;                   \
+    free(trace_filename);               \
+    free(trace_function);               \
+}
 
 #define retry(label) {                  \
     clear_error();                      \
@@ -74,40 +81,6 @@
     goto handler;                       \
 }
 
-#define clear_error(error) {            \
-    trace_errnum = 0;                   \
-    trace_lineno = 0;                   \
-    free(trace_filename);               \
-    free(trace_function);               \
-}
-
-#define copy_error(error) {                        \
-    (*(error)).errnum = trace_errnum;              \
-    (*(error)).lineno = trace_lineno;              \
-    (*(error)).filename = strdup(trace_filename);  \
-    (*(error)).function = strdup(trace_function);  \
-}
-
-#define clear_copied(error) {                    \
-    (error).errnum = 0;                          \
-    (error).lineno = 0;                          \
-    free((error).filename);                      \
-    free((error).function);                      \
-}
-
-#define capture_error(error) {                   \
-    trace_errnum = (error).errnum;               \
-    trace_lineno = (error).lineno;               \
-    free(trace_filename);                        \
-    trace_filename = strdup((error).filename);   \
-    free(trace_function);                        \
-    trace_function = strdup((error).function);   \
-}
-
-#define retrieve_error(self) {                   \
-    object_get_error(OBJECT(self), &_er_trace);  \
-}
-
 #define check_status(status, expected, error) {  \
     if ((status) != (expected)) {                \
         trace_errnum = (error);                  \
@@ -118,12 +91,16 @@
     }                                            \
 }
 
-#define check_status2(status, expected, error) { \
-    if ((status) != (expected)) {                \
-        capture_error((error));                  \
-        clear_copied((error));                   \
-        goto handler;                            \
+#define check_null(value) {                      \
+    if ((value) == NULL) {                       \
+        cause_error(errno);                      \
     }                                            \
+}
+
+/* error handling for objects */
+
+#define retrieve_error(self) {                   \
+    object_get_error(OBJECT(self), &_er_trace);  \
 }
 
 #define check_return(status, self) {             \
@@ -140,12 +117,6 @@
     retrieve_error((self));                      \
     if (trace_errnum != (OK)) {                  \
         goto handler;                            \
-    }                                            \
-}
-
-#define check_null(value) {                      \
-    if ((value) == NULL) {                       \
-        cause_error(errno);                      \
     }                                            \
 }
 

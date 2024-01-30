@@ -15,6 +15,21 @@ rel_t *temp = NULL;
 err_t *errors = NULL;
 tracer_t *trace = NULL;
 
+
+int compare(void *wanted, void *data) {
+
+    int stat = FALSE;
+
+    if (strncmp((char *)wanted, (char *)data, 19) == 0) {
+
+        stat = TRUE;
+
+    }
+
+    return stat;
+
+}
+
 int output_trace(char *buffer) {
 
     fprintf(stderr, "%s\n", buffer);
@@ -65,9 +80,11 @@ int init(void) {
 int main(int argc, char **argv) {
 
     int stat = OK;
-    off_t records = 0;
     off_t recsize = 0;
+    off_t recnum = 0;
     char *buffer = NULL;
+    char *find = "oooooooooooooooooooooooooo";
+    char *update = "11111111111111111111111111";
 
     when_error_in {
 
@@ -77,9 +94,6 @@ int main(int argc, char **argv) {
         stat = rel_open(temp, flags, mode);
         check_return(stat, temp);
 
-        stat = rel_get_records(temp, &records);
-        check_return(stat, temp);
-
         stat = rel_get_recsize(temp, &recsize);
         check_return(stat, temp);
 
@@ -87,14 +101,41 @@ int main(int argc, char **argv) {
         buffer = calloc(1, recsize);
         check_null(buffer);
 
-        int x = 1;
-        for (; x <= records; x++) {
+        printf("wanted: %s\n", find);
 
-            memset(buffer, '\0', recsize);
-            stat = rel_get(temp, x, buffer);
+        stat = rel_find(temp, find, compare, &recnum);
+        check_return(stat, temp);
+
+        if (recnum > 0) {
+
+            stat = rel_get(temp, recnum, buffer);
             check_return(stat, temp);
 
-            printf("record: %d, %s\n", x, buffer);
+            printf("record: %ld; value = %s\n", recnum, buffer);
+
+            stat = rel_put(temp, recnum, update);
+            check_return(stat, temp);
+printf("after rel_put\n");
+            
+            stat = rel_find(temp, update, compare, &recnum);
+            check_return(stat, temp);
+
+            if (recnum > 0) {
+
+                stat = rel_get(temp, recnum, buffer);
+                check_return(stat, temp);
+
+                printf("record: %ld; value = %s\n", recnum, buffer);
+
+            } else {
+
+                printf("updated record not found\n");
+
+            }
+
+        } else {
+
+            printf("record not found\n");
 
         }
 

@@ -76,6 +76,12 @@ typedef struct header {
 /* klass private macros                                           */
 /*----------------------------------------------------------------*/
 
+/* the "8" constant is a size of rel_record_t in bytes on x86-64  */
+/* with GNU C "gcc (Debian 10.2.1-6) 10.2.1 20210110". I have no  */ 
+/* idea if this value would change on differant platforms but it  */
+/* is something to consider when moving files between different   */ 
+/* platforms.                                                     */
+
 #define REL_RECSIZE(s)   ((s) + 8)
 #define REL_RECORD(n, s) (((n) / REL_RECSIZE(s)))
 #define REL_OFFSET(n, s) ((((n)) * REL_RECSIZE(s)))
@@ -370,7 +376,7 @@ int rel_put(rel_t *self, off_t recnum, void *data) {
     when_error_in {
 
         if ((self == NULL) || (data == NULL) ||
-            ((recnum < 0) && (recnum > self->records))) {
+            ((recnum < 1) && (recnum > self->records))) {
 
             cause_error(E_INVPARM);
 
@@ -460,7 +466,7 @@ int rel_get_recsize(rel_t *self, off_t *recsize) {
         }
 
         *recsize = self->recsize;
-        
+
         exit_when;
 
     } use {
@@ -1206,14 +1212,11 @@ int _rel_put(rel_t *self, off_t recnum, void *record) {
 
         }
 
-        stat = self->_normalize(self, ondisk->data, record);
-        check_return(stat, self);
-        
-        stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
+        stat = self->_normalize(self, &ondisk->data, record);
         check_return(stat, self);
 
-        memcpy(&ondisk->data, record, self->recsize);
-        ondisk->flags = bit_clear(ondisk->flags, REL_F_DELETED);
+        stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
+        check_return(stat, self);
 
         stat = blk_write(BLK(self), ondisk, recsize, &count);
         check_return(stat, self);
@@ -1374,7 +1377,7 @@ int _rel_add(rel_t *self, void *record) {
 
             if (bit_test(ondisk->flags, REL_F_DELETED)) {
 
-                memmove(&ondisk->data, record, self->recsize);
+                memcpy(&ondisk->data, record, self->recsize);
                 ondisk->flags = bit_clear(ondisk->flags, REL_F_DELETED);
                 
                 stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
@@ -1382,7 +1385,7 @@ int _rel_add(rel_t *self, void *record) {
 
                 stat = blk_write(BLK(self), ondisk, recsize, &count);
                 check_return(stat, self);
-                
+
                 if (count != recsize) {
 
                     cause_error(EIO);
@@ -1895,7 +1898,7 @@ int _rel_build(rel_t *self, void *ondisk, void *data) {
 }
 
 int _rel_init(rel_t *self) {
-    
+
     /* this may need to be overridden, default is to do nothing */
 
     return OK;
@@ -1912,7 +1915,7 @@ int _rel_normalize(rel_t *self, void *ondisk, void *data) {
     when_error_in {
 
         errno = ENOMEM;
-        junk = memcpy(data, ondisk, self->recsize);
+        junk = memcpy(ondisk, data, self->recsize);
         check_null(junk);
 
         exit_when;

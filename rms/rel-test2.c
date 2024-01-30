@@ -3,8 +3,8 @@
 
 #include "xas/types.h"
 #include "xas/errors.h"
-#include "xas/tracer.h"
 #include "xas/error_handler.h"
+#include "xas/tracer.h"
 #include "xas/error_codes.h"
 #include "xas/gpl/vperror.h"
 #include "xas/rms/rel.h"
@@ -53,7 +53,7 @@ int init(void) {
     } use {
 
         stat = ERR;
-        capture_for_tracer(trace);
+        capture_error(trace);
 
     } end_when;
 
@@ -80,7 +80,7 @@ int main(int argc, char **argv) {
 
     } use {
 
-        capture_for_tracer(trace);
+        capture_error(trace);
         tracer_dump(trace, output_trace);
 
     } end_when;
