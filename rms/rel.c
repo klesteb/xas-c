@@ -1322,9 +1322,9 @@ int _rel_search(rel_t *self, void *data, int (*compare)(void *, void *), int (*c
 
             if (! bit_test(ondisk->flags, REL_F_DELETED)) {
 
-                if (compare(data, ondisk->data)) {
+                if (compare(data, &ondisk->data)) {
 
-                    stat = capture(self, ondisk->data, results);
+                    stat = capture(self, &ondisk->data, results);
                     check_return(stat, self);
 
                 }
@@ -1379,7 +1379,7 @@ int _rel_add(rel_t *self, void *record) {
 
                 memcpy(&ondisk->data, record, self->recsize);
                 ondisk->flags = bit_clear(ondisk->flags, REL_F_DELETED);
-                
+
                 stat = blk_seek(BLK(self), -recsize, SEEK_CUR);
                 check_return(stat, self);
 
@@ -1556,14 +1556,14 @@ int _rel_extend(rel_t *self, int amount) {
 }
 
 int _rel_master_lock(rel_t *self) {
-    
+
     int fd;
     int stat = OK;
     int count = 0;
     int retries = 0;
     int timeout = 0;
     off_t recsize = REL_RECSIZE(self->recsize);
-    
+
     when_error_in {
 
         stat = fib_get_fd(FIB(self), &fd);
@@ -1762,7 +1762,7 @@ int _rel_write_header(rel_t *self) {
         check_return(stat, self);
 
         free((void *)ondisk);
-        
+
         exit_when;
 
     } use {
@@ -1835,7 +1835,7 @@ int _rel_update_header(rel_t *self) {
         header.recsize = self->recsize;
         header.records = self->records;
         header.lastrec = self->lastrec;
-        
+
         memcpy(&ondisk->data, &header, sizeof(rel_header_t));
 
         stat = blk_seek(BLK(self), 0, SEEK_SET);

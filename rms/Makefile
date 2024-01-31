@@ -30,7 +30,8 @@ INCS = btree.h ../xas/rms/fib.h ../xas/rms/lf.h ../xas/rms/blk.h ../xas/rms/rel.
 OBJS = btree.o fib.o lf.o blk.o rel.o
 #
 TESTS = test1 test2 test3 test4 test5 test6 test7 test8 rel-test1 \
-        rel-test2 rel-test3 rel-test4 rel-test5 rel-test6
+        rel-test2 rel-test3 rel-test4 rel-test5 rel-test6 rel-test7 \
+        rel-test8
 #
 all: $(OBJS) $(TESTS)
 #
@@ -120,6 +121,14 @@ rel-test5: rel-test5.o rel-test.h
 rel-test6: rel-test6.o rel-test.h
 	$(CC) $(CFLAGS) rel-test6.c
 	$(LINK) $(LOPTS) rel-test6 rel-test6.o $(OLBS)
+#
+rel-test7: rel-test7.o rel-test.h
+	$(CC) $(CFLAGS) rel-test7.c
+	$(LINK) $(LOPTS) rel-test7 rel-test7.o $(OLBS)
+#
+rel-test8: rel-test8.o rel-test.h
+	$(CC) $(CFLAGS) rel-test8.c
+	$(LINK) $(LOPTS) rel-test8 rel-test8.o $(OLBS)
 #
 man:
 	pod2man -c " " -r "fib(3)" -s 3 fib.pod fib.3
