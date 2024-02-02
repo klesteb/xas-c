@@ -21,7 +21,7 @@ rel - An ANSI C class to manage small datastores
 
      when_error_in {
 
-         self = rel_create(path, name, records, recsize, retries, timeout, dump);
+         self = rel_create(path, name, records, recsize, retries, timeout);
          check_creation(self);
 
          SET_ITEM(items[0], REL_M_INIT, _stuff_init, 0, NULL);
@@ -56,7 +56,7 @@ with file locking. So multi-user access is safe. All access is linear.
 The datastore consists of this file: <name>.dat
 
 A relative file is good for accessing small datastores. Such as a few
-thousand records. Anything bigger you may want to consider an IASM or
+thousand records. Anything bigger you may want to consider an ISAM or
 SQL solution.
 
 This library is a class. It is extensible and overridable. It inherits
@@ -459,33 +459,32 @@ class methods may be overridden:
 
 =item B<int _add(rel_t *, void *)>
 
-This method is used to add a record to the datastore. By default
-rel_add() will use the first "deleted" record found, to store this
-record. You may wish to do something different. You use REL_M_ADD when
-defining your overrides.
+This method is called by rel_add() to add a record to the datastore. By default
+this will use the first "deleted" record found, to store this record. You may 
+wish to do something different. You use REL_M_ADD when defining your overrides.
 
 =item B<int _build(rel_t *, void *, void *)>
-    
-This method is used to transfer the on disk record to an in
-memory record. This allows you to modify the record. This is called
-during a rel_get() operation. You use REL_M_BUILD when defining your overrides.
+
+This method is called by rel_get() to transfer the on disk record to a in
+memory record. This allows you to modify the record. You use REL_M_BUILD when 
+defining your overrides.
 
 =item B<int _del(rel_t *, off_t, void *)>
 
-This method is uses rel_del() to  delete a record from the datastore. By 
+This method called by rel_del() to delete a record from the datastore. By 
 default this marks the record as "deleted" and zeros it out. What "delete" 
 means, can change between different implementations. You use REL_M_DEL when
 defining your overrides.
 
 =item B<int _extend(rel_t *, int)>
 
-This method is used to extend the size of the datastore. This
-allows for customization of the records before they are written out. You use 
-REL_M_EXTEND when defining your overrides.
+This method is called by rel_extend() and rel_open() to extend the size of 
+the datastore. This allows for customization of the records before they are 
+written out. You use REL_M_EXTEND when defining your overrides.
 
 =item B<int _init(rel_t *)>
 
-This method is call by rel_open() and allows for initializing the datastore 
+This method is called by rel_open() and allows for initializing the datastore 
 after has been created. You use REL_M_INIT when defining your overrides.
 
 =item B<int _normalize(rel_t *, void *, void *)>
