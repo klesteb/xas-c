@@ -53,7 +53,7 @@ can be retrieved. There is built in search and find functionality. Get,
 put, add and del access methods are provided. Record access is protected 
 with file locking. So multi-user access is safe. All access is linear. 
 
-The datastore consists of this file: <name>.dat
+The datastore consists of this file: <path>/<name>.dat
 
 A relative file is good for accessing small datastores. Such as a few
 thousand records. Anything bigger you may want to consider an ISAM or
