@@ -471,7 +471,7 @@ defining your overrides.
 
 =item B<int _del(rel_t *, off_t, void *)>
 
-This method called by rel_del() to delete a record from the datastore. By 
+This method is called by rel_del() to delete a record from the datastore. By 
 default this marks the record as "deleted" and zeros it out. What "delete" 
 means, can change between different implementations. You use REL_M_DEL when
 defining your overrides.
