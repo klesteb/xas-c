@@ -485,7 +485,7 @@ written out. You use REL_M_EXTEND when defining your overrides.
 =item B<int _init(rel_t *)>
 
 This method is called by rel_open() and allows for initializing the datastore 
-after has been created. You use REL_M_INIT when defining your overrides.
+after it has been created. You use REL_M_INIT when defining your overrides.
 
 =item B<int _normalize(rel_t *, void *, void *)>
 
