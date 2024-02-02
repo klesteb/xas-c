@@ -44,16 +44,16 @@
 
 #define when_error \
     do { \
-        error_trace_t _er_trace;
+        static error_trace_t _er_trace;
 
 #define when_error_in \
     do { \
-        error_trace_t _er_trace;
+        static error_trace_t _er_trace;
 
 #define end_when \
     } while(0);
 
-#define use handler:
+#define use when_handler:
 #define exit_when break;
 
 #define trace_errnum   _er_trace.errnum
@@ -78,7 +78,7 @@
     trace_lineno = __LINE__;            \
     trace_filename = strdup(__FILE__);  \
     trace_function = strdup(__func__);  \
-    goto handler;                       \
+    goto when_handler;                  \
 }
 
 #define check_status(status, expected, error) {  \
@@ -87,13 +87,17 @@
         trace_lineno = __LINE__ - 1;             \
         trace_filename = strdup(__FILE__);       \
         trace_function = strdup(__func__);       \
-        goto handler;                            \
+        goto when_handler;                       \
     }                                            \
 }
 
 #define check_null(value) {                      \
     if ((value) == NULL) {                       \
-        cause_error(errno);                      \
+        trace_errnum = (errno);                  \
+        trace_lineno = __LINE__ - 1;             \
+        trace_filename = strdup(__FILE__);       \
+        trace_function = strdup(__func__);       \
+        goto when_handler;                       \
     }                                            \
 }
 
@@ -109,14 +113,14 @@
         trace_lineno = __LINE__ - 1;             \
         trace_filename = strdup(__FILE__);       \
         trace_function = strdup(__func__);       \
-        goto handler;                            \
+        goto when_handler;                       \
     }                                            \
 }
 
 #define check_creation(self) {                   \
     retrieve_error((self));                      \
     if (trace_errnum != (OK)) {                  \
-        goto handler;                            \
+        goto when_handler;                       \
     }                                            \
 }
 
