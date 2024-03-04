@@ -81,8 +81,7 @@ int blk_destroy(blk_t *self) {
 
             if (object_assert(self, blk_t)) {
 
-                stat = self->dtor(OBJECT(self));
-                check_status(stat, OK, E_INVOPS);
+                self->dtor(OBJECT(self));
 
             } else {
 
@@ -118,7 +117,7 @@ int blk_override(blk_t *self, item_list_t *items) {
         if (self != NULL) {
 
             stat = self->_override(self, items);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -150,7 +149,7 @@ int blk_compare(blk_t *us, blk_t *them) {
             if (object_assert(them, blk_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat, OK, E_NOTSAME);
+                check_return(stat, us);
 
             } else {
 
@@ -678,8 +677,10 @@ int _blk_override(blk_t *self, item_list_t *items) {
 
             } 
 
+            exit_when;
+
         } use { 
-            
+
             stat = ERR;
             process_error(self);
 

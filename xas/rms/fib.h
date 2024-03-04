@@ -84,5 +84,7 @@ extern int fib_stat(fib_t *, struct stat *);
 extern int fib_unlink(fib_t *);
 extern int fib_get_fd(fib_t *, int *);
 
+#define fib_set_trace(self, trace)    object_set_trace(OBJECT(self), trace)
+
 #endif
 

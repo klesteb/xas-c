@@ -34,7 +34,7 @@ int capture(rel_t *temp, void *data, queue_t *results) {
         memcpy(junk, data, recsize);
 
         stat = que_push_head(results, junk);
-        check_status(stat, OK, E_NOQUEUE);
+        check_status(stat);
 
         exit_when;
 
@@ -121,10 +121,10 @@ int main(int argc, char **argv) {
     when_error_in {
 
         stat = init();
-        check_status(stat, OK, E_INVOPS);
+        check_status(stat);
 
         stat = que_init(&results);
-        check_status(stat, OK, E_NOQUEUE);
+        check_status(stat);
 
         stat = rel_open(temp, flags, mode);
         check_return(stat, temp);

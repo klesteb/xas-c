@@ -124,8 +124,7 @@ int rel_destroy(rel_t *self) {
 
             if (object_assert(self, rel_t)) {
 
-                stat = self->dtor(OBJECT(self));
-                check_status(stat, OK, E_INVOPS);
+                self->dtor(OBJECT(self));
 
             } else {
 
@@ -161,7 +160,7 @@ int rel_override(rel_t *self, item_list_t *items) {
         if (self != NULL) {
 
             stat = self->_override(self, items);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -193,7 +192,7 @@ int rel_compare(rel_t *us, rel_t *them) {
             if (object_assert(them, rel_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat, OK, E_NOTSAME);
+                check_return(stat, us);
 
             } else {
 

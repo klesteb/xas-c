@@ -15,6 +15,7 @@
 
 #include <string.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #include "xas/object.h"
 #include "xas/types.h"
@@ -44,61 +45,61 @@
 
 #define when_error \
     do { \
-        static error_trace_t _er_trace;
+        static int trace_lines = 0;     \
+        static error_trace_t _er_trace; \
 
 #define when_error_in \
     do { \
-        static error_trace_t _er_trace;
+        static int trace_lines = 0;     \
+        static error_trace_t _er_trace; \
 
-#define end_when \
+#define end_when                        \
     } while(0);
 
+#define exit_when                       \
+        trace_lineno = trace_lines;     \
+        break;
+
 #define use when_handler:
-#define exit_when break;
 
 #define trace_errnum   _er_trace.errnum
 #define trace_lineno   _er_trace.lineno
 #define trace_filename _er_trace.filename
 #define trace_function _er_trace.function
 
-#define clear_error(error) {            \
-    trace_errnum = 0;                   \
-    trace_lineno = 0;                   \
-    free(trace_filename);               \
-    free(trace_function);               \
+#define clear_error(error) {               \
+    trace_lines  = 0;                      \
+    trace_errnum = 0;                      \
+    trace_lineno = 0;                      \
+    free(trace_filename);                  \
+    free(trace_function);                  \
 }
 
-#define retry(label) {                  \
-    clear_error();                      \
-    goto label;                         \
+#define retry(label) {                     \
+    clear_error();                         \
+    goto label;                            \
 }
 
-#define cause_error(error) {            \
-    trace_errnum = (error);             \
-    trace_lineno = __LINE__;            \
-    trace_filename = strdup(__FILE__);  \
-    trace_function = strdup(__func__);  \
-    goto when_handler;                  \
+#define cause_error(error) {               \
+    trace_errnum = (error);                \
+    trace_lineno = __LINE__ - trace_lines; \
+    trace_filename = strdup(__FILE__);     \
+    trace_function = strdup(__func__);     \
+    goto when_handler;                     \
 }
 
-#define check_status(status, expected, error) {  \
-    if ((status) != (expected)) {                \
-        trace_errnum = (error);                  \
-        trace_lineno = __LINE__ - 1;             \
-        trace_filename = strdup(__FILE__);       \
-        trace_function = strdup(__func__);       \
-        goto when_handler;                       \
-    }                                            \
+#define check_status(status) {             \
+    if ((status) != (OK)) {                \
+        trace_lines = 1;                   \
+        cause_error(errno);                \
+    }                                      \
 }
 
-#define check_null(value) {                      \
-    if ((value) == NULL) {                       \
-        trace_errnum = (errno);                  \
-        trace_lineno = __LINE__ - 1;             \
-        trace_filename = strdup(__FILE__);       \
-        trace_function = strdup(__func__);       \
-        goto when_handler;                       \
-    }                                            \
+#define check_null(value) {                \
+    if ((value) == NULL) {                 \
+        trace_lines = 1;                   \
+        cause_error(errno);                \
+    }                                      \
 }
 
 /* error handling for objects */
@@ -110,9 +111,8 @@
 #define check_return(status, self) {             \
     if ((status) != (OK)) {                      \
         retrieve_error((self));                  \
-        trace_lineno = __LINE__ - 1;             \
-        trace_filename = strdup(__FILE__);       \
-        trace_function = strdup(__func__);       \
+        trace_lines = 1;                         \
+        cause_error(trace_errnum);               \
         goto when_handler;                       \
     }                                            \
 }

@@ -13,7 +13,6 @@
 #include <unistd.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include <errno.h>
 
 #include "xas/logger.h"
 #include "xas/object.h"
@@ -21,18 +20,22 @@
 #include "xas/error_handler.h"
 #include "xas/log4c_extensions.h"
 
-#include "logger/logger_priv.h"
+#include "logger_priv.h"
 
 require_klass(OBJECT_KLASS);
 
 /*----------------------------------------------------------------*/
-/* klass defination                                               */
+/* klass methods                                                  */
 /*----------------------------------------------------------------*/
 
 int _log_ctor(object_t *object, item_list_t *);
 int _log_dtor(object_t *);
 
 int _log_dispatch(logger_t *, int, int, char *, const char *, char *);
+
+/*----------------------------------------------------------------*/
+/* klass declaration                                              */
+/*----------------------------------------------------------------*/
 
 declare_klass(LOGGER) {
     .size = KLASS_SIZE(logger_t),
@@ -66,14 +69,13 @@ int log_destroy(logger_t *self) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if (self != NULL) {
 
             if (object_assert(self, logger_t)) {
 
-                stat = self->dtor((object_t *)self);
-                check_status(stat, OK, E_INVOPS);
+                self->dtor(OBJECT(self));
 
             } else {
 
@@ -92,9 +94,7 @@ int log_destroy(logger_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -106,7 +106,7 @@ int log_set_category(logger_t *self, char *category) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (category != NULL)) {
 
@@ -124,9 +124,7 @@ int log_set_category(logger_t *self, char *category) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -138,7 +136,7 @@ int log_get_category(logger_t *self, char *category, int size) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (category != NULL) && (size > 0)) {
 
@@ -156,9 +154,7 @@ int log_get_category(logger_t *self, char *category, int size) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -170,7 +166,7 @@ int log_set_facility(logger_t *self, char *facility) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (facility != NULL)) {
 
@@ -188,9 +184,7 @@ int log_set_facility(logger_t *self, char *facility) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -202,7 +196,7 @@ int log_get_facility(logger_t *self, char *facility, int size) {
 
     int stat = ERR;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (facility != NULL) && (size > 0)) {
 
@@ -220,9 +214,7 @@ int log_get_facility(logger_t *self, char *facility, int size) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -234,7 +226,7 @@ int log_set_process(logger_t *self, char *process) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (process != NULL)) {
 
@@ -252,9 +244,7 @@ int log_set_process(logger_t *self, char *process) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -266,7 +256,7 @@ int log_get_process(logger_t *self, char *process, int size) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (process != NULL) && (size > 0)) {
 
@@ -284,9 +274,7 @@ int log_get_process(logger_t *self, char *process, int size) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -300,7 +288,7 @@ int log_dispatch(logger_t *self, int type, int lineno, char *filename, const cha
     int stat = OK;
     char buffer[2048];
 
-    when_error {
+    when_error_in {
 
         if (self != NULL) {
 
@@ -309,7 +297,7 @@ int log_dispatch(logger_t *self, int type, int lineno, char *filename, const cha
             va_end(aptr);
 
             stat = self->_dispatch(self, type, lineno, filename, function, buffer);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -322,9 +310,7 @@ int log_dispatch(logger_t *self, int type, int lineno, char *filename, const cha
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -396,58 +382,55 @@ int _log_ctor(object_t *object, item_list_t *items) {
 
         self->_dispatch = _log_dispatch;
 
-        /* initialize internal variables here */
+        when_error_in {
 
-        self->hostname = NULL;
-        self->facility = NULL;
-        self->category = NULL;
-        self->process  = NULL;
+            /* initialize internal variables here */
 
-        if (log4c_extensions_init()) {
+            self->hostname = NULL;
+            self->facility = NULL;
+            self->category = NULL;
+            self->process  = NULL;
+
+            if (log4c_extensions_init()) {
+
+                cause_error(E_NOLOAD);
+
+            }
+
+            if (log4c_init()) {
+
+                cause_error(E_NOLOAD);
+
+            }
+
+            errno = 0;
+            hostname = calloc(1, 1024);
+            check_null(hostname);
+
+            errno = 0;
+            if ((rc = gethostname(hostname, 1023)) == -1) {
+
+                cause_error(errno);
+
+            }
+
+            self->pid = getpid();
+            self->process = process;
+            self->facility = facility;
+            self->category = category;
+            self->hostname = hostname;
+
+            exit_when;
+
+        } use {
 
             stat = ERR;
-            object_set_error1(self, E_NOLOAD);
-            goto fini;
+            process_error(self);
 
-        }
-
-        if (log4c_init()) {
-
-            stat = ERR;
-            object_set_error1(self, E_NOLOAD);
-            goto fini;
-
-        }
-
-        errno = 0;
-        if ((hostname = calloc(1, 1024)) == NULL) {
-
-            stat = ERR;
-            object_set_error1(self, errno);
-            goto fini;
-
-        }
-
-        errno = 0;
-        if ((rc = gethostname(hostname, 1023)) == -1) {
-
-            stat = ERR;
-            object_set_error1(self, errno);
-            goto fini;
-
-        }
-
-        self->pid = getpid();
-        self->process = process;
-        self->facility = facility;
-        self->category = category;
-        self->hostname = hostname;
-
-        stat = OK;
+        } end_when;
 
     }
 
-    fini:
     return stat;
 
 }
@@ -478,54 +461,63 @@ int _log_dtor(object_t *object) {
 
 int _log_dispatch(logger_t *self, int type, int lineno, char *filename, const char *function, char *message) {
 
-    int stat = ERR;
+    int stat = OK;
     user_local_info_t user;
     log4c_location_info_t locinfo;
     log4c_category_t *mycat = log4c_category_get(self->category);
 
-    user.pid = self->pid;
-    user.process = self->process;
-    user.facility = self->facility;
-    user.hostname = self->hostname;
-    user.category = self->category;
-    
-    locinfo.loc_data = &user;
-    locinfo.loc_line = lineno;
-    locinfo.loc_file = filename;
-    locinfo.loc_function = function;
+    when_error_in {
 
-    switch (type) {
-        case INFO: {
-            stat = OK;
-            log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_INFO, message);
-            break;
+        user.pid = self->pid;
+        user.process = self->process;
+        user.facility = self->facility;
+        user.hostname = self->hostname;
+        user.category = self->category;
+    
+        locinfo.loc_data = &user;
+        locinfo.loc_line = lineno;
+        locinfo.loc_file = filename;
+        locinfo.loc_function = function;
+
+        switch (type) {
+            case INFO: {
+                log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_INFO, message);
+                break;
+            }
+            case WARN: {
+                log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_WARN, message);
+                break;
+            }
+            case ERROR: {
+                log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_ERROR, message);
+                break;
+            }
+            case FATAL: {
+                log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_FATAL, message);
+                break;
+            }
+            case DEBUG: {
+                log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_DEBUG, message);
+                break;
+            }
+            case TRACE: {
+                log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_TRACE, message);
+                break;
+            }
+            default: {
+                cause_error(E_INVOPS);
+                break;
+            }
         }
-        case WARN: {
-            stat = OK;
-            log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_WARN, message);
-            break;
-        }
-        case ERROR: {
-            stat = OK;
-            log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_ERROR, message);
-            break;
-        }
-        case FATAL: {
-            stat = OK;
-            log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_FATAL, message);
-            break;
-        }
-        case DEBUG: {
-            stat = OK;
-            log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_DEBUG, message);
-            break;
-        }
-        case TRACE: {
-            stat = OK;
-            log4c_category_log_locinfo(mycat, &locinfo, LOG4C_PRIORITY_TRACE, message);
-            break;
-        }
-    }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 

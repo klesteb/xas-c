@@ -70,7 +70,7 @@ int main(int argc, char **argv) {
     when_error_in {
 
         stat = init();
-        check_status(stat, OK, E_INVOPS);
+        check_status(stat);
 
         stat = rel_open(temp, flags, mode);
         check_return(stat, temp);

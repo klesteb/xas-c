@@ -11,9 +11,11 @@
 /*---------------------------------------------------------------------------*/
 
 #include <stdlib.h>
+#include <errno.h>
 
 #include "xas/types.h"
 #include "xas/queue.h"
+#include "xas/error_codes.h"
 
 /*----------------------------------------------------------------------*/
 
@@ -110,7 +112,7 @@ void *que_get(queue_t *q) {
 int que_init(queue_t *q) {
 
     node *x = NULL;
-
+    errno = E_NOQUEUE;
 
     if ((x = malloc(sizeof(datanode))) != NULL) {
 
@@ -142,6 +144,7 @@ int que_insert(queue_t *q, void *d) {
     node     *n = NULL; 
     datanode *x = NULL;
 
+    errno = E_NQUEINST;
 
     if (q->cursor == NULL) return(ERR);
     if (q->cursor == q->head) return(que_push_head(q, d));
@@ -269,6 +272,7 @@ int que_push_head(queue_t *q, void *d) {
     node     *n = NULL;
     datanode *p = NULL;
 
+    errno = ENOMEM;
 
     if (q->head->data != NULL) {
 
@@ -299,6 +303,7 @@ int que_push_tail(queue_t *q, void *d) {
     node     *p = NULL;
     datanode *n = NULL; 
 
+    errno = ENOMEM;
 
     if (q->tail->data != NULL) {
 
@@ -445,6 +450,7 @@ int que_sort(queue_t *q, comp_proc *Comp) {
     void     *d = NULL; 
     datanode *dn = NULL; 
 
+    errno = ENOMEM;
 
     /* if already sorted free memory for tag array                      */ 
 

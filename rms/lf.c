@@ -79,8 +79,7 @@ int lf_destroy(lf_t *self) {
 
             if (object_assert(self, lf_t)) {
 
-                stat = self->dtor(OBJECT(self));
-                check_status(stat, OK, E_INVOPS);
+                self->dtor(OBJECT(self));
 
             } else {
 
@@ -99,9 +98,7 @@ int lf_destroy(lf_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -118,7 +115,7 @@ int lf_override(lf_t *self, item_list_t *items) {
         if (self != NULL) {
 
             stat = self->_override(self, items);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -131,9 +128,7 @@ int lf_override(lf_t *self, item_list_t *items) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -152,7 +147,7 @@ int lf_compare(lf_t *us, lf_t *them) {
             if (object_assert(them, lf_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat, OK, E_NOTSAME);
+                check_return(stat, us);
 
             } else {
 
@@ -171,9 +166,7 @@ int lf_compare(lf_t *us, lf_t *them) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(us);
 
     } end_when;
 
@@ -211,9 +204,7 @@ int lf_gets(lf_t *self, char *buffer, size_t size, ssize_t *count) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -243,9 +234,7 @@ int lf_puts(lf_t *self, char *buffer, ssize_t *count) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -274,9 +263,7 @@ int lf_get_eol(lf_t *self, char *eol) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -305,9 +292,7 @@ int lf_set_eol(lf_t *self, char *eol) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -386,8 +371,7 @@ int _lf_ctor(object_t *object, item_list_t *items) {
         } use {
 
             stat = ERR;
-            object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-            clear_error();
+            process_error(self);
 
         } end_when;
 
@@ -451,11 +435,12 @@ int _lf_override(lf_t *self, item_list_t *items) {
 
             } 
 
+            exit_when;
+
         } use { 
-            
+
             stat = ERR;
-            object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-            clear_error();
+            process_error(self);
 
         } end_when;
 
@@ -518,9 +503,7 @@ int _lf_puts(lf_t *self, char *buffer, ssize_t *count) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -552,9 +535,7 @@ int _lf_gets(lf_t *self, char *buffer, size_t length, ssize_t *count) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 

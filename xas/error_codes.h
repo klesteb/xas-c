@@ -17,17 +17,18 @@
 /* error code constants                                        */
 /*-------------------------------------------------------------*/
 
-#define E_INVPARM 1001
-#define E_NODATA  1002
-#define E_INVOPS  1003
-#define E_INVOBJ  1004
-#define E_NOLOAD  1005
-#define E_NOTSAME 1006
-#define E_NOCREAT 1007
-#define E_NOCOLOR 1008
-#define E_NOQUEUE 1009
-#define E_INVREC  1010
-#define E_RMSDEL  1011
+#define E_INVPARM   1001
+#define E_NODATA    1002
+#define E_INVOPS    1003
+#define E_INVOBJ    1004
+#define E_NOLOAD    1005
+#define E_NOTSAME   1006
+#define E_NOCREAT   1007
+#define E_NOCOLOR   1008
+#define E_NOQUEUE   1009
+#define E_INVREC    1010
+#define E_RMSDEL    1011
+#define E_NQUEINST  1012
 
 #endif
 

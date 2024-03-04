@@ -12,7 +12,6 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <errno.h>
 
 #include "xas/types.h"
 #include "xas/object.h"
@@ -23,7 +22,7 @@
 require_klass(OBJECT_KLASS);
 
 /*----------------------------------------------------------------*/
-/* klass defination                                               */
+/* klass methods                                                  */
 /*----------------------------------------------------------------*/
 
 int _err_ctor(object_t *object, item_list_t *);
@@ -35,6 +34,10 @@ int _err_set(err_t *, int, char *, char *);
 int _err_load(err_t *, error_code_t *, int);
 int _err_get_text(err_t *, int, char *, int);
 int _err_get_message(err_t *, int, char *, int);
+
+/*----------------------------------------------------------------*/
+/* klass declaration                                              */
+/*----------------------------------------------------------------*/
 
 declare_klass(ERROR_KLASS) {
     .size = KLASS_SIZE(err_t),
@@ -62,14 +65,13 @@ int err_destroy(err_t *self) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if (self != NULL) {
 
             if (object_assert(self, err_t)) {
 
-                stat = self->dtor(OBJECT(self));
-                check_status(stat, OK, E_INVOPS);
+                self->dtor(OBJECT(self));
 
             } else {
 
@@ -88,9 +90,7 @@ int err_destroy(err_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -102,12 +102,12 @@ int err_get_text(err_t *self, int errnum, char *buffer, int size) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (buffer != NULL)) {
 
             stat = self->_get_text(self, errnum, buffer, size);
-            check_status(stat, OK, E_NODATA);
+            check_return(stat, self);
 
         } else {
 
@@ -120,9 +120,7 @@ int err_get_text(err_t *self, int errnum, char *buffer, int size) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -139,7 +137,7 @@ int err_get_message(err_t *self, int errnum, char *buffer, int size) {
         if ((self != NULL) && (buffer != NULL)) {
 
             stat = self->_get_message(self, errnum, buffer, size);
-            check_status(stat, OK, E_NODATA);
+            check_return(stat, self);
 
         } else {
 
@@ -152,9 +150,7 @@ int err_get_message(err_t *self, int errnum, char *buffer, int size) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -171,7 +167,7 @@ int err_add(err_t *self, int errnum, char *text, char *message) {
         if ((self != NULL) && (errnum != 0) && (text != NULL) && (message != NULL)) {
 
             stat = self->_add_error(self, errnum, text, message);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -184,9 +180,7 @@ int err_add(err_t *self, int errnum, char *text, char *message) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -203,7 +197,7 @@ int err_remove(err_t *self, int errnum) {
         if ((self != NULL) && (errnum != 0)) {
 
             stat = self->_del_error(self, errnum);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -216,9 +210,7 @@ int err_remove(err_t *self, int errnum) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -235,7 +227,7 @@ int err_set(err_t *self, int errnum, char *text, char *message) {
         if ((self != NULL) && (errnum != 0)) {
 
             stat = self->_set_error(self, errnum, text, message);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -248,9 +240,7 @@ int err_set(err_t *self, int errnum, char *text, char *message) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -267,7 +257,7 @@ int err_load(err_t *self, error_code_t *codes, int size) {
         if ((self != NULL) && (codes != NULL)) {
 
             stat = self->_load_errors(self, codes, size);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -280,9 +270,7 @@ int err_load(err_t *self, error_code_t *codes, int size) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -291,18 +279,12 @@ int err_load(err_t *self, error_code_t *codes, int size) {
 }
 
 /*----------------------------------------------------------------*/
-/* private methods                                                */
-/*----------------------------------------------------------------*/
-
-static void _load_system_error_codes(err_t *);
-
-/*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
 int _err_ctor(object_t *object, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
     int codes_size = 0;
     err_t *self = NULL;
     error_code_t *codes = NULL;
@@ -351,30 +333,36 @@ int _err_ctor(object_t *object, item_list_t *items) {
         self->_get_text = _err_get_text;
         self->_get_message = _err_get_message;
         self->_load_errors = _err_load;
+        self->_load_system_errors = _err_load_system;
 
-        /* initialize internal variables here */
+        when_error_in {
 
-        que_init(&self->error_codes);
+            /* initialize internal variables here */
 
-        /* load the system error codes */
+            stat = que_init(&self->error_codes);
+            check_status(stat);
 
-        _load_system_error_codes(self);
+            /* load the system error codes */
 
-        /* load our error codes */
+            stat = self->_load_system_errors(self);
+            check_return(stat, self);
 
-        stat = self->_load_errors(self, error_codes, sizeof(error_codes));
-        if (stat != OK) {
+            /* load our error codes */
 
-            object_set_error1(self, E_NOLOAD);
-            goto fini;
+            stat = self->_load_errors(self, error_codes, sizeof(error_codes));
+            check_return(stat, self);
 
-        }
+            exit_when;
 
-        stat = OK;
+        } use {
+
+            stat = ERR;
+            process_error(self);
+
+        } end_when;
 
     }
 
-    fini:
     return stat;
 
 }
@@ -408,24 +396,42 @@ int _err_dtor(object_t *object) {
 
 int _err_get_text(err_t *self, int errnum, char *buffer, int bufsiz) {
 
-    int stat = ERR;
+    int stat = OK;
+    int found = FALSE;
     error_code_t *error_code = NULL;
 
-    for (error_code = que_first(&self->error_codes);
-         error_code != NULL;
-         error_code = que_next(&self->error_codes)) {
+    when_error_in {
 
-        if (error_code->errnum == errnum) {
+        for (error_code = que_first(&self->error_codes);
+             error_code != NULL;
+             error_code = que_next(&self->error_codes)) {
 
-            int x = strlen(error_code->text);
-            int size = (bufsiz > x) ? bufsiz : x; 
-            strncpy(buffer, error_code->text, size);
-            stat = OK;
-            break;
+            if (error_code->errnum == errnum) {
+
+                int x = strlen(error_code->text);
+                int size = (bufsiz > x) ? bufsiz : x; 
+                strncpy(buffer, error_code->text, size);
+                found = TRUE;
+                break;
+
+            }
 
         }
 
-    }
+        if (! found) {
+
+            cause_error(E_NODATA);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -433,24 +439,42 @@ int _err_get_text(err_t *self, int errnum, char *buffer, int bufsiz) {
 
 int _err_get_message(err_t *self, int errnum, char *buffer, int bufsiz) {
 
-    int stat = ERR;
+    int stat = OK;
+    int found = FALSE;
     error_code_t *error_code = NULL;
 
-    for (error_code = que_first(&self->error_codes);
-         error_code != NULL;
-         error_code = que_next(&self->error_codes)) {
+    when_error_in {
 
-        if (error_code->errnum == errnum) {
+        for (error_code = que_first(&self->error_codes);
+             error_code != NULL;
+             error_code = que_next(&self->error_codes)) {
 
-            int x = strlen(error_code->message);
-            int size = (bufsiz > x) ? bufsiz : x; 
-            strncpy(buffer, error_code->message, size);
-            stat = OK;
-            break;
+            if (error_code->errnum == errnum) {
+
+                int x = strlen(error_code->message);
+                int size = (bufsiz > x) ? bufsiz : x; 
+                strncpy(buffer, error_code->message, size);
+                found = TRUE;
+                break;
+
+            }
 
         }
 
-    }
+        if (! found) {
+
+            cause_error(E_NODATA);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -458,18 +482,30 @@ int _err_get_message(err_t *self, int errnum, char *buffer, int bufsiz) {
 
 int _err_add(err_t *self, int errnum, char *text, char *message) {
 
-    int stat = ERR;
+    int stat = OK;
     error_code_t *error_code = NULL;
 
-    if ((error_code = calloc(1, sizeof(error_code_t)))) {
+    when_error_in {
+
+        errno = 0;
+        error_code = calloc(1, sizeof(error_code_t));
+        check_null(error_code);
 
         error_code->errnum = errnum;
         error_code->text = strdup(text);
         error_code->message = strdup(message);
 
         stat = que_push_tail(&self->error_codes, error_code);
+        check_status(stat);
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -477,26 +513,38 @@ int _err_add(err_t *self, int errnum, char *text, char *message) {
 
 int _err_set(err_t *self, int errnum, char *text, char *message) {
 
-    int stat = ERR;
+    int stat = OK;
     error_code_t *error_code = NULL;
 
-    for (error_code = que_first(&self->error_codes);
-         error_code != NULL;
-         error_code = que_next(&self->error_codes)) {
+    when_error_in {
 
-        if (error_code->errnum == errnum) {
+        for (error_code = que_first(&self->error_codes);
+             error_code != NULL;
+             error_code = que_next(&self->error_codes)) {
 
-            free(error_code->text);
-            free(error_code->message);
+            if (error_code->errnum == errnum) {
 
-            error_code->text = strdup(text);
-            error_code->message = strdup(message);
+                free(error_code->text);
+                free(error_code->message);
 
-            stat = que_put(&self->error_codes, error_code);
+                error_code->text = strdup(text);
+                error_code->message = strdup(message);
+
+                stat = que_put(&self->error_codes, error_code);
+                check_status(stat);
+
+            }
 
         }
-        
-    }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -504,34 +552,44 @@ int _err_set(err_t *self, int errnum, char *text, char *message) {
 
 int _err_del(err_t *self, int errnum) {
 
-    int stat = ERR;
+    int stat = OK;
     error_code_t *error_code = NULL;
 
-    for (error_code = que_first(&self->error_codes);
-         error_code != NULL;
-         error_code = que_next(&self->error_codes)) {
+    when_error_in {
+        
+        for (error_code = que_first(&self->error_codes);
+             error_code != NULL;
+             error_code = que_next(&self->error_codes)) {
 
-        if (error_code->errnum == errnum) {
+            if (error_code->errnum == errnum) {
 
-            error_code = que_delete(&self->error_codes);
+                error_code = que_delete(&self->error_codes);
 
-            free(error_code->text);
-            free(error_code->message);
-            free(error_code);
+                free(error_code->text);
+                free(error_code->message);
+                free(error_code);
             
-            stat = OK;
+                break;
 
-            break;
+            }
 
         }
 
-    }
+        if (que_empty(&self->error_codes)) {
 
-    if (que_empty(&self->error_codes)) {
+            stat = que_init(&self->error_codes);
+            check_status(stat);
 
-        que_init(&self->error_codes);
+        }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -540,26 +598,35 @@ int _err_del(err_t *self, int errnum) {
 int _err_load(err_t *self, error_code_t *codes, int size) {
 
     int x;
-    int stat = ERR;
+    int stat = OK;
     int count = (size/sizeof(codes[0]));
 
-    for (x = 0; x < count; x++) {
+    when_error_in {
 
-        stat = self->_add_error(self, codes[x].errnum, codes[x].text, codes[x].message);
-        if (stat != OK) break;
+        for (x = 0; x < count; x++) {
 
-    }
-    
+            stat = self->_add_error(self, codes[x].errnum, codes[x].text, codes[x].message);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
     return stat;
-    
+
 }
 
-/*----------------------------------------------------------------*/
-/* private methods                                                */
-/*----------------------------------------------------------------*/
+int _err_load_system_errors(err_t *self) {
 
-static void _load_system_error_codes(err_t *self) {
-
+    int stat = OK;
+    
     /*                                                            */
     /* concept and macro magic taken from:                        */
     /*                                                            */
@@ -568,664 +635,894 @@ static void _load_system_error_codes(err_t *self) {
     /* load the system error codes and associated error message.  */
     /*                                                            */
 
+    when_error_in {
+
 #ifdef E2BIG
-        self->_add_error(self, E2BIG, "E2BIG", strerror(E2BIG));
+        stat = self->_add_error(self, E2BIG, "E2BIG", strerror(E2BIG));
+        check_return(stat, self);
 #endif
 #ifdef EACCES
-        self->_add_error(self, EACCES, "EACCES", strerror(EACCES));
+        stat = self->_add_error(self, EACCES, "EACCES", strerror(EACCES));
+        check_return(stat, self);
 #endif
 #ifdef EADDRINUSE
-        self->_add_error(self, EADDRINUSE, "EADDRINUSE", strerror(EADDRINUSE));
+        stat = self->_add_error(self, EADDRINUSE, "EADDRINUSE", strerror(EADDRINUSE));
+        check_return(stat, self);
 #endif
 #ifdef EADDRNOTAVAIL
-        self->_add_error(self, EADDRNOTAVAIL, "EADDRNOTAVAIL", strerror(EADDRNOTAVAIL));
+        stat = self->_add_error(self, EADDRNOTAVAIL, "EADDRNOTAVAIL", strerror(EADDRNOTAVAIL));
+        check_return(stat, self);
 #endif
 #ifdef EADI
-        self->_add_error(self, EADI, "EADI", strerror(EADI));
+        stat = self->_add_error(self, EADI, "EADI", strerror(EADI));
+        check_return(stat, self);
 #endif
 #ifdef EADV
-        self->_add_error(self, EADV, "EADV", strerror(EADV));
+        stat = self->_add_error(self, EADV, "EADV", strerror(EADV));
+        check_return(stat, self);
 #endif
 #ifdef EAFNOSUPPORT
-        self->_add_error(self, EAFNOSUPPORT, "EAFNOSUPPORT", strerror(EAFNOSUPPORT));
+        stat = self->_add_error(self, EAFNOSUPPORT, "EAFNOSUPPORT", strerror(EAFNOSUPPORT));
+        check_return(stat, self);
 #endif
 #ifdef EAGAIN
-        self->_add_error(self, EAGAIN, "EAGAIN", strerror(EAGAIN));
+        stat = self->_add_error(self, EAGAIN, "EAGAIN", strerror(EAGAIN));
+        check_return(stat, self);
 #endif
 #ifdef EAIO
-        self->_add_error(self,EAIO , "EAIO", strerror(EAIO));
+        stat = self->_add_error(self,EAIO , "EAIO", strerror(EAIO));
+        check_return(stat, self);
 #endif
 #ifdef EALIGN
-        self->_add_error(self, EALIGN , "EALIGN", strerror(EALIGN));
+        stat = self->_add_error(self, EALIGN , "EALIGN", strerror(EALIGN));
+        check_return(stat, self);
 #endif
 #ifdef EALREADY
-        self->_add_error(self, EALREADY, "EALREADY", strerror(EALREADY));
+        stat = self->_add_error(self, EALREADY, "EALREADY", strerror(EALREADY));
+        check_return(stat, self);
 #endif
 #ifdef EASYNC
-        self->_add_error(self, EASYNC, "EASYNC", strerror(EASYNC));
+        stat = self->_add_error(self, EASYNC, "EASYNC", strerror(EASYNC));
+        check_return(stat, self);
 #endif
 #ifdef EAUTH
-        self->_add_error(self, EAUTH, "EAUTH", strerror());
+        stat = self->_add_error(self, EAUTH, "EAUTH", strerror());
+        check_return(stat, self);
 #endif
 #ifdef EBADARCH
-        self->_add_error(self, EBADARCH, "EBADARCH", strerror(EBADARCH));
+        stat = self->_add_error(self, EBADARCH, "EBADARCH", strerror(EBADARCH));
+        check_return(stat, self);
 #endif
 #ifdef EBADE
-        self->_add_error(self, EBADE, "EBADE", strerror(EBADE));
+        stat = self->_add_error(self, EBADE, "EBADE", strerror(EBADE));
+        check_return(stat, self);
 #endif
 #ifdef EBADEXEC
-        self->_add_error(self, EBADEXEC, "EBADEXEC", strerror(EBADEXEC));
+        stat = self->_add_error(self, EBADEXEC, "EBADEXEC", strerror(EBADEXEC));
+        check_return(stat, self);
 #endif
 #ifdef EBADF
-        self->_add_error(self, EBADF, "EBADF", strerror(EBADF));
+        stat = self->_add_error(self, EBADF, "EBADF", strerror(EBADF));
+        check_return(stat, self);
 #endif
 #ifdef EBADFD
-        self->_add_error(self, EBADFD, "EBADFD", strerror(EBADFD));
+        stat = self->_add_error(self, EBADFD, "EBADFD", strerror(EBADFD));
+        check_return(stat, self);
 #endif
 #ifdef EBADMACHO
-        self->_add_error(self, EBADMACHO, "EBADMACHO", strerror(EBADMACHO));
+        stat = self->_add_error(self, EBADMACHO, "EBADMACHO", strerror(EBADMACHO));
+        check_return(stat, self);
 #endif
 #ifdef EBADMSG
-        self->_add_error(self, EBADMSG, "EBADMSG", strerror(EBADMSG));
+        stat = self->_add_error(self, EBADMSG, "EBADMSG", strerror(EBADMSG));
+        check_return(stat, self);
 #endif
 #ifdef EBADR
-        self->_add_error(self, EBADR, "EBADR", strerror(EBADR));
+        stat = self->_add_error(self, EBADR, "EBADR", strerror(EBADR));
+        check_return(stat, self);
 #endif
 #ifdef EBADRPC
-        self->_add_error(self, EBADRPC, "EBADRPC", strerror(EBADRPC));
+        stat = self->_add_error(self, EBADRPC, "EBADRPC", strerror(EBADRPC));
+        check_return(stat, self);
 #endif
 #ifdef EBADRQC
-        self->_add_error(self, EBADRQC, "EBADRQC", strerror(EBADRQC));
+        stat = self->_add_error(self, EBADRQC, "EBADRQC", strerror(EBADRQC));
+        check_return(stat, self);
 #endif
 #ifdef EBADSLT
-        self->_add_error(self, EBADSLT, "EBADSLT", strerror(EBADSLT));
+        stat = self->_add_error(self, EBADSLT, "EBADSLT", strerror(EBADSLT));
+        check_return(stat, self);
 #endif
 #ifdef EBADVER
-        self->_add_error(self, EBADVER, "EBADVER", strerror(EBADVER));
+        stat = self->_add_error(self, EBADVER, "EBADVER", strerror(EBADVER));
+        check_return(stat, self);
 #endif
 #ifdef EBFONT
-        self->_add_error(self, EBFONT, "EBFONT", strerror(EBFONT));
+        stat = self->_add_error(self, EBFONT, "EBFONT", strerror(EBFONT));
+        check_return(stat, self);
 #endif
 #ifdef EBUSY
-        self->_add_error(self, EBUSY, "EBUSY", strerror(EBUSY));
+        stat = self->_add_error(self, EBUSY, "EBUSY", strerror(EBUSY));
+        check_return(stat, self);
 #endif
 #ifdef ECANCELED
-        self->_add_error(self, ECANCELED, "ECANCELED", strerror(ECANCELED));
+        stat = self->_add_error(self, ECANCELED, "ECANCELED", strerror(ECANCELED));
+        check_return(stat, self);
 #endif
 #if defined(ECANCELLED) && (!defined(ECANCELED) || ECANCELLED != ECANCELED)
-        self->_add_error(self, ECANCELLED, "ECANCELLED", strerror(ECANCELLED));
+        stat = self->_add_error(self, ECANCELLED, "ECANCELLED", strerror(ECANCELLED));
+        check_return(stat, self);
 #endif
 #ifdef ECAPMODE
-        self->_add_error(self, ECAPMODE, "ECAPMODE", strerror(ECAPMODE));
+        stat = self->_add_error(self, ECAPMODE, "ECAPMODE", strerror(ECAPMODE));
+        check_return(stat, self);
 #endif
 #ifdef ECHILD
-        self->_add_error(self, ECHILD, "ECHILD", strerror(ECHILD));
+        stat = self->_add_error(self, ECHILD, "ECHILD", strerror(ECHILD));
+        check_return(stat, self);
 #endif
 #ifdef ECHRNG
-        self->_add_error(self, ECHRNG, "ECHRNG", strerror(ECHRNG));
+        stat = self->_add_error(self, ECHRNG, "ECHRNG", strerror(ECHRNG));
+        check_return(stat, self);
 #endif
 #ifdef ECKPT
-        self->_add_error(self, ECKPT, "ECKPT", strerror(ECKPT));
+        stat = self->_add_error(self, ECKPT, "ECKPT", strerror(ECKPT));
+        check_return(stat, self);
 #endif
 #ifdef ECLONEME
-        self->_add_error(self, ECLONEME, "ECLONEME", strerror(ECLONEME));
+        stat = self->_add_error(self, ECLONEME, "ECLONEME", strerror(ECLONEME));
+        check_return(stat, self);
 #endif
 #ifdef ECOMM
-        self->_add_error(self, ECOMM, "ECOMM", strerror(ECOMM));
+        stat = self->_add_error(self, ECOMM, "ECOMM", strerror(ECOMM));
+        check_return(stat, self);
 #endif
 #ifdef ECONFIG
-        self->_add_error(self, ECONFIG, "ECONFIG", strerror(ECONFIG));
+        stat = self->_add_error(self, ECONFIG, "ECONFIG", strerror(ECONFIG));
+        check_return(stat, self);
 #endif
 #ifdef ECONNABORTED
-        self->_add_error(self, ECONNABORTED, "ECONNABORTED", strerror(ECONNABORTED));
+        stat = self->_add_error(self, ECONNABORTED, "ECONNABORTED", strerror(ECONNABORTED));
+        check_return(stat, self);
 #endif
 #ifdef ECONNREFUSED
-        self->_add_error(self, ECONNREFUSED, "ECONNREFUSED", strerror(ECONNREFUSED));
+        stat = self->_add_error(self, ECONNREFUSED, "ECONNREFUSED", strerror(ECONNREFUSED));
+        check_return(stat, self);
 #endif
 #ifdef ECONNRESET
-        self->_add_error(self, ECONNRESET, "ECONNRESET", strerror(ECONNRESET));
+        stat = self->_add_error(self, ECONNRESET, "ECONNRESET", strerror(ECONNRESET));
+        check_return(stat, self);
 #endif
 #ifdef ECORRUPT
-        self->_add_error(self, ECORRUPT, "ECORRUPT", strerror(ECORRUPT));
+        stat = self->_add_error(self, ECORRUPT, "ECORRUPT", strerror(ECORRUPT));
+        check_return(stat, self);
 #endif
 #ifdef ECVCERORR
-        self->_add_error(self, ECVCERORR, "ECVCERORR", strerror(ECVCERORR));
+        stat = self->_add_error(self, ECVCERORR, "ECVCERORR", strerror(ECVCERORR));
+        check_return(stat, self);
 #endif
 #ifdef ECVPERORR
-        self->_add_error(self, ECVPERORR, "ECVPERORR", strerror(ECVPERORR));
+        stat = self->_add_error(self, ECVPERORR, "ECVPERORR", strerror(ECVPERORR));
+        check_return(stat, self);
 #endif
 #ifdef EDEADLK
-        self->_add_error(self, EDEADLK, "EDEADLK", strerror(EDEADLK));
+        stat = self->_add_error(self, EDEADLK, "EDEADLK", strerror(EDEADLK));
+        check_return(stat, self);
 #endif
 #if defined(EDEADLOCK) && (!defined(EDEADLK) || EDEADLOCK != EDEADLK)
-        self->_add_error(self, EDEADLOCK, "EDEADLOCK", strerror(EDEADLOCK));
+        stat = self->_add_error(self, EDEADLOCK, "EDEADLOCK", strerror(EDEADLOCK));
+        check_return(stat, self);
 #endif
 #ifdef EDESTADDREQ
-        self->_add_error(self, EDESTADDREQ, "EDESTADDREQ", strerror(EDESTADDREQ));
+        stat = self->_add_error(self, EDESTADDREQ, "EDESTADDREQ", strerror(EDESTADDREQ));
+        check_return(stat, self);
 #endif
 #ifdef EDESTADDRREQ
-        self->_add_error(self, EDESTADDRREQ, "EDESTADDRREQ", strerror(EDESTADDRREQ));
+        stat = self->_add_error(self, EDESTADDRREQ, "EDESTADDRREQ", strerror(EDESTADDRREQ));
+        check_return(stat, self);
 #endif
 #ifdef EDEVERR
-        self->_add_error(self, EDEVERR, "EDEVERR", strerror(EDEVERR));
+        stat = self->_add_error(self, EDEVERR, "EDEVERR", strerror(EDEVERR));
+        check_return(stat, self);
 #endif
 #ifdef EDIRIOCTL
-        self->_add_error(self, EDIRIOCTL, "EDIRIOCTL", strerror(EDIRIOCTL));
+        stat = self->_add_error(self, EDIRIOCTL, "EDIRIOCTL", strerror(EDIRIOCTL));
+        check_return(stat, self);
 #endif
 #ifdef EDIRTY
-        self->_add_error(self, EDIRTY, "EDIRTY", strerror(EDIRTY));
+        stat = self->_add_error(self, EDIRTY, "EDIRTY", strerror(EDIRTY));
+        check_return(stat, self);
 #endif
 #ifdef EDIST
-        self->_add_error(self, EDIST, "EDIST", strerror(EDIST));
+        stat = self->_add_error(self, EDIST, "EDIST", strerror(EDIST));
+        check_return(stat, self);
 #endif
 #ifdef EDOM
-        self->_add_error(self, EDOM, "EDOM", strerror(EDOM));
+        stat = self->_add_error(self, EDOM, "EDOM", strerror(EDOM));
+        check_return(stat, self);
 #endif
 #ifdef EDOOFUS
-        self->_add_error(self, EDOOFUS, "EDOOFUS", strerror(EDOOFUS));
+        stat = self->_add_error(self, EDOOFUS, "EDOOFUS", strerror(EDOOFUS));
+        check_return(stat, self);
 #endif
 #ifdef EDOTDOT
-        self->_add_error(self, EDOTDOT, "EDOTDOT", strerror(EDOTDOT));
+        stat = self->_add_error(self, EDOTDOT, "EDOTDOT", strerror(EDOTDOT));
+        check_return(stat, self);
 #endif
 #ifdef EDQUOT
-        self->_add_error(self, EDQUOT, "EDQUOT", strerror(EDQUOT));
+        stat = self->_add_error(self, EDQUOT, "EDQUOT", strerror(EDQUOT));
+        check_return(stat, self);
 #endif
 #ifdef EDUPFD
-        self->_add_error(self, EDUPFD, "EDUPFD", strerror(EDUPFD));
+        stat = self->_add_error(self, EDUPFD, "EDUPFD", strerror(EDUPFD));
+        check_return(stat, self);
 #endif
 #ifdef EDUPPKG
-        self->_add_error(self, EDUPPKG, "EDUPPKG", strerror(EDUPPKG));
+        stat = self->_add_error(self, EDUPPKG, "EDUPPKG", strerror(EDUPPKG));
+        check_return(stat, self);
 #endif
 #ifdef EEXIST
-        self->_add_error(self, EEXIST, "EEXIST", strerror(EEXIST));
+        stat = self->_add_error(self, EEXIST, "EEXIST", strerror(EEXIST));
+        check_return(stat, self);
 #endif
 #ifdef EFAIL
-        self->_add_error(self, EFAIL, "EFAIL", strerror(EFAIL));
+        stat = self->_add_error(self, EFAIL, "EFAIL", strerror(EFAIL));
+        check_return(stat, self);
 #endif
 #ifdef EFAULT
-        self->_add_error(self, EFAULT, "EFAULT", strerror(EFAULT));
+        stat = self->_add_error(self, EFAULT, "EFAULT", strerror(EFAULT));
+        check_return(stat, self);
 #endif
 #ifdef EFBIG
-        self->_add_error(self, EFBIG, "EFBIG", strerror(EFBIG));
+        stat = self->_add_error(self, EFBIG, "EFBIG", strerror(EFBIG));
+        check_return(stat, self);
 #endif
 #ifdef EFORMAT
-        self->_add_error(self, EFORMAT, "EFORMAT", strerror(EFORMAT));
+        stat = self->_add_error(self, EFORMAT, "EFORMAT", strerror(EFORMAT));
+        check_return(stat, self);
 #endif
 #ifdef EFSCORRUPTED
-        self->_add_error(self, EFSCORRUPTED, "EFSCORRUPTED", strerror(EFSCORRUPTED));
+        stat = self->_add_error(self, EFSCORRUPTED, "EFSCORRUPTED", strerror(EFSCORRUPTED));
+        check_return(stat, self);
 #endif
 #ifdef EFTYPE
-        self->_add_error(self, EFTYPE, "EFTYPE", strerror(EFTYPE));
+        stat = self->_add_error(self, EFTYPE, "EFTYPE", strerror(EFTYPE));
+        check_return(stat, self);
 #endif
 #ifdef EHOSTDOWN
-        self->_add_error(self, EHOSTDOWN, "EHOSTDOWN", strerror(EHOSTDOWN));
+        stat = self->_add_error(self, EHOSTDOWN, "EHOSTDOWN", strerror(EHOSTDOWN));
+        check_return(stat, self);
 #endif
 #ifdef EHOSTUNREACH
-        self->_add_error(self, EHOSTUNREACH, "EHOSTUNREACH", strerror(EHOSTUNREACH));
+        stat = self->_add_error(self, EHOSTUNREACH, "EHOSTUNREACH", strerror(EHOSTUNREACH));
+        check_return(stat, self);
 #endif
 #ifdef EHWPOISON
-        self->_add_error(self, EHWPOISON, "EHWPOISON", strerror(EHWPOISON));
+        stat = self->_add_error(self, EHWPOISON, "EHWPOISON", strerror(EHWPOISON));
+        check_return(stat, self);
 #endif
 #ifdef EIDRM
-        self->_add_error(self, EIDRM, "EIDRM", strerror(EIDRM));
+        stat = self->_add_error(self, EIDRM, "EIDRM", strerror(EIDRM));
+        check_return(stat, self);
 #endif
 #ifdef EILSEQ
-        self->_add_error(self, EILSEQ, "EILSEQ", strerror(EILSEQ));
+        stat = self->_add_error(self, EILSEQ, "EILSEQ", strerror(EILSEQ));
+        check_return(stat, self);
 #endif
 #ifdef EINIT
-        self->_add_error(self, EINIT, "EINIT", strerror(EINIT));
+        stat = self->_add_error(self, EINIT, "EINIT", strerror(EINIT));
+        check_return(stat, self);
 #endif
 #ifdef EINPROG
-        self->_add_error(self, EINPROG, "EINPROG", strerror(EINPROG));
+        stat = self->_add_error(self, EINPROG, "EINPROG", strerror(EINPROG));
+        check_return(stat, self);
 #endif
 #ifdef EINPROGRESS
-        self->_add_error(self, EINPROGRESS, "EINPROGRESS", strerror(EINPROGRESS));
+        stat = self->_add_error(self, EINPROGRESS, "EINPROGRESS", strerror(EINPROGRESS));
+        check_return(stat, self);
 #endif
 #ifdef EINTEGRITY
-        self->_add_error(self, EINTEGRITY, "EINTEGRITY", strerror(EINTEGRITY));
+        stat = self->_add_error(self, EINTEGRITY, "EINTEGRITY", strerror(EINTEGRITY));
+        check_return(stat, self);
 #endif
 #ifdef EINTR
-        self->_add_error(self, EINTR, "EINTR", strerror(EINTR));
+        stat = self->_add_error(self, EINTR, "EINTR", strerror(EINTR));
+        check_return(stat, self);
 #endif
 #ifdef EINVAL
-        self->_add_error(self, EINVAL, "EINVAL", strerror(EINVAL));
+        stat = self->_add_error(self, EINVAL, "EINVAL", strerror(EINVAL));
+        check_return(stat, self);
 #endif
 #ifdef EIO
-        self->_add_error(self, EIO, "EIO", strerror(EIO));
+        stat = self->_add_error(self, EIO, "EIO", strerror(EIO));
+        check_return(stat, self);
 #endif
 #ifdef EIPSEC
-        self->_add_error(self, EIPSEC, "EIPSEC", strerror(EIPSEC));
+        stat = self->_add_error(self, EIPSEC, "EIPSEC", strerror(EIPSEC));
+        check_return(stat, self);
 #endif
 #ifdef EISCONN
-        self->_add_error(self, EISCONN, "EISCONN", strerror(EISCONN));
+        stat = self->_add_error(self, EISCONN, "EISCONN", strerror(EISCONN));
+        check_return(stat, self);
 #endif
 #ifdef EISDIR
-        self->_add_error(self, EISDIR, "EISDIR", strerror(EISDIR));
+        stat = self->_add_error(self, EISDIR, "EISDIR", strerror(EISDIR));
+        check_return(stat, self);
 #endif
 #ifdef EISNAM
-        self->_add_error(self, EISNAM, "EISNAM", strerror(EISNAM));
+        stat = self->_add_error(self, EISNAM, "EISNAM", strerror(EISNAM));
+        check_return(stat, self);
 #endif
 #ifdef EJUSTRETURN
-        self->_add_error(self, EJUSTRETURN, "EJUSTRETURN", strerror(EJUSTRETURN));
+        stat = self->_add_error(self, EJUSTRETURN, "EJUSTRETURN", strerror(EJUSTRETURN));
+        check_return(stat, self);
 #endif
 #ifdef EKEEPLOOKING
-        self->_add_error(self, EKEEPLOOKING, "EKEEPLOOKING", strerror(EKEEPLOOKING));
+        stat = self->_add_error(self, EKEEPLOOKING, "EKEEPLOOKING", strerror(EKEEPLOOKING));
+        check_return(stat, self);
 #endif
 #ifdef EKEYEXPIRED
-        self->_add_error(self, EKEYEXPIRED, "EKEYEXPIRED", strerror(EKEYEXPIRED));
+        stat = self->_add_error(self, EKEYEXPIRED, "EKEYEXPIRED", strerror(EKEYEXPIRED));
+        check_return(stat, self);
 #endif
 #ifdef EKEYREJECTED
-        self->_add_error(self, EKEYREJECTED, "EKEYREJECTED", strerror(EKEYREJECTED));
+        stat = self->_add_error(self, EKEYREJECTED, "EKEYREJECTED", strerror(EKEYREJECTED));
+        check_return(stat, self);
 #endif
 #ifdef EKEYREVOKED
-        self->_add_error(self, EKEYREVOKED, "EKEYREVOKED", strerror(EKEYREVOKED));
+        stat = self->_add_error(self, EKEYREVOKED, "EKEYREVOKED", strerror(EKEYREVOKED));
+        check_return(stat, self);
 #endif
 #ifdef EL2HLT
-        self->_add_error(self, EL2HLT, "EL2HLT", strerror(EL2HLT));
+        stat = self->_add_error(self, EL2HLT, "EL2HLT", strerror(EL2HLT));
+        check_return(stat, self);
 #endif
 #ifdef EL2NSYNC
-        self->_add_error(self, EL2NSYNC, "EL2NSYNC", strerror(EL2NSYNC));
+        stat = self->_add_error(self, EL2NSYNC, "EL2NSYNC", strerror(EL2NSYNC));
+        check_return(stat, self);
 #endif
 #ifdef EL3HLT
-        self->_add_error(self, EL3HLT, "EL3HLT", strerror(EL3HLT));
+        stat = self->_add_error(self, EL3HLT, "EL3HLT", strerror(EL3HLT));
+        check_return(stat, self);
 #endif
 #ifdef EL3RST
-        self->_add_error(self, EL3RST, "EL3RST", strerror(EL3RST));
+        stat = self->_add_error(self, EL3RST, "EL3RST", strerror(EL3RST));
+        check_return(stat, self);
 #endif
 #ifdef ELIBACC
-        self->_add_error(self, ELIBACC, "ELIBACC", strerror(ELIBACC));
+        stat = self->_add_error(self, ELIBACC, "ELIBACC", strerror(ELIBACC));
+        check_return(stat, self);
 #endif
 #ifdef ELIBBAD
-        self->_add_error(self, ELIBBAD, "ELIBBAD", strerror(ELIBBAD));
+        stat = self->_add_error(self, ELIBBAD, "ELIBBAD", strerror(ELIBBAD));
+        check_return(stat, self);
 #endif
 #ifdef ELIBEXEC
-        self->_add_error(self, ELIBEXEC, "ELIBEXEC", strerror(ELIBEXEC));
+        stat = self->_add_error(self, ELIBEXEC, "ELIBEXEC", strerror(ELIBEXEC));
+        check_return(stat, self);
 #endif
 #ifdef ELIBMAX
-        self->_add_error(self, ELIBMAX, "ELIBMAX", strerror(ELIBMAX));
+        stat = self->_add_error(self, ELIBMAX, "ELIBMAX", strerror(ELIBMAX));
+        check_return(stat, self);
 #endif
 #ifdef ELIBSCN
-        self->_add_error(self, ELIBSCN, "ELIBSCN", strerror(ELIBSCN));
+        stat = self->_add_error(self, ELIBSCN, "ELIBSCN", strerror(ELIBSCN));
+        check_return(stat, self);
 #endif
 #ifdef ELNRNG
-        self->_add_error(self, ELNRNG, "ELNRNG", strerror(ELNRNG));
+        stat = self->_add_error(self, ELNRNG, "ELNRNG", strerror(ELNRNG));
+        check_return(stat, self);
 #endif
 #ifdef ELOCKUNMAPPED
-        self->_add_error(self, ELOCKUNMAPPED, "ELOCKUNMAPPED", strerror(ELOCKUNMAPPED));
+        stat = self->_add_error(self, ELOCKUNMAPPED, "ELOCKUNMAPPED", strerror(ELOCKUNMAPPED));
+        check_return(stat, self);
 #endif
 #ifdef ELOOP
-        self->_add_error(self, ELOOP, "ELOOP", strerror(ELOOP));
+        stat = self->_add_error(self, ELOOP, "ELOOP", strerror(ELOOP));
+        check_return(stat, self);
 #endif
 #ifdef EMEDIA
-        self->_add_error(self, EMEDIA, "EMEDIA", strerror(EMEDIA));
+        stat = self->_add_error(self, EMEDIA, "EMEDIA", strerror(EMEDIA));
+        check_return(stat, self);
 #endif
 #ifdef EMEDIUMTYPE
-        self->_add_error(self, EMEDIUMTYPE, "EMEDIUMTYPE", strerror(EMEDIUMTYPE));
+        stat = self->_add_error(self, EMEDIUMTYPE, "EMEDIUMTYPE", strerror(EMEDIUMTYPE));
+        check_return(stat, self);
 #endif
 #ifdef EMFILE
-        self->_add_error(self, EMFILE, "EMFILE", strerror(EMFILE));
+        stat = self->_add_error(self, EMFILE, "EMFILE", strerror(EMFILE));
+        check_return(stat, self);
 #endif
 #ifdef EMLINK
-        self->_add_error(self, EMLINK, "EMLINK", strerror(EMLINK));
+        stat = self->_add_error(self, EMLINK, "EMLINK", strerror(EMLINK));
+        check_return(stat, self);
 #endif
 #ifdef EMOUNTEXIT
-        self->_add_error(self, EMOUNTEXIT, "EMOUNTEXIT", strerror(EMOUNTEXIT));
+        stat = self->_add_error(self, EMOUNTEXIT, "EMOUNTEXIT", strerror(EMOUNTEXIT));
+        check_return(stat, self);
 #endif
 #ifdef EMOVEFD
-        self->_add_error(self, EMOVEFD, "EMOVEFD", strerror(EMOVEFD));
+        stat = self->_add_error(self, EMOVEFD, "EMOVEFD", strerror(EMOVEFD));
+        check_return(stat, self);
 #endif
 #ifdef EMSGSIZE
-        self->_add_error(self, EMSGSIZE, "EMSGSIZE", strerror(EMSGSIZE));
+        stat = self->_add_error(self, EMSGSIZE, "EMSGSIZE", strerror(EMSGSIZE));
+        check_return(stat, self);
 #endif
 #ifdef EMTIMERS
-        self->_add_error(self, EMTIMERS, "EMTIMERS", strerror(EMTIMERS));
+        stat = self->_add_error(self, EMTIMERS, "EMTIMERS", strerror(EMTIMERS));
+        check_return(stat, self);
 #endif
 #ifdef EMULTIHOP
-        self->_add_error(self, EMULTIHOP, "EMULTIHOP", strerror(EMULTIHOP));
+        stat = self->_add_error(self, EMULTIHOP, "EMULTIHOP", strerror(EMULTIHOP));
+        check_return(stat, self);
 #endif
 #ifdef ENAMETOOLONG
-        self->_add_error(self, ENAMETOOLONG, "ENAMETOOLONG", strerror(ENAMETOOLONG));
+        stat = self->_add_error(self, ENAMETOOLONG, "ENAMETOOLONG", strerror(ENAMETOOLONG));
+        check_return(stat, self);
 #endif
 #ifdef ENAVAIL
-        self->_add_error(self, ENAVAIL, "ENAVAIL", strerror(ENAVAIL));
+        stat = self->_add_error(self, ENAVAIL, "ENAVAIL", strerror(ENAVAIL));
+        check_return(stat, self);
 #endif
 #ifdef ENEEDAUTH
-        self->_add_error(self, ENEEDAUTH, "ENEEDAUTH", strerror(ENEEDAUTH));
+        stat = self->_add_error(self, ENEEDAUTH, "ENEEDAUTH", strerror(ENEEDAUTH));
+        check_return(stat, self);
 #endif
 #ifdef ENETDOWN
-        self->_add_error(self, ENETDOWN, "ENETDOWN", strerror(ENETDOWN));
+        stat = self->_add_error(self, ENETDOWN, "ENETDOWN", strerror(ENETDOWN));
+        check_return(stat, self);
 #endif
 #ifdef ENETRESET
-        self->_add_error(self, ENETRESET, "ENETRESET", strerror(ENETRESET));
+        stat = self->_add_error(self, ENETRESET, "ENETRESET", strerror(ENETRESET));
+        check_return(stat, self);
 #endif
 #ifdef ENETUNREACH
-        self->_add_error(self, ENETUNREACH, "ENETUNREACH", strerror(ENETUNREACH));
+        stat = self->_add_error(self, ENETUNREACH, "ENETUNREACH", strerror(ENETUNREACH));
+        check_return(stat, self);
 #endif
 #ifdef ENFILE
-        self->_add_error(self, ENFILE, "ENFILE", strerror(ENFILE));
+        stat = self->_add_error(self, ENFILE, "ENFILE", strerror(ENFILE));
+        check_return(stat, self);
 #endif
 #ifdef ENFSREMOTE
-        self->_add_error(self, ENFSREMOTE, "ENFSREMOTE", strerror(ENFSREMOTE));
+        stat = self->_add_error(self, ENFSREMOTE, "ENFSREMOTE", strerror(ENFSREMOTE));
+        check_return(stat, self);
 #endif
 #ifdef ENOANO
-        self->_add_error(self, ENOANO, "ENOANO", strerror(ENOANO));
+        stat = self->_add_error(self, ENOANO, "ENOANO", strerror(ENOANO));
+        check_return(stat, self);
 #endif
 #ifdef ENOATTR
-        self->_add_error(self, ENOATTR, "ENOATTR", strerror(ENOATTR));
+        stat = self->_add_error(self, ENOATTR, "ENOATTR", strerror(ENOATTR));
+        check_return(stat, self);
 #endif
 #ifdef ENOBUFS
-        self->_add_error(self, ENOBUFS, "ENOBUFS", strerror(ENOBUFS));
+        stat = self->_add_error(self, ENOBUFS, "ENOBUFS", strerror(ENOBUFS));
+        check_return(stat, self);
 #endif
 #ifdef ENOCONNECT
-        self->_add_error(self, ENOCONNECT, "ENOCONNECT", strerror(ENOCONNECT));
+        stat = self->_add_error(self, ENOCONNECT, "ENOCONNECT", strerror(ENOCONNECT));
+        check_return(stat, self);
 #endif
 #ifdef ENOCSI
-        self->_add_error(self, ENOCSI, "ENOCSI", strerror(ENOCSI));
+        stat = self->_add_error(self, ENOCSI, "ENOCSI", strerror(ENOCSI));
+        check_return(stat, self);
 #endif
 #ifdef ENODATA
-        self->_add_error(self, ENODATA, "ENODATA", strerror(ENODATA));
+        stat = self->_add_error(self, ENODATA, "ENODATA", strerror(ENODATA));
+        check_return(stat, self);
 #endif
 #ifdef ENODEV
-        self->_add_error(self, ENODEV, "ENODEV", strerror(ENODEV));
+        stat = self->_add_error(self, ENODEV, "ENODEV", strerror(ENODEV));
+        check_return(stat, self);
 #endif
 #ifdef ENOENT
-        self->_add_error(self, ENOENT, "ENOENT", strerror(ENOENT));
+        stat = self->_add_error(self, ENOENT, "ENOENT", strerror(ENOENT));
+        check_return(stat, self);
 #endif
 #ifdef ENOEXEC
-        self->_add_error(self, ENOEXEC, "ENOEXEC", strerror(ENOEXEC));
+        stat = self->_add_error(self, ENOEXEC, "ENOEXEC", strerror(ENOEXEC));
+        check_return(stat, self);
 #endif
 #ifdef ENOIOCTL
-        self->_add_error(self, ENOIOCTL, "ENOIOCTL", strerror(ENOIOCTL));
+        stat = self->_add_error(self, ENOIOCTL, "ENOIOCTL", strerror(ENOIOCTL));
+        check_return(stat, self);
 #endif
 #ifdef ENOKEY
-        self->_add_error(self, ENOKEY, "ENOKEY", strerror(ENOKEY));
+        stat = self->_add_error(self, ENOKEY, "ENOKEY", strerror(ENOKEY));
+        check_return(stat, self);
 #endif
 #ifdef ENOLCK
-        self->_add_error(self, ENOLCK, "ENOLCK", strerror(ENOLCK));
+        stat = self->_add_error(self, ENOLCK, "ENOLCK", strerror(ENOLCK));
+        check_return(stat, self);
 #endif
 #ifdef ENOLINK
-        self->_add_error(self, ENOLINK, "ENOLINK", strerror(ENOLINK));
+        stat = self->_add_error(self, ENOLINK, "ENOLINK", strerror(ENOLINK));
+        check_return(stat, self);
 #endif
 #ifdef ENOLOAD
-        self->_add_error(self, ENOLOAD, "ENOLOAD", strerror(ENOLOAD));
+        stat = self->_add_error(self, ENOLOAD, "ENOLOAD", strerror(ENOLOAD));
+        check_return(stat, self);
 #endif
 #ifdef ENOMATCH
-        self->_add_error(self, ENOMATCH, "ENOMATCH", strerror(ENOMATCH));
+        stat = self->_add_error(self, ENOMATCH, "ENOMATCH", strerror(ENOMATCH));
+        check_return(stat, self);
 #endif
 #ifdef ENOMEDIUM
-        self->_add_error(self, ENOMEDIUM, "ENOMEDIUM", strerror(ENOMEDIUM));
+        stat = self->_add_error(self, ENOMEDIUM, "ENOMEDIUM", strerror(ENOMEDIUM));
+        check_return(stat, self);
 #endif
 #ifdef ENOMEM
-        self->_add_error(self, ENOMEM, "ENOMEM", strerror(ENOMEM));
+        stat = self->_add_error(self, ENOMEM, "ENOMEM", strerror(ENOMEM));
+        check_return(stat, self);
 #endif
 #ifdef ENOMSG
-        self->_add_error(self, ENOMSG, "ENOMSG", strerror(ENOMSG));
+        stat = self->_add_error(self, ENOMSG, "ENOMSG", strerror(ENOMSG));
+        check_return(stat, self);
 #endif
 #ifdef ENONET
-        self->_add_error(self, ENONET, "ENONET", strerror(ENONET));
+        stat = self->_add_error(self, ENONET, "ENONET", strerror(ENONET));
+        check_return(stat, self);
 #endif
 #ifdef ENOPKG
-        self->_add_error(self, ENOPKG, "ENOPKG", strerror(ENOPKG));
+        stat = self->_add_error(self, ENOPKG, "ENOPKG", strerror(ENOPKG));
+        check_return(stat, self);
 #endif
 #ifdef ENOPOLICY
-        self->_add_error(self, ENOPOLICY, "ENOPOLICY", strerror(ENOPOLICY));
+        stat = self->_add_error(self, ENOPOLICY, "ENOPOLICY", strerror(ENOPOLICY));
+        check_return(stat, self);
 #endif
 #ifdef ENOPROTOOPT
-        self->_add_error(self, ENOPROTOOPT, "ENOPROTOOPT", strerror(ENOPROTOOPT));
+        stat = self->_add_error(self, ENOPROTOOPT, "ENOPROTOOPT", strerror(ENOPROTOOPT));
+        check_return(stat, self);
 #endif
 #ifdef ENOREG
-        self->_add_error(self, ENOREG, "ENOREG", strerror(ENOREG));
+        stat = self->_add_error(self, ENOREG, "ENOREG", strerror(ENOREG));
+        check_return(stat, self);
 #endif
 #ifdef ENOSPC
-        self->_add_error(self, ENOSPC, "ENOSPC", strerror(ENOSPC));
+        stat = self->_add_error(self, ENOSPC, "ENOSPC", strerror(ENOSPC));
+        check_return(stat, self);
 #endif
 #ifdef ENOSR
-        self->_add_error(self, ENOSR, "ENOSR", strerror(ENOSR));
+        stat = self->_add_error(self, ENOSR, "ENOSR", strerror(ENOSR));
+        check_return(stat, self);
 #endif
 #ifdef ENOSTR
-        self->_add_error(self, ENOSTR, "ENOSTR", strerror(ENOSTR));
+        stat = self->_add_error(self, ENOSTR, "ENOSTR", strerror(ENOSTR));
+        check_return(stat, self);
 #endif
 #ifdef ENOSYM
-        self->_add_error(self, ENOSYM, "ENOSYM", strerror(ENOSYM));
+        stat = self->_add_error(self, ENOSYM, "ENOSYM", strerror(ENOSYM));
+        check_return(stat, self);
 #endif
 #ifdef ENOSYS
-        self->_add_error(self, ENOSYS, "ENOSYS", strerror(ENOSYS));
+        stat = self->_add_error(self, ENOSYS, "ENOSYS", strerror(ENOSYS));
+        check_return(stat, self);
 #endif
 #ifdef ENOTACTIVE
-        self->_add_error(self, ENOTACTIVE, "ENOTACTIVE", strerror(ENOTACTIVE));
+        stat = self->_add_error(self, ENOTACTIVE, "ENOTACTIVE", strerror(ENOTACTIVE));
+        check_return(stat, self);
 #endif
 #ifdef ENOTBLK
-        self->_add_error(self, ENOTBLK, "ENOTBLK", strerror(ENOTBLK));
+        stat = self->_add_error(self, ENOTBLK, "ENOTBLK", strerror(ENOTBLK));
+        check_return(stat, self);
 #endif
 #ifdef ENOTCAPABLE
-        self->_add_error(self, ENOTCAPABLE, "ENOTCAPABLE", strerror(ENOTCAPABLE));
+        stat = self->_add_error(self, ENOTCAPABLE, "ENOTCAPABLE", strerror(ENOTCAPABLE));
+        check_return(stat, self);
 #endif
 #ifdef ENOTCONN
-        self->_add_error(self, ENOTCONN, "ENOTCONN", strerror(ENOTCONN));
+        stat = self->_add_error(self, ENOTCONN, "ENOTCONN", strerror(ENOTCONN));
+        check_return(stat, self);
 #endif
 #ifdef ENOTDIR
-        self->_add_error(self, ENOTDIR, "ENOTDIR", strerror(ENOTDIR));
+        stat = self->_add_error(self, ENOTDIR, "ENOTDIR", strerror(ENOTDIR));
+        check_return(stat, self);
 #endif
 #ifdef ENOTEMPTY
-        self->_add_error(self, ENOTEMPTY, "ENOTEMPTY", strerror(ENOTEMPTY));
+        stat = self->_add_error(self, ENOTEMPTY, "ENOTEMPTY", strerror(ENOTEMPTY));
+        check_return(stat, self);
 #endif
 #ifdef ENOTNAM
-        self->_add_error(self, ENOTNAM, "ENOTNAM", strerror(ENOTNAM));
+        stat = self->_add_error(self, ENOTNAM, "ENOTNAM", strerror(ENOTNAM));
+        check_return(stat, self);
 #endif
 #ifdef ENOTREADY
-        self->_add_error(self, ENOTREADY, "ENOTREADY", strerror(ENOTREADY));
+        stat = self->_add_error(self, ENOTREADY, "ENOTREADY", strerror(ENOTREADY));
+        check_return(stat, self);
 #endif
 #ifdef ENOTRECOVERABLE
-        self->_add_error(self, ENOTRECOVERABLE, "ENOTRECOVERABLE", strerror(ENOTRECOVERABLE));
+        stat = self->_add_error(self, ENOTRECOVERABLE, "ENOTRECOVERABLE", strerror(ENOTRECOVERABLE));
+        check_return(stat, self);
 #endif
 #ifdef ENOTRUST
-        self->_add_error(self, ENOTRUST, "ENOTRUST", strerror(ENOTRUST));
+        stat = self->_add_error(self, ENOTRUST, "ENOTRUST", strerror(ENOTRUST));
+        check_return(stat, self);
 #endif
 #ifdef ENOTSOCK
-        self->_add_error(self, ENOTSOCK, "ENOTSOCK", strerror(ENOTSOCK));
+        stat = self->_add_error(self, ENOTSOCK, "ENOTSOCK", strerror(ENOTSOCK));
+        check_return(stat, self);
 #endif
 #ifdef ENOTSUP
-        self->_add_error(self, ENOTSUP, "ENOTSUP", strerror(ENOTSUP));
+        stat = self->_add_error(self, ENOTSUP, "ENOTSUP", strerror(ENOTSUP));
+        check_return(stat, self);
 #endif
 #ifdef ENOTTY
-        self->_add_error(self, ENOTTY, "ENOTTY", strerror(ENOTTY));
+        stat = self->_add_error(self, ENOTTY, "ENOTTY", strerror(ENOTTY));
+        check_return(stat, self);
 #endif
 #ifdef ENOTUNIQ
-        self->_add_error(self, ENOTUNIQ, "ENOTUNIQ", strerror(ENOTUNIQ));
+        stat = self->_add_error(self, ENOTUNIQ, "ENOTUNIQ", strerror(ENOTUNIQ));
+        check_return(stat, self);
 #endif
 #ifdef ENOUNLD
-        self->_add_error(self, ENOUNLD, "ENOUNLD", strerror(ENOUNLD));
+        stat = self->_add_error(self, ENOUNLD, "ENOUNLD", strerror(ENOUNLD));
+        check_return(stat, self);
 #endif
 #ifdef ENOUNREG
-        self->_add_error(self, ENOUNREG, "ENOUNREG", strerror(ENOUNREG));
+        stat = self->_add_error(self, ENOUNREG, "ENOUNREG", strerror(ENOUNREG));
+        check_return(stat, self);
 #endif
 #ifdef ENXIO
-        self->_add_error(self, ENXIO, "ENXIO", strerror(ENXIO));
+        stat = self->_add_error(self, ENXIO, "ENXIO", strerror(ENXIO));
+        check_return(stat, self);
 #endif
 #ifdef EOPCOMPLETE
-        self->_add_error(self, EOPCOMPLETE, "EOPCOMPLETE", strerror(EOPCOMPLETE));
+        stat = self->_add_error(self, EOPCOMPLETE, "EOPCOMPLETE", strerror(EOPCOMPLETE));
+        check_return(stat, self);
 #endif
 #if defined(EOPNOTSUPP) && (!defined(ENOTSUP) || EOPNOTSUPP != ENOTSUP)
-        self->_add_error(self, EOPNOTSUPP, "EOPNOTSUPP", strerror(EOPNOTSUPP));
+        stat = self->_add_error(self, EOPNOTSUPP, "EOPNOTSUPP", strerror(EOPNOTSUPP));
+        check_return(stat, self);
 #endif
 #ifdef EOVERFLOW
-        self->_add_error(self, EOVERFLOW, "EOVERFLOW", strerror(EOVERFLOW));
+        stat = self->_add_error(self, EOVERFLOW, "EOVERFLOW", strerror(EOVERFLOW));
+        check_return(stat, self);
 #endif
 #ifdef EOWNERDEAD
-        self->_add_error(self, EOWNERDEAD, "EOWNERDEAD", strerror(EOWNERDEAD));
+        stat = self->_add_error(self, EOWNERDEAD, "EOWNERDEAD", strerror(EOWNERDEAD));
+        check_return(stat, self);
 #endif
 #ifdef EPASSTHROUGH
-        self->_add_error(self, EPASSTHROUGH, "EPASSTHROUGH", strerror(EPASSTHROUGH));
+        stat = self->_add_error(self, EPASSTHROUGH, "EPASSTHROUGH", strerror(EPASSTHROUGH));
+        check_return(stat, self);
 #endif
 #ifdef EPATHREMOTE
-        self->_add_error(self, EPATHREMOTE, "EPATHREMOTE", strerror(EPATHREMOTE));
+        stat = self->_add_error(self, EPATHREMOTE, "EPATHREMOTE", strerror(EPATHREMOTE));
+        check_return(stat, self);
 #endif
 #ifdef EPERM
-        self->_add_error(self, EPERM, "EPERM", strerror(EPERM));
+        stat = self->_add_error(self, EPERM, "EPERM", strerror(EPERM));
+        check_return(stat, self);
 #endif
 #ifdef EPFNOSUPPORT
-        self->_add_error(self, EPFNOSUPPORT, "EPFNOSUPPORT", strerror(EPFNOSUPPORT));
+        stat = self->_add_error(self, EPFNOSUPPORT, "EPFNOSUPPORT", strerror(EPFNOSUPPORT));
+        check_return(stat, self);
 #endif
 #ifdef EPIPE
-        self->_add_error(self, EPIPE, "EPIPE", strerror(EPIPE));
+        stat = self->_add_error(self, EPIPE, "EPIPE", strerror(EPIPE));
+        check_return(stat, self);
 #endif
 #ifdef EPOWERF
-        self->_add_error(self, EPOWERF, "EPOWERF", strerror(EPOWERF));
+        stat = self->_add_error(self, EPOWERF, "EPOWERF", strerror(EPOWERF));
+        check_return(stat, self);
 #endif
 #ifdef EPROCLIM
-        self->_add_error(self, EPROCLIM, "EPROCLIM", strerror(EPROCLIM));
+        stat = self->_add_error(self, EPROCLIM, "EPROCLIM", strerror(EPROCLIM));
+        check_return(stat, self);
 #endif
 #ifdef EPROCUNAVAIL
-        self->_add_error(self, EPROCUNAVAIL, "EPROCUNAVAIL", strerror(EPROCUNAVAIL));
+        stat = self->_add_error(self, EPROCUNAVAIL, "EPROCUNAVAIL", strerror(EPROCUNAVAIL));
+        check_return(stat, self);
 #endif
 #ifdef EPROGMISMATCH
-        self->_add_error(self, EPROGMISMATCH, "EPROGMISMATCH", strerror(EPROGMISMATCH));
+        stat = self->_add_error(self, EPROGMISMATCH, "EPROGMISMATCH", strerror(EPROGMISMATCH));
+        check_return(stat, self);
 #endif
 #ifdef EPROGUNAVAIL
-        self->_add_error(self, EPROGUNAVAIL, "EPROGUNAVAIL", strerror(EPROGUNAVAIL));
+        stat = self->_add_error(self, EPROGUNAVAIL, "EPROGUNAVAIL", strerror(EPROGUNAVAIL));
+        check_return(stat, self);
 #endif
 #ifdef EPROTO
-        self->_add_error(self, EPROTO, "EPROTO", strerror(EPROTO));
+        stat = self->_add_error(self, EPROTO, "EPROTO", strerror(EPROTO));
+        check_return(stat, self);
 #endif
 #ifdef EPROTONOSUPPORT
-        self->_add_error(self, EPROTONOSUPPORT, "EPROTONOSUPPORT", strerror(EPROTONOSUPPORT));
+        stat = self->_add_error(self, EPROTONOSUPPORT, "EPROTONOSUPPORT", strerror(EPROTONOSUPPORT));
+        check_return(stat, self);
 #endif
 #ifdef EPROTOTYPE
-        self->_add_error(self, EPROTOTYPE, "EPROTOTYPE", strerror(EPROTOTYPE));
+        stat = self->_add_error(self, EPROTOTYPE, "EPROTOTYPE", strerror(EPROTOTYPE));
+        check_return(stat, self);
 #endif
 #ifdef EPWROFF
-        self->_add_error(self, EPWROFF, "EPWROFF", strerror(EPWROFF));
+        stat = self->_add_error(self, EPWROFF, "EPWROFF", strerror(EPWROFF));
+        check_return(stat, self);
 #endif
 #ifdef EQFULL
-        self->_add_error(self, EQFULL, "EQFULL", strerror(EQFULL));
+        stat = self->_add_error(self, EQFULL, "EQFULL", strerror(EQFULL));
+        check_return(stat, self);
 #endif
 #ifdef EQSUSPENDED
-        self->_add_error(self, EQSUSPENDED, "EQSUSPENDED", strerror(EQSUSPENDED));
+        stat = self->_add_error(self, EQSUSPENDED, "EQSUSPENDED", strerror(EQSUSPENDED));
+        check_return(stat, self);
 #endif
 #ifdef ERANGE
-        self->_add_error(self, ERANGE, "ERANGE", strerror(ERANGE));
+        stat = self->_add_error(self, ERANGE, "ERANGE", strerror(ERANGE));
+        check_return(stat, self);
 #endif
 #ifdef ERECYCLE
-        self->_add_error(self, ERECYCLE, "ERECYCLE", strerror(ERECYCLE));
+        stat = self->_add_error(self, ERECYCLE, "ERECYCLE", strerror(ERECYCLE));
+        check_return(stat, self);
 #endif
 #ifdef EREDRIVEOPEN
-        self->_add_error(self, EREDRIVEOPEN, "EREDRIVEOPEN", strerror(EREDRIVEOPEN));
+        stat = self->_add_error(self, EREDRIVEOPEN, "EREDRIVEOPEN", strerror(EREDRIVEOPEN));
+        check_return(stat, self);
 #endif
 #ifdef EREFUSED
-        self->_add_error(self, EREFUSED, "EREFUSED", strerror(EREFUSED));
+        stat = self->_add_error(self, EREFUSED, "EREFUSED", strerror(EREFUSED));
+        check_return(stat, self);
 #endif
 #ifdef ERELOC
-        self->_add_error(self, ERELOC, "ERELOC", strerror(ERELOC));
+        stat = self->_add_error(self, ERELOC, "ERELOC", strerror(ERELOC));
+        check_return(stat, self);
 #endif
 #ifdef ERELOCATED
-        self->_add_error(self, ERELOCATED, "ERELOCATED", strerror(ERELOCATED));
+        stat = self->_add_error(self, ERELOCATED, "ERELOCATED", strerror(ERELOCATED));
+        check_return(stat, self);
 #endif
 #ifdef ERELOOKUP
-        self->_add_error(self, ERELOOKUP, "ERELOOKUP", strerror(ERELOOKUP));
+        stat = self->_add_error(self, ERELOOKUP, "ERELOOKUP", strerror(ERELOOKUP));
+        check_return(stat, self);
 #endif
 #ifdef EREMCHG
-        self->_add_error(self, EREMCHG, "EREMCHG", strerror(EREMCHG));
+        stat = self->_add_error(self, EREMCHG, "EREMCHG", strerror(EREMCHG));
+        check_return(stat, self);
 #endif
 #ifdef EREMDEV
-        self->_add_error(self, EREMDEV, "EREMDEV", strerror(EREMDEV));
+        stat = self->_add_error(self, EREMDEV, "EREMDEV", strerror(EREMDEV));
+        check_return(stat, self);
 #endif
 #ifdef EREMOTE
-        self->_add_error(self, EREMOTE, "EREMOTE", strerror(EREMOTE));
+        stat = self->_add_error(self, EREMOTE, "EREMOTE", strerror(EREMOTE));
+        check_return(stat, self);
 #endif
 #ifdef EREMOTEIO
-        self->_add_error(self, EREMOTEIO, "EREMOTEIO", strerror(EREMOTEIO));
+        stat = self->_add_error(self, EREMOTEIO, "EREMOTEIO", strerror(EREMOTEIO));
+        check_return(stat, self);
 #endif
 #ifdef EREMOTERELEASE
-        self->_add_error(self, EREMOTERELEASE, "EREMOTERELEASE", strerror(EREMOTERELEASE));
+        stat = self->_add_error(self, EREMOTERELEASE, "EREMOTERELEASE", strerror(EREMOTERELEASE));
+        check_return(stat, self);
 #endif
 #ifdef ERESTART
-        self->_add_error(self, ERESTART, "ERESTART", strerror(ERESTART));
+        stat = self->_add_error(self, ERESTART, "ERESTART", strerror(ERESTART));
+        check_return(stat, self);
 #endif
 #ifdef ERFKILL
-        self->_add_error(self, ERFKILL, "ERFKILL", strerror(ERFKILL));
+        stat = self->_add_error(self, ERFKILL, "ERFKILL", strerror(ERFKILL));
+        check_return(stat, self);
 #endif
 #ifdef EROFS
-        self->_add_error(self, EROFS, "EROFS", strerror(EROFS));
+        stat = self->_add_error(self, EROFS, "EROFS", strerror(EROFS));
+        check_return(stat, self);
 #endif
 #ifdef ERPCMISMATCH
-        self->_add_error(self, ERPCMISMATCH, "ERPCMISMATCH", strerror(ERPCMISMATCH));
+        stat = self->_add_error(self, ERPCMISMATCH, "ERPCMISMATCH", strerror(ERPCMISMATCH));
+        check_return(stat, self);
 #endif
 #ifdef ESAD
-        self->_add_error(self, ESAD, "ESAD", strerror(ESAD));
+        stat = self->_add_error(self, ESAD, "ESAD", strerror(ESAD));
+        check_return(stat, self);
 #endif
 #ifdef ESHLIBVERS
-        self->_add_error(self, ESHLIBVERS, "ESHLIBVERS", strerror(ESHLIBVERS));
+        stat = self->_add_error(self, ESHLIBVERS, "ESHLIBVERS", strerror(ESHLIBVERS));
+        check_return(stat, self);
 #endif
 #ifdef ESHUTDOWN
-        self->_add_error(self, ESHUTDOWN, "ESHUTDOWN", strerror(ESHUTDOWN));
+        stat = self->_add_error(self, ESHUTDOWN, "ESHUTDOWN", strerror(ESHUTDOWN));
+        check_return(stat, self);
 #endif
 #ifdef ESOCKTNOSUPPORT
-        self->_add_error(self, ESOCKTNOSUPPORT, "ESOCKTNOSUPPORT", strerror(ESOCKTNOSUPPORT));
+        stat = self->_add_error(self, ESOCKTNOSUPPORT, "ESOCKTNOSUPPORT", strerror(ESOCKTNOSUPPORT));
+        check_return(stat, self);
 #endif
 #ifdef ESOFT
-        self->_add_error(self, ESOFT, "ESOFT", strerror(ESOFT));
+        stat = self->_add_error(self, ESOFT, "ESOFT", strerror(ESOFT));
+        check_return(stat, self);
 #endif
 #ifdef ESPIPE
-        self->_add_error(self, ESPIPE, "ESPIPE", strerror(ESPIPE));
+        stat = self->_add_error(self, ESPIPE, "ESPIPE", strerror(ESPIPE));
+        check_return(stat, self);
 #endif
 #ifdef ESRCH
-        self->_add_error(self, ESRCH, "ESRCH", strerror(ESRCH));
+        stat = self->_add_error(self, ESRCH, "ESRCH", strerror(ESRCH));
+        check_return(stat, self);
 #endif
 #ifdef ESRMNT
-        self->_add_error(self, ESRMNT, "ESRMNT", strerror(ESRMNT));
+        stat = self->_add_error(self, ESRMNT, "ESRMNT", strerror(ESRMNT));
+        check_return(stat, self);
 #endif
 #ifdef ESTALE
-        self->_add_error(self, ESTALE, "ESTALE", strerror(ESTALE));
+        stat = self->_add_error(self, ESTALE, "ESTALE", strerror(ESTALE));
+        check_return(stat, self);
 #endif
 #ifdef ESTART
-        self->_add_error(self, ESTART, "ESTART", strerror(ESTART));
+        stat = self->_add_error(self, ESTART, "ESTART", strerror(ESTART));
+        check_return(stat, self);
 #endif
 #ifdef ESTRPIPE
-        self->_add_error(self, ESTRPIPE, "ESTRPIPE", strerror(ESTRPIPE));
+        stat = self->_add_error(self, ESTRPIPE, "ESTRPIPE", strerror(ESTRPIPE));
+        check_return(stat, self);
 #endif
 #ifdef ESYSERROR
-        self->_add_error(self, ESYSERROR, "ESYSERROR", strerror(ESYSERROR));
+        stat = self->_add_error(self, ESYSERROR, "ESYSERROR", strerror(ESYSERROR));
+        check_return(stat, self);
 #endif
 #ifdef ETIME
-        self->_add_error(self, ETIME, "ETIME", strerror(ETIME));
+        stat = self->_add_error(self, ETIME, "ETIME", strerror(ETIME));
+        check_return(stat, self);
 #endif
 #ifdef ETIMEDOUT
-        self->_add_error(self, ETIMEDOUT, "ETIMEDOUT", strerror(ETIMEDOUT));
+        stat = self->_add_error(self, ETIMEDOUT, "ETIMEDOUT", strerror(ETIMEDOUT));
+        check_return(stat, self);
 #endif
 #ifdef ETOOMANYREFS
-        self->_add_error(self, ETOOMANYREFS, "ETOOMANYREFS", strerror(ETOOMANYREFS));
+        stat = self->_add_error(self, ETOOMANYREFS, "ETOOMANYREFS", strerror(ETOOMANYREFS));
+        check_return(stat, self);
 #endif
 #ifdef ETXTBSY
-        self->_add_error(self, ETXTBSY, "ETXTBSY", strerror(ETXTBSY));
+        stat = self->_add_error(self, ETXTBSY, "ETXTBSY", strerror(ETXTBSY));
+        check_return(stat, self);
 #endif
 #ifdef EUCLEAN
-        self->_add_error(self, EUCLEAN, "EUCLEAN", strerror(EUCLEAN));
+        stat = self->_add_error(self, EUCLEAN, "EUCLEAN", strerror(EUCLEAN));
+        check_return(stat, self);
 #endif
 #ifdef EUNATCH
-        self->_add_error(self, EUNATCH, "EUNATCH", strerror(EUNATCH));
+        stat = self->_add_error(self, EUNATCH, "EUNATCH", strerror(EUNATCH));
+        check_return(stat, self);
 #endif
 #ifdef EUSERS
-        self->_add_error(self, EUSERS, "EUSERS", strerror(EUSERS));
+        stat = self->_add_error(self, EUSERS, "EUSERS", strerror(EUSERS));
+        check_return(stat, self);
 #endif
 #ifdef EVERSION
-        self->_add_error(self, EVERSION, "EVERSION", strerror(EVERSION));
+        stat = self->_add_error(self, EVERSION, "EVERSION", strerror(EVERSION));
+        check_return(stat, self);
 #endif
 #if defined(EWOULDBLOCK) && (!defined(EAGAIN) || EWOULDBLOCK != EAGAIN)
-        self->_add_error(self, EWOULDBLOCK, "EWOULDBLOCK", strerror(EWOULDBLOCK));
+        stat = self->_add_error(self, EWOULDBLOCK, "EWOULDBLOCK", strerror(EWOULDBLOCK));
+        check_return(stat, self);
 #endif
 #ifdef EWRONGFS
-        self->_add_error(self, EWRONGFS, "EWRONGFS", strerror(EWRONGFS));
+        stat = self->_add_error(self, EWRONGFS, "EWRONGFS", strerror(EWRONGFS));
+        check_return(stat, self);
 #endif
 #ifdef EWRPROTECT
-        self->_add_error(self, EWRPROTECT, "EWRPROTECT", strerror(EWRPROTECT));
+        stat = self->_add_error(self, EWRPROTECT, "EWRPROTECT", strerror(EWRPROTECT));
+        check_return(stat, self);
 #endif
 #ifdef EXDEV
-        self->_add_error(self, EXDEV, "EXDEV", strerror(EXDEV));
+        stat = self->_add_error(self, EXDEV, "EXDEV", strerror(EXDEV));
+        check_return(stat, self);
 #endif
 #ifdef EXFULL
-        self->_add_error(self, EXFULL, "EXFULL", strerror(EXFULL));
+        stat = self->_add_error(self, EXFULL, "EXFULL", strerror(EXFULL));
+        check_return(stat, self);
 #endif
 
+        exit_when;
+
+	} use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+    
     /* this is ridicules, there has to be a better way. oh,       */
     /* there is, but this has been marked as "depreciated".       */
     /*                                                            */
@@ -1243,6 +1540,8 @@ static void _load_system_error_codes(err_t *self) {
     /*                                                            */
     /* thank you standards bodies                                 */
     /*                                                            */
+
+    return stat;
 
 }
 

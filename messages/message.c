@@ -77,14 +77,13 @@ int message_destroy(message_t *self) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if (self != NULL) {
 
             if (object_assert(self, message_t)) {
 
-                stat = self->dtor(OBJECT(self));
-                check_status(stat, OK, E_INVOPS);
+                self->dtor(OBJECT(self));
 
             } else {
 
@@ -103,9 +102,7 @@ int message_destroy(message_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -117,12 +114,12 @@ int message_override(message_t *self, item_list_t *items) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if (self != NULL) {
 
             stat = self->_override(self, items);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -135,9 +132,7 @@ int message_override(message_t *self, item_list_t *items) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -149,14 +144,14 @@ int message_compare(message_t *us, message_t *them) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
-        if (us != NULL) {
+        if ((us != NULL) && (them != NULL)) {
 
             if (object_assert(them, message_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat, OK, E_NOTSAME);
+                check_return(stat, us);
 
             } else {
 
@@ -175,9 +170,7 @@ int message_compare(message_t *us, message_t *them) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(us);
 
     } end_when;
 
@@ -197,12 +190,12 @@ int message_add(message_t *self, int nemonic, char *message) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (nemonic != 0) && (message != NULL)) {
 
             stat = self->_add_message(self, nemonic, message);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -215,9 +208,7 @@ int message_add(message_t *self, int nemonic, char *message) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -229,12 +220,12 @@ int message_set(message_t *self, int nemonic, char *text) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (nemonic != 0) && (text != NULL)) {
 
             stat = self->_set_message(self, nemonic, text);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -247,9 +238,7 @@ int message_set(message_t *self, int nemonic, char *text) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -261,12 +250,12 @@ int message_get(message_t *self, int nemonic, char *buffer, int size) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (nemonic != 0) && (buffer != NULL)) {
 
             stat = self->_get_message(self, nemonic, buffer, size);
-            check_status(stat, OK, E_NODATA);
+            check_return(stat, self);
 
         } else {
 
@@ -279,9 +268,7 @@ int message_get(message_t *self, int nemonic, char *buffer, int size) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -293,12 +280,12 @@ int message_remove(message_t *self, int nemonic) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (nemonic != 0)) {
 
             stat = self->_del_message(self, nemonic);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -311,9 +298,7 @@ int message_remove(message_t *self, int nemonic) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -325,12 +310,12 @@ int message_load(message_t *self, message_code_t *messages, int size) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if ((self != NULL) && (messages != NULL)) {
 
             stat = self->_load_messages(self, messages, size);
-            check_status(stat, OK, E_INVOPS);
+            check_return(stat, self);
 
         } else {
 
@@ -343,9 +328,7 @@ int message_load(message_t *self, message_code_t *messages, int size) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -359,7 +342,7 @@ int message_load(message_t *self, message_code_t *messages, int size) {
 
 int _message_ctor(object_t *object, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
     int msg_size = 0;
     message_t *self = NULL;
     message_code_t *messages = NULL;
@@ -413,28 +396,28 @@ int _message_ctor(object_t *object, item_list_t *items) {
         when_error_in {
 
             stat = que_init(&self->messages);
-            check_status(stat, OK, E_NOQUEUE);
+            check_status(stat);
 
             /* load default messages */
 
             stat = self->_load_messages(self, defaults, sizeof(defaults));
-            check_status(stat, OK, E_NOLOAD);
+            check_return(stat, self);
 
             /* load any user defined messages */
 
             if (messages != NULL) {
 
                 stat = self->_load_messages(self, messages, msg_size);
-                check_status(stat, OK, E_NOLOAD);
+                check_return(stat, self);
 
             }
 
-            stat = OK;
             exit_when;
 
         } use {
             
-            object_set_error1(self, trace_errnum);
+            stat = ERR;
+            process_error(self);
 
         } end_when;
         
@@ -548,17 +531,29 @@ int _message_compare(message_t *self, message_t *other) {
 
 int _message_add(message_t *self, int nemonic, char *text) {
 
-    int stat = ERR;
+    int stat = OK;
     message_code_t *message = NULL;
 
-    if ((message = calloc(1, sizeof(message_code_t)))) {
+    when_error_in {
+
+        errno = 0;
+        message = calloc(1, sizeof(message_code_t));
+        check_null(message);
 
         message->msgnum = nemonic;
         message->text = strdup(text);
 
         stat = que_push_tail(&self->messages, message);
+        check_status(stat);
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -566,33 +561,50 @@ int _message_add(message_t *self, int nemonic, char *text) {
 
 int _message_del(message_t *self, int nemonic) {
 
-    int stat = ERR;
+    int stat = OK;
+    int found = FALSE;
     message_code_t *message = NULL;
 
-    for (message = que_first(&self->messages);
-         message != NULL;
-         message = que_next(&self->messages)) {
+    when_error_in {
 
-        if (message->msgnum == nemonic) {
+        for (message = que_first(&self->messages);
+             message != NULL;
+             message = que_next(&self->messages)) {
 
-            message = que_delete(&self->messages);
+            if (message->msgnum == nemonic) {
 
-            free(message->text);
-            free(message);
+                message = que_delete(&self->messages);
 
-            stat = OK;
+                free(message->text);
+                free(message);
+                found = TRUE;
+                break;
 
-            break;
+            }
 
         }
 
-    }
+        if (que_empty(&self->messages)) {
 
-    if (que_empty(&self->messages)) {
+            stat = que_init(&self->messages);
+            check_status(stat);
 
-        que_init(&self->messages);
+        }
 
-    }
+        if (! found) {
+            
+            cause_error(E_NODATA);
+            
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -600,22 +612,40 @@ int _message_del(message_t *self, int nemonic) {
 
 int _message_get(message_t *self, int nemonic, char *buffer, int size) {
 
-    int stat = ERR;
+    int stat = OK;
+    int found = FALSE;
     message_code_t *message = NULL;
 
-    for (message = que_first(&self->messages);
-         message != NULL;
-         message = que_next(&self->messages)) {
+    when_error_in {
 
-        if (message->msgnum == nemonic) {
+        for (message = que_first(&self->messages);
+             message != NULL;
+             message = que_next(&self->messages)) {
 
-            strncpy(buffer, message->text, size);
-            stat = OK;
-            break;
+            if (message->msgnum == nemonic) {
+
+                strncpy(buffer, message->text, size);
+                found = TRUE;
+                break;
+
+            }
 
         }
 
-    }
+        if (! found) {
+
+            cause_error(E_NODATA);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -623,25 +653,36 @@ int _message_get(message_t *self, int nemonic, char *buffer, int size) {
 
 int _message_set(message_t *self, int nemonic, char *text) {
 
-    int stat = ERR;
+    int stat = OK;
     message_code_t *message = NULL;
 
-    for (message = que_first(&self->messages);
-         message != NULL;
-         message = que_next(&self->messages)) {
+    when_error_in {
 
-        if (message->msgnum == nemonic) {
+        for (message = que_first(&self->messages);
+             message != NULL;
+             message = que_next(&self->messages)) {
 
-            free(message->text);
-            message->text = strdup(text);
+            if (message->msgnum == nemonic) {
 
-            stat = que_put(&self->messages, message);
+                free(message->text);
+                message->text = strdup(text);
 
-            break;
+                stat = que_put(&self->messages, message);
+                check_status(stat);
+                break;
+
+            }
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -650,15 +691,26 @@ int _message_set(message_t *self, int nemonic, char *text) {
 int _message_load(message_t *self, message_code_t *messages, int size) {
 
     int x;
-    int stat = ERR;
+    int stat = OK;
     int count = (size/sizeof(messages[0]));
 
-    for (x = 0; x < count; x++) {
+    when_error_in {
 
-        stat = self->_add_message(self, messages[x].msgnum, messages[x].text);
-        if (stat != OK) break;
+        for (x = 0; x < count; x++) {
 
-    }
+            stat = self->_add_message(self, messages[x].msgnum, messages[x].text);
+            check_return(stat, self);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 

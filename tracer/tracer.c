@@ -11,7 +11,6 @@
 /*---------------------------------------------------------------------------*/
 
 #include <stdio.h>
-#include <errno.h>
 
 #include "xas/types.h"
 #include "xas/object.h"
@@ -83,8 +82,7 @@ int tracer_destroy(tracer_t *self) {
 
             if (object_assert(self, tracer_t)) {
 
-                stat = self->dtor(OBJECT(self));
-                check_status(stat, OK, E_INVOPS);
+                self->dtor(OBJECT(self));
 
             } else {
 
@@ -103,9 +101,7 @@ int tracer_destroy(tracer_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -122,7 +118,7 @@ int tracer_override(tracer_t *self, item_list_t *items) {
         if (self != NULL) {
 
             stat = self->_override(self, items);
-            check_status(stat, OK, E_INVOPS);
+            check_status(stat);
 
         } else {
 
@@ -135,9 +131,7 @@ int tracer_override(tracer_t *self, item_list_t *items) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -156,7 +150,7 @@ int tracer_compare(tracer_t *us, tracer_t *them) {
             if (object_assert(them, tracer_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat, OK, E_NOTSAME);
+                check_status(stat);
 
             } else {
 
@@ -175,9 +169,7 @@ int tracer_compare(tracer_t *us, tracer_t *them) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(us);
 
     } end_when;
 
@@ -207,9 +199,7 @@ int tracer_add(tracer_t *self, error_trace_t *error) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -239,9 +229,7 @@ int tracer_dump(tracer_t *self, int (*output)(char *)) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -314,7 +302,7 @@ int _tracer_ctor(object_t *object, item_list_t *items) {
             self->errs = errs;
 
             stat = que_init(&self->errors);
-            check_status(stat, OK, E_NOQUEUE);
+            check_status(stat);
 
             stat = OK;
             exit_when;
