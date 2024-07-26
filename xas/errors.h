@@ -27,6 +27,8 @@ struct _err_s {
     object_t parent_klass;
     int (*ctor)(object_t *, item_list_t *);
     int (*dtor)(object_t *);
+    int (*_compare)(err_t *, err_t *);
+    int (*_override)(err_t *, item_list_t *);
     int (*_del_error)(err_t *, int);
     int (*_get_text)(err_t *, int, char *, int);
     int (*_get_message)(err_t *, int, char *, int);
@@ -45,6 +47,14 @@ struct _err_s {
 
 #define ERR_K_ERROR_CODES  1
 
+#define ERR_M_DESTRUCTOR  1
+#define ERR_M_ADD         2
+#define ERR_M_DEL         3
+#define ERR_M_SET         4
+#define ERR_M_LOAD        5
+#define ERR_M_GET_TEXT    6
+#define ERR_M_GET_MESSAGE 7
+
 /*-------------------------------------------------------------*/
 /* interface                                                   */
 /*-------------------------------------------------------------*/
@@ -52,6 +62,10 @@ struct _err_s {
 extern err_t *err_create(void);
 extern int err_destroy(err_t *);
 extern int err_remove(err_t *, int);
+extern int err_compare(err_t *, err_t *);
+extern int err_override(err_t *, item_list_t *);
+extern char *err_version(err_t *);
+
 extern int err_add(err_t *, int, char *, char *);
 extern int err_set(err_t *, int, char *, char *);
 extern int err_load(err_t *, error_code_t *, int);

@@ -73,6 +73,11 @@ int output_trace(char *buffer) {
 
 void capture_trace(error_trace_t *error) {
 
+printf("errnum:   %d\n", error->errnum);
+printf("lineno:   %d\n", error->lineno);
+printf("filename: %s\n", error->filename);
+printf("function: %s\n", error->function);
+    
     tracer_add(trace, error);
 
 }

@@ -28,12 +28,15 @@ require_klass(OBJECT_KLASS);
 int _err_ctor(object_t *object, item_list_t *);
 int _err_dtor(object_t *);
 
+int _err_compare(err_t *, err_t *);
+int _err_override(err_t *, item_list_t *);
 int _err_del(err_t *, int);
 int _err_add(err_t *, int, char *, char *);
 int _err_set(err_t *, int, char *, char *);
 int _err_load(err_t *, error_code_t *, int);
 int _err_get_text(err_t *, int, char *, int);
 int _err_get_message(err_t *, int, char *, int);
+int _err_load_system_errors(err_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -96,6 +99,82 @@ int err_destroy(err_t *self) {
 
     return stat;
 
+}
+
+int err_override(err_t *self, item_list_t *items) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (self != NULL) {
+
+            stat = self->_override(self, items);
+            check_status(stat);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int err_compare(err_t *us, err_t *them) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (us != NULL) {
+
+            if (object_assert(them, err_t)) {
+
+                stat = us->_compare(us, them);
+                check_status(stat);
+
+            } else {
+
+                cause_error(E_INVOBJ);
+
+            }
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(us);
+
+    } end_when;
+
+    return stat;
+
+}
+
+char *err_version(err_t *self) {
+    
+    char *version = VERSION;
+
+    return version;
+    
 }
 
 int err_get_text(err_t *self, int errnum, char *buffer, int size) {
@@ -288,7 +367,7 @@ int _err_ctor(object_t *object, item_list_t *items) {
     int codes_size = 0;
     err_t *self = NULL;
     error_code_t *codes = NULL;
-
+    
     if (object != NULL) {
 
         /* capture our items */
@@ -326,6 +405,8 @@ int _err_ctor(object_t *object, item_list_t *items) {
 
         self->ctor = _err_ctor;
         self->dtor = _err_dtor;
+        self->_compare = _err_compare;
+        self->_override = _err_override;
 
         self->_add_error = _err_add;
         self->_del_error = _err_del;
@@ -333,7 +414,7 @@ int _err_ctor(object_t *object, item_list_t *items) {
         self->_get_text = _err_get_text;
         self->_get_message = _err_get_message;
         self->_load_errors = _err_load;
-        self->_load_system_errors = _err_load_system;
+        self->_load_system_errors = _err_load_system_errors;
 
         when_error_in {
 
@@ -389,6 +470,88 @@ int _err_dtor(object_t *object) {
 
     object_demote(object, object_t);
     object_destroy(object);
+
+    return stat;
+
+}
+
+int _err_override(err_t *self, item_list_t *items) {
+
+    int stat = ERR;
+
+    if (items != NULL) {
+
+        int x;
+        for (x = 0;; x++) {
+
+            if ((items[x].buffer_length == 0) &&
+                (items[x].item_code == 0)) break;
+
+            switch(items[x].item_code) {
+                case ERR_M_DESTRUCTOR: {
+                    self->dtor = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ERR_M_ADD: {
+                    self->_add_error = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ERR_M_DEL: {
+                    self->_del_error = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ERR_M_SET: {
+                    self->_set_error = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ERR_M_LOAD: {
+                    self->_load_errors = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ERR_M_GET_TEXT: {
+                    self->_get_text = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+                case ERR_M_GET_MESSAGE: {
+                    self->_get_message = items[x].buffer_address;
+                    stat = OK;
+                    break;
+                }
+            }
+
+        }
+
+    }
+
+    return stat;
+
+}
+
+int _err_compare(err_t *self, err_t *other) {
+
+    int stat = ERR;
+
+    if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
+        (self->ctor == other->ctor) &&
+        (self->dtor == other->dtor) &&
+        (self->_compare == other->_compare) &&
+        (self->_override == other->_override) &&
+        (self->_add_error == other->_add_error) &&
+        (self->_del_error == other->_del_error) &&
+        (self->_set_error == other->_set_error) &&
+        (self->_load_errors == other->_load_errors) &&
+        (self->_get_text == other->_get_text) &&
+        (self->_get_message == other->_get_message)) {
+
+        stat = OK;
+
+    }
 
     return stat;
 
