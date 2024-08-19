@@ -26,6 +26,7 @@ void *que_delete(queue_t *q) {
     datanode *p = NULL;
     datanode *c = NULL; 
 
+    errno = E_INVOPS;
 
     if (q->cursor == NULL) return(NULL); 
     if (q->cursor == q->head) return(que_pop_head(q)); 
@@ -93,6 +94,8 @@ int que_find(queue_t *q, void *data, comp_proc *Comp) {
 
 void *que_first(queue_t *q) {
 
+    errno = E_INVOPS;
+
     if (que_empty(q)) return(NULL); 
 
     q->cursor = q->head; 
@@ -102,6 +105,8 @@ void *que_first(queue_t *q) {
 } 
 
 void *que_get(queue_t *q) {
+
+    errno = E_INVOPS;
 
     if (q->cursor == NULL) return(NULL); 
 
@@ -175,6 +180,8 @@ int que_insert(queue_t *q, void *d) {
 
 void *que_last(queue_t *q) {
 
+    errno = E_INVOPS;
+
     if (que_empty(q)) return(NULL); 
 
     q->cursor = q->tail; 
@@ -184,6 +191,8 @@ void *que_last(queue_t *q) {
 } 
 
 void *que_next(queue_t *q) {
+
+    errno = E_INVOPS;
 
     if (q->cursor->next == NULL) return(NULL); 
 
@@ -198,6 +207,7 @@ void *que_pop_head(queue_t *q) {
     datanode *n = NULL; 
     void     *d = NULL; 
 
+    errno = E_INVOPS;
 
     if (que_empty(q)) return(NULL); 
 
@@ -231,6 +241,8 @@ void *que_pop_tail(queue_t *q) {
     void     *d = NULL; 
 
 
+    errno = E_INVOPS;
+
     if (que_empty(q)) return(NULL); 
 
     d = q->tail->data; 
@@ -258,6 +270,8 @@ void *que_pop_tail(queue_t *q) {
 } 
 
 void *que_prev(queue_t *q) {
+
+    errno = E_INVOPS;
 
     if (q->cursor->prev == NULL) return(NULL); 
 
@@ -329,6 +343,8 @@ int que_push_tail(queue_t *q, void *d) {
 } 
 
 int que_put(queue_t *q, void *data) { 
+
+    errno = E_INVOPS;
 
     if (q->cursor == NULL) return(ERR); 
 
