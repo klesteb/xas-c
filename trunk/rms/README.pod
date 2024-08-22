@@ -1,0 +1,53 @@
+
+=pod
+
+=head1 INTRODUCTION
+
+On DEC (Digital Equipment Corp) operating systems there were system
+services known as RMS. This stood for Record Management Services. RMS 
+presented files on disks as structured entities. My using "rms" is a "tongue 
+in check" analogy. So sorry, these classes will not read native RMS files 
+from any DEC operating system. 
+
+=over 4
+
+=item fib.c
+
+On RSTS/E the fib was a runtime system that was used for basic low level
+access to disk devices. This class provides common methods for
+manipulating files. It is the base class for the rest of the classes.
+
+=item lf.c
+
+Sequential files under RMS were known as stream files. There were
+several types. One type used a line delimiter such as CR/LF, or possibly just
+a single LF (usually from a UNIX system). The other type had an initial 
+indicator the indicated the line length. They were known as VFC
+format files and primarily came from COBOL or FORTRAN programs and maybe IBM
+mainframes. This implementation just does the line delimiter types.
+
+=item blk.c
+
+RMS could read blocks of data from files. This implementation does
+just that. It also allows locking on byte ranges. This uses the UNIX
+discretionary file locking mechanism. 
+
+=item rel.c
+
+RMS had relative files. A relative file is a sequential file with
+fixed length records. The first byte of the record indicated if the
+record was "deleted". This byte was never shown to the end user, nor
+were "deleted" records. All access to the file was by record number,
+and if you accessed a "deleted" record, you would get an error. This 
+implementation does the same thing and also includes record locking
+for accessing a record.
+
+=back
+
+RMS on all of the platforms had an ISAM implementation. I will not be
+implementing one. There is btree.c which is a nice btree
+implementation with file locking and multi-user access, so you could roll 
+your own. 
+
+=cut
+
