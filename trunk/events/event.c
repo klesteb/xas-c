@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*                Copyright (c) 2021 by Kevin L. Esteb                       */
+/*              Copyright (c) 2021 - 2024 by Kevin L. Esteb                  */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -522,14 +522,11 @@ int _event_dtor(object_t *object) {
     event_t *self = EVENT(object);
     exit_handler_t *handler = NULL;
 
-fprintf(stderr, "entering _event_dtor()\n");
-        
     /* free local resources here */
 
     _event_free_all(self);
 
     while ((handler = que_pop_head(&self->exit_handlers))) {
-fprintf(stderr, "_event_dtor() - doing callback\n");
 
         (*handler->callback)(handler->data);
         free(handler);
@@ -541,7 +538,6 @@ fprintf(stderr, "_event_dtor() - doing callback\n");
     object_demote(object, object_t);
     object_destroy(object);
 
-fprintf(stderr, "leaving _event_dtor()\n");
     return stat;
 
 }
@@ -561,6 +557,41 @@ int _event_override(event_t *self, item_list_t *items) {
             switch(items[x].item_code) {
                 case EVENT_M_DESTRUCTOR: {
                     self->dtor = items[x].buffer_address;
+                    stat = 0;
+                    break;
+                }
+                case EVENT_M_LOOP: {
+                    self->_loop = items[x].buffer_address;
+                    stat = 0;
+                    break;
+                }
+                case EVENT_M_BREAK: {
+                    self->_break = items[x].buffer_address;
+                    stat = 0;
+                    break;
+                }
+                case EVENT_M_AT_EXIT: {
+                    self->_at_exit = items[x].buffer_address;
+                    stat = 0;
+                    break;
+                }
+                case EVENT_M_REGISTER_INPUT: {
+                    self->_register_input = items[x].buffer_address;
+                    stat = 0;
+                    break;
+                }
+                case EVENT_M_REGISTER_TIMER: {
+                    self->_register_timer = items[x].buffer_address;
+                    stat = 0;
+                    break;
+                }
+                case EVENT_M_REGISTER_WORKER: {
+                    self->_register_worker = items[x].buffer_address;
+                    stat = 0;
+                    break;
+                }
+                case EVENT_M_REGISTER_SIGNAL: {
+                    self->_register_signal = items[x].buffer_address;
                     stat = 0;
                     break;
                 }

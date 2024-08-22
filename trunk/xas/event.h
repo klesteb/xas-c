@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*                Copyright (c) 2021 by Kevin L. Esteb                       */
+/*              Copyright (c) 2021 - 2024 by Kevin L. Esteb                  */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -59,7 +59,14 @@ struct _event_s {
 
 #define EVENT(x) ((event_t *)(x))
 
-#define EVENT_M_DESTRUCTOR 1
+#define EVENT_M_DESTRUCTOR      1
+#define EVENT_M_LOOP            2
+#define EVENT_M_BREAK           3
+#define EVENT_M_AT_EXIT         4
+#define EVENT_M_REGISTER_INPUT  5
+#define EVENT_M_REGISTER_WORKER 6
+#define EVENT_M_REGISTER_TIMER  7
+#define EVENT_M_REGISTER_SIGNAL 8
 
 /*----------------------------------------------------------------*/
 /* interface                                                      */

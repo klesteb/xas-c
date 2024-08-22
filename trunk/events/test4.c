@@ -67,7 +67,7 @@ int inkey(void) {
 
 int timer(void *data) {
     
-    printf("timer went off\n");
+    printf("timer went off\r\n");
     return OK;
 
 }
@@ -78,7 +78,7 @@ int input(void *data) {
 
     ch = inkey();
 
-    printf("ch = %d\n", ch);
+    printf("ch = %d\r\n", ch);
 
     return OK;
 
@@ -108,7 +108,7 @@ int main(int argc, char **argv) {
 
     } use {
 
-        printf("Error: %d, line: %d, file: %s, function: %s\n",
+        printf("Error: %d, line: %d, file: %s, function: %s\r\n",
                trace_errnum, trace_lineno, trace_filename, trace_function);
 
         clear_error();
