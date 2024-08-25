@@ -32,7 +32,8 @@ error_code_t error_codes[] = {
     { E_NOQUEUE,  "E_NOQUEUE",  "Unable to initialize queue" },
     { E_INVREC,   "E_INVREC",   "Invalid record size" },
     { E_RMSDEL,   "E_RMSDEL",   "Record has been deleted" },
-    { E_NQUEINST, "E_NQUEINST", "Unable to insert object", }
+    { E_NQUEINST, "E_NQUEINST", "Unable to insert object" },
+    { E_UNKOVER,  "E_UNKOVER",  "Unknown override" }
 };
 
 #endif

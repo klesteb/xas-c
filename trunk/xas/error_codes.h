@@ -29,6 +29,7 @@
 #define E_INVREC    1010
 #define E_RMSDEL    1011
 #define E_NQUEINST  1012
+#define E_UNKOVER   1013
 
 #endif
 
