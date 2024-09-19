@@ -10,7 +10,11 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
+#include <errno.h>
+
 #include "template_priv.h"
+#include "xas/errors_xas.h"
+#include "xas/error_handler.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -20,7 +24,7 @@ require_klass(OBJECT_KLASS);
 
 int _template_ctor(object_t *object, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
     template_t *self = NULL;
 
     if (object != NULL) {
@@ -65,7 +69,16 @@ int _template_ctor(object_t *object, item_list_t *items) {
 
         /* initialize internal variables here */
 
-        stat = OK;
+        /* when_error_in { */
+
+        /*     exit_when; */
+
+        /* } use { */
+
+        /*     stat = ERR; */
+        /*     process_error(self); */
+
+        /* } end_when; */
 
     }
 
@@ -76,6 +89,8 @@ int _template_ctor(object_t *object, item_list_t *items) {
 int _template_dtor(object_t *object) {
 
     int stat = OK;
+
+    errno = E_INVOPS;
 
     /* free local resources here */
 
@@ -92,6 +107,8 @@ int _template_dtor(object_t *object) {
 int _template_override(template_t *self, item_list_t *items) {
 
     int stat = ERR;
+
+    errno = E_UNKOVER;
 
     if (items != NULL) {
 
@@ -120,6 +137,8 @@ int _template_override(template_t *self, item_list_t *items) {
 int _template_compare(template_t *self, template_t *other) {
 
     int stat = ERR;
+
+    errno = E_NOTSAME;
 
     if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
         (self->ctor == other->ctor) &&

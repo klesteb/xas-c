@@ -10,12 +10,12 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#include "xas/object.h"
-#include "xas/types.h"
-#include "xas/error_codes.h"
-#include "xas/error_handler.h"
+#include <errno.h>
+
 #include "template.h"
 #include "template_priv.h"
+#include "xas/errors_xas.h"
+#include "xas/error_handler.h"
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -53,8 +53,9 @@ int template_destroy(template_t *self) {
 
             if (object_assert(self, template_t)) {
 
+                errno = 0;
                 stat = self->dtor(OBJECT(self));
-                check_status(stat, OK, E_INVOPS);
+                check_status(stat);
 
             } else {
 
@@ -73,9 +74,7 @@ int template_destroy(template_t *self) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -91,8 +90,9 @@ int template_override(template_t *self, item_list_t *items) {
         
         if (self != NULL) {
 
+            errno = 0;
             stat = self->_override(self, items);
-            check_status(stat, OK, E_INVOPS);
+            check_status(stat);
 
         } else {
 
@@ -105,9 +105,7 @@ int template_override(template_t *self, item_list_t *items) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -125,8 +123,9 @@ int template_compare(template_t *us, template_t *them) {
 
             if (object_assert(them, template_t)) {
 
+                errno = 0;
                 stat = us->_compare(us, them);
-                check_status(stat, OK, E_NOTSAME);
+                check_status(stat);
 
             } else {
 
@@ -145,9 +144,7 @@ int template_compare(template_t *us, template_t *them) {
     } use {
 
         stat = ERR;
-
-        object_set_error2(us, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(us);
 
     } end_when;
 
