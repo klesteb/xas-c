@@ -72,5 +72,7 @@ extern int err_load(err_t *, error_code_t *, int);
 extern int err_get_text(err_t *, int, char *, int);
 extern int err_get_message(err_t *, int, char *, int);
 
+#define err_set_trace(self, trace)    object_set_trace(OBJECT(self), trace)
+
 #endif
 

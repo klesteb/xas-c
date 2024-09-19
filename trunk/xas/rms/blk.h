@@ -90,5 +90,7 @@ extern int blk_is_locked(blk_t *, int *);
 #define blk_creat(self, mode)        fib_creat(FIB(self), mode)
 #define blk_chmod(self, mode)        fib_chmod(FIB(self), mode)
 
+#define blk_set_trace(self, trace)   object_set_trace(OBJECT(self), trace)
+
 #endif
 

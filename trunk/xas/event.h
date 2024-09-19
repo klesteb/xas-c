@@ -86,5 +86,7 @@ extern int event_register_worker(event_t *, int, int (*input)(void *), void *);
 extern int event_register_timer(event_t *, int, double, int (*input)(void *), void *);
 extern int event_register_signal(event_t *, int, int, int (*input)(void *), void *);
 
+#define event_set_trace(self, trace)    object_set_trace(OBJECT(self), trace)
+
 #endif
 

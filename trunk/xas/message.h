@@ -66,5 +66,7 @@ extern int message_set(message_t *, int, char *);
 extern int message_get(message_t *, int, char *, int);
 extern int message_load(message_t *, message_code_t *, int);
 
+#define message_set_trace(self, trace)    object_set_trace(OBJECT(self), trace)
+
 #endif
 
