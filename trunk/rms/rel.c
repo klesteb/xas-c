@@ -124,7 +124,8 @@ int rel_destroy(rel_t *self) {
 
             if (object_assert(self, rel_t)) {
 
-                self->dtor(OBJECT(self));
+                stat = self->dtor(OBJECT(self));
+                check_return(stat, self);
 
             } else {
 
@@ -670,12 +671,14 @@ int _rel_override(rel_t *self, item_list_t *items) {
 
     int stat = ERR;
 
-    if (items != NULL) {
+    when_error_in {
 
-        when_error_in {
+        if (items != NULL) {
 
             stat = blk_override(BLK(self), items);
             check_return(stat, self);
+
+            errno = E_UNKOVER;
 
             int x;
             for (x = 0;; x++) {
@@ -685,129 +688,151 @@ int _rel_override(rel_t *self, item_list_t *items) {
 
                 switch(items[x].item_code) {
                     case REL_M_DESTRUCTOR: {
+                        self->dtor = NULL;
                         self->dtor = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->dtor);
                         break;
                     }
                     case REL_M_OPEN: {
+                        self->_open = NULL;
                         self->_open = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_open);
                         break;
                     }
                     case REL_M_GET: {
+                        self->_get = NULL;
                         self->_get = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_get);
                         break;
                     }
                     case REL_M_PUT: {
+                        self->_put = NULL;
                         self->_put = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_put);
                         break;
                     }
                     case REL_M_NEXT: {
+                        self->_next = NULL;
                         self->_next = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_next);
                         break;
                     }
                     case REL_M_PREV: {
+                        self->_prev = NULL;
                         self->_prev = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_prev);
                         break;
                     }
                     case REL_M_LAST: {
+                        self->_last = NULL;
                         self->_last = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_last);
                         break;
                     }
                     case REL_M_FIRST: {
+                        self->_first = NULL;
                         self->_first = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_first);
                         break;
                     }
                     case REL_M_BUILD: {
+                        self->_build = NULL;
                         self->_build = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_build);
                         break;
                     }
                     case REL_M_EXTEND: {
+                        self->_extend = NULL;
                         self->_extend = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_extend);
                         break;
                     }
                     case REL_M_ADD: {
+                        self->_add = NULL;
                         self->_add = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_add);
                         break;
                     }
                     case REL_M_DEL: {
+                        self->_del = NULL;
                         self->_del = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_del);
                         break;
                     }
                     case REL_M_NORMALIZE: {
+                        self->_normalize = NULL;
                         self->_normalize = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_normalize);
                         break;
                     }
                     case REL_M_FIND: {
+                        self->_find = NULL;
                         self->_find = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_find);
                         break;
                     }
                     case REL_M_SEARCH: {
+                        self->_search = NULL;
                         self->_search = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_search);
                         break;
                     }
                     case REL_M_RECORD: {
+                        self->_record = NULL;
                         self->_record = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_record);
                         break;
                     }
                     case REL_M_INIT: {
+                        self->_init = NULL;
                         self->_init = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_init);
                         break;
                     }
                     case REL_M_READ_HEADER: {
+                        self->_read_header = NULL;
                         self->_read_header = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_read_header);
                         break;
                     }
                     case REL_M_WRITE_HEADER: {
+                        self->_write_header = NULL;
                         self->_write_header = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_write_header);
                         break;
                     }
                     case REL_M_UPDATE_HEADER: {
+                        self->_update_header = NULL;
                         self->_update_header = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_update_header);
                         break;
                     }
                     case REL_M_MASTER_LOCK: {
+                        self->_master_lock = NULL;
                         self->_master_lock = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_master_lock);
                         break;
                     }
                     case REL_M_MASTER_UNLOCK: {
+                        self->_master_unlock = NULL;
                         self->_master_unlock = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_master_unlock);
                         break;
                     }
                 }
 
             }
+            
+        }
 
-            exit_when;
+        exit_when;
 
-        } use {
+    } use {
 
-            stat = ERR;
-            process_error(self);
+        stat = ERR;
+        process_error(self);
 
-        } end_when;
-
-    }
+    } end_when;
 
     return stat;
 
@@ -815,44 +840,59 @@ int _rel_override(rel_t *self, item_list_t *items) {
 
 int _rel_compare(rel_t *self, rel_t *other) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((blk_compare(BLK(self), BLK(other)) == 0) &&
-        (self->ctor == other->ctor) &&
-        (self->dtor == other->dtor) &&
-        (self->_compare == other->_compare) &&
-        (self->_override == other->_override) &&
-        (self->_open    == other->_open) &&
-        (self->_add    == other->_add) &&
-        (self->_del    == other->_del) &&
-        (self->_get    == other->_get) &&
-        (self->_put    == other->_put) &&
-        (self->_next   == other->_next) &&
-        (self->_prev   == other->_prev) &&
-        (self->_last   == other->_last) &&
-        (self->_first  == other->_first) &&
-        (self->_build  == other->_build) &&
-        (self->_find   == other->_find) &&
-        (self->_record == other->_record) &&
-        (self->_remove == other->_remove) &&
-        (self->_extend == other->_extend) &&
-        (self->_search == other->_search) &&
-        (self->_normalize == other->_normalize) &&
-        (self->_read_header == other->_read_header) &&
-        (self->_write_header == other->_write_header) &&
-        (self->_update_header == other->_update_header) &&
-        (self->_master_lock == other->_master_lock) &&
-        (self->_master_unlock == other->_master_unlock) &&
-        (self->autoextend == other->autoextend) &&
-        (self->master_locked == other->master_locked) &&
-        (self->record == other->record) &&
-        (self->lastrec == other->lastrec) &&
-        (self->recsize == other->recsize) &&
-        (self->records == other->records)) {
+    when_error_in {
 
-        stat = OK;
+        if ((blk_compare(BLK(self), BLK(other)) == 0) &&
+            (self->ctor == other->ctor) &&
+            (self->dtor == other->dtor) &&
+            (self->_compare == other->_compare) &&
+            (self->_override == other->_override) &&
+            (self->_open    == other->_open) &&
+            (self->_add    == other->_add) &&
+            (self->_del    == other->_del) &&
+            (self->_get    == other->_get) &&
+            (self->_put    == other->_put) &&
+            (self->_next   == other->_next) &&
+            (self->_prev   == other->_prev) &&
+            (self->_last   == other->_last) &&
+            (self->_first  == other->_first) &&
+            (self->_build  == other->_build) &&
+            (self->_find   == other->_find) &&
+            (self->_record == other->_record) &&
+            (self->_remove == other->_remove) &&
+            (self->_extend == other->_extend) &&
+            (self->_search == other->_search) &&
+            (self->_normalize == other->_normalize) &&
+            (self->_read_header == other->_read_header) &&
+            (self->_write_header == other->_write_header) &&
+            (self->_update_header == other->_update_header) &&
+            (self->_master_lock == other->_master_lock) &&
+            (self->_master_unlock == other->_master_unlock) &&
+            (self->autoextend == other->autoextend) &&
+            (self->master_locked == other->master_locked) &&
+            (self->record == other->record) &&
+            (self->lastrec == other->lastrec) &&
+            (self->recsize == other->recsize) &&
+            (self->records == other->records)) {
 
-    }
+            stat = OK;
+
+        } else {
+
+            cause_error(E_NOTSAME);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 

@@ -15,7 +15,6 @@
 #include <stdio.h>
 
 #include "xas/logger.h"
-#include "xas/object.h"
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
 #include "xas/log4c_extensions.h"
@@ -75,7 +74,8 @@ int log_destroy(logger_t *self) {
 
             if (object_assert(self, logger_t)) {
 
-                self->dtor(OBJECT(self));
+                stat = self->dtor(OBJECT(self));
+                check_return(stat, self);
 
             } else {
 
@@ -438,10 +438,9 @@ int _log_ctor(object_t *object, item_list_t *items) {
 int _log_dtor(object_t *object) {
 
     int stat = OK;
+    logger_t *self = LOGGER(object);
 
     /* free local resources here */
-
-    logger_t *self = LOGGER(object);
 
     free(self->hostname);
     free(self->category);

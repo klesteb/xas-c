@@ -113,14 +113,14 @@
         retrieve_error((self));                  \
         trace_lines = 1;                         \
         cause_error(trace_errnum);               \
-        goto when_handler;                       \
     }                                            \
 }
 
 #define check_creation(self) {                   \
     retrieve_error((self));                      \
     if (trace_errnum != (OK)) {                  \
-        goto when_handler;                       \
+        trace_lines = 1;                         \
+        cause_error(trace_errnum);               \
     }                                            \
 }
 

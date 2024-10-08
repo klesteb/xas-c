@@ -19,7 +19,6 @@
 
 #include "xas/rms/lf.h"
 #include "xas/rms/fib.h"
-#include "xas/object.h"
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
 
@@ -79,7 +78,8 @@ int lf_destroy(lf_t *self) {
 
             if (object_assert(self, lf_t)) {
 
-                self->dtor(OBJECT(self));
+                stat = self->dtor(OBJECT(self));
+                check_return(stat, self);
 
             } else {
 
@@ -402,12 +402,14 @@ int _lf_override(lf_t *self, item_list_t *items) {
 
     int stat = OK;
 
-    if (items != NULL) {
-
-        when_error_in {
+    when_error_in {
+    
+        if (items != NULL) {
 
             stat = fib_override(FIB(self), items);
             check_return(stat, self);
+
+            errno = E_UNKOVER;
 
             int x;
             for (x = 0;; x++) {
@@ -417,34 +419,37 @@ int _lf_override(lf_t *self, item_list_t *items) {
 
                 switch(items[x].item_code) {
                     case LF_M_DESTRUCTOR: {
+                        self->dtor = NULL;
                         self->dtor = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->dtor);
                         break;
                     }
                     case LF_M_GETS: {
+                        self->_gets = NULL;
                         self->_gets = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_gets);
                         break;
                     }
                     case LF_M_PUTS: {
+                        self->_puts = NULL;
                         self->_puts = items[x].buffer_address;
-                        stat = OK;
+                        check_null(self->_puts);
                         break;
                     }
                 }
 
             } 
 
-            exit_when;
+        }
 
-        } use { 
+        exit_when;
 
-            stat = ERR;
-            process_error(self);
+    } use { 
 
-        } end_when;
+        stat = ERR;
+        process_error(self);
 
-    }
+    } end_when;
 
     return stat;
 
@@ -452,19 +457,34 @@ int _lf_override(lf_t *self, item_list_t *items) {
 
 int _lf_compare(lf_t *self, lf_t *other) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((fib_compare(FIB(self), FIB(other)) == 0) &&
-        (self->ctor == other->ctor) &&
-        (self->dtor == other->dtor) &&
-        (self->_compare == other->_compare) &&
-        (self->_override == other->_override) &&
-        (self->_gets == other->_gets) &&
-        (self->_puts == other->_puts)) {
+    when_error_in {
 
-        stat = OK;
+        if ((fib_compare(FIB(self), FIB(other)) == 0) &&
+            (self->ctor == other->ctor) &&
+            (self->dtor == other->dtor) &&
+            (self->_compare == other->_compare) &&
+            (self->_override == other->_override) &&
+            (self->_gets == other->_gets) &&
+            (self->_puts == other->_puts)) {
 
-    }
+            stat = OK;
+
+        } else {
+
+            cause_error(E_NOTSAME);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 

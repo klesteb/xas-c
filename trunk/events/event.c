@@ -120,7 +120,7 @@ int event_destroy(event_t *self) {
 
     int stat = OK;
 
-    when_error {
+    when_error_in {
 
         if (self == NULL) {
 
@@ -132,7 +132,7 @@ int event_destroy(event_t *self) {
 
             stat = self->dtor(OBJECT(self));
             check_return(stat, self);
-            
+
         } else {
 
             cause_error(E_INVOBJ);
@@ -485,9 +485,8 @@ int _event_ctor(object_t *object, item_list_t *items) {
 
             /* create a "self pipe" for signal handling */
 
-            errno = E_INVOPS;
             stat = _init_self_pipe(self);
-            check_status(stat);
+            check_return(stat, self);
 
             /* initialize the handlers queue */
 
@@ -522,21 +521,33 @@ int _event_dtor(object_t *object) {
     event_t *self = EVENT(object);
     exit_handler_t *handler = NULL;
 
-    /* free local resources here */
+    when_error_in {
 
-    _event_free_all(self);
+        /* free local resources here */
 
-    while ((handler = que_pop_head(&self->exit_handlers))) {
+        stat = _event_free_all(self);
+        check_return(stat, self);
 
-        (*handler->callback)(handler->data);
-        free(handler);
+        while ((handler = que_pop_head(&self->exit_handlers))) {
 
-    }
+            (*handler->callback)(handler->data);
+            free(handler);
 
-    /* walk the chain, freeing as we go */
+        }
 
-    object_demote(object, object_t);
-    object_destroy(object);
+        /* walk the chain, freeing as we go */
+
+        object_demote(object, object_t);
+        object_destroy(object);
+        
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -544,62 +555,83 @@ int _event_dtor(object_t *object) {
 
 int _event_override(event_t *self, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (items != NULL) {
+    when_error_in {
+        
+        if (items != NULL) {
 
-        int x;
-        for (x = 0;; x++) {
+            errno = E_UNKOVER;
 
-            if ((items[x].buffer_length == 0) &&
-                (items[x].item_code == 0)) break;
+            int x;
+            for (x = 0;; x++) {
 
-            switch(items[x].item_code) {
-                case EVENT_M_DESTRUCTOR: {
-                    self->dtor = items[x].buffer_address;
-                    stat = 0;
-                    break;
+                if ((items[x].buffer_length == 0) &&
+                    (items[x].item_code == 0)) break;
+
+                switch(items[x].item_code) {
+                    case EVENT_M_DESTRUCTOR: {
+                        self->dtor = NULL;
+                        self->dtor = items[x].buffer_address;
+                        check_null(self->dtor);
+                        break;
+                    }
+                    case EVENT_M_LOOP: {
+                        self->_loop = NULL;
+                        self->_loop = items[x].buffer_address;
+                        check_null(self->_loop);
+                        break;
+                    }
+                    case EVENT_M_BREAK: {
+                        self->_break = NULL;
+                        self->_break = items[x].buffer_address;
+                        check_null(self->_break);
+                        break;
+                    }
+                    case EVENT_M_AT_EXIT: {
+                        self->_at_exit = NULL;
+                        self->_at_exit = items[x].buffer_address;
+                        check_null(self->_at_exit);
+                        break;
+                    }
+                    case EVENT_M_REGISTER_INPUT: {
+                        self->_register_input = NULL;
+                        self->_register_input = items[x].buffer_address;
+                        check_null(self->_register_input);
+                        break;
+                    }
+                    case EVENT_M_REGISTER_TIMER: {
+                        self->_register_timer = NULL;
+                        self->_register_timer = items[x].buffer_address;
+                        check_null(self->_register_timer);
+                        break;
+                    }
+                    case EVENT_M_REGISTER_WORKER: {
+                        self->_register_worker = NULL;
+                        self->_register_worker = items[x].buffer_address;
+                        check_null(self->_register_worker);
+                        break;
+                    }
+                    case EVENT_M_REGISTER_SIGNAL: {
+                        self->_register_signal = NULL;
+                        self->_register_signal = items[x].buffer_address;
+                        check_null(self->_register_signal);
+                        break;
+                    }
                 }
-                case EVENT_M_LOOP: {
-                    self->_loop = items[x].buffer_address;
-                    stat = 0;
-                    break;
-                }
-                case EVENT_M_BREAK: {
-                    self->_break = items[x].buffer_address;
-                    stat = 0;
-                    break;
-                }
-                case EVENT_M_AT_EXIT: {
-                    self->_at_exit = items[x].buffer_address;
-                    stat = 0;
-                    break;
-                }
-                case EVENT_M_REGISTER_INPUT: {
-                    self->_register_input = items[x].buffer_address;
-                    stat = 0;
-                    break;
-                }
-                case EVENT_M_REGISTER_TIMER: {
-                    self->_register_timer = items[x].buffer_address;
-                    stat = 0;
-                    break;
-                }
-                case EVENT_M_REGISTER_WORKER: {
-                    self->_register_worker = items[x].buffer_address;
-                    stat = 0;
-                    break;
-                }
-                case EVENT_M_REGISTER_SIGNAL: {
-                    self->_register_signal = items[x].buffer_address;
-                    stat = 0;
-                    break;
-                }
+
             }
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -609,21 +641,36 @@ int _event_compare(event_t *self, event_t *other) {
 
     int stat = ERR;
 
-    if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
-        (self->ctor == other->ctor) &&
-        (self->dtor == other->dtor) &&
-        (self->_compare == other->_compare) &&
-        (self->_override == other->_override) &&
-        (self->_at_exit == other->_at_exit) &&
-        (self->_loop == other->_loop) &&
-        (self->_register_input == other->_register_input) &&
-        (self->_register_worker == other->_register_worker) &&
-        (self->_register_signal == other->_register_signal) &&
-        (self->_register_timer == other->_register_timer)) {
+    when_error_in {
 
-        stat = OK;
+        if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
+            (self->ctor == other->ctor) &&
+            (self->dtor == other->dtor) &&
+            (self->_compare == other->_compare) &&
+            (self->_override == other->_override) &&
+            (self->_at_exit == other->_at_exit) &&
+            (self->_loop == other->_loop) &&
+            (self->_register_input == other->_register_input) &&
+            (self->_register_worker == other->_register_worker) &&
+            (self->_register_signal == other->_register_signal) &&
+            (self->_register_timer == other->_register_timer)) {
 
-    }
+            stat = OK;
+
+        } else {
+
+            cause_error(E_NOTSAME);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -906,22 +953,26 @@ static int _event_free_all(event_t *self) {
     while ((handler = que_pop_head(&self->handlers))) {
 
         switch (handler->type) {
-            case EV_INPUT:
+            case EV_INPUT: {
                 NxRemoveInput(NULL, handler->input_id);
                 break;
-            case EV_WORKER:
+            }
+            case EV_WORKER: {
                 NxRemoveWorkProc(NULL, handler->worker_id);
                 break;
-            case EV_TIMER:
+            }
+            case EV_TIMER: {
                 NxRemoveTimeOut(NULL, handler->timer_id);
                 break;
-            case EV_SIGNAL:
+            }
+            case EV_SIGNAL: {
                 sigemptyset(&act.sa_mask);
                 act.sa_flags = 0;
                 act.sa_handler = SIG_IGN;
                 sigaction(handler->sig, &act, NULL);
                 free(handler->callback);
                 break;
+            }
         }
 
         free(handler);
@@ -1152,8 +1203,6 @@ static int _read_pipe(NxAppContext context, NxInputId id, int source, void *data
 
                 if ((sig == SIGINT) || (sig == SIGTERM)) {
 
-fprintf(stderr, "_read_pipe() - signaled\n");
-                    
                     /* reinstall signal handlers */
 
                     errno = 0;
@@ -1291,7 +1340,7 @@ static int _init_self_pipe(event_t *self) {
         /*                                                     */
         /* this is a shim to capture signal handlers so that   */
         /* we can hook in our own signal handlers to clean up  */
-        /* resources. _read_pipe() reinstalls the saved */
+        /* resources. _read_pipe() reinstalls the saved        */
         /* signal handlers to allow normal signal handling.    */
 
         /* capture signal handlers */

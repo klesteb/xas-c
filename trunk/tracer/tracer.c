@@ -12,12 +12,10 @@
 
 #include <stdio.h>
 
-#include "xas/types.h"
-#include "xas/object.h"
+#include "xas/tracer.h"
 #include "xas/errors.h"
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
-#include "xas/tracer.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -82,7 +80,8 @@ int tracer_destroy(tracer_t *self) {
 
             if (object_assert(self, tracer_t)) {
 
-                self->dtor(OBJECT(self));
+                stat = self->dtor(OBJECT(self));
+                check_return(stat, self);
 
             } else {
 
@@ -118,7 +117,7 @@ int tracer_override(tracer_t *self, item_list_t *items) {
         if (self != NULL) {
 
             stat = self->_override(self, items);
-            check_status(stat);
+            check_return(stat, self);
 
         } else {
 
@@ -150,7 +149,7 @@ int tracer_compare(tracer_t *us, tracer_t *them) {
             if (object_assert(them, tracer_t)) {
 
                 stat = us->_compare(us, them);
-                check_status(stat);
+                check_return(stat, us);
 
             } else {
 
@@ -251,7 +250,7 @@ char *tracer_version(tracer_t *self) {
 
 int _tracer_ctor(object_t *object, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
     err_t *errs = NULL;
     tracer_t *self = NULL;
 
@@ -301,15 +300,16 @@ int _tracer_ctor(object_t *object, item_list_t *items) {
 
             self->errs = errs;
 
+            errno = 0;
             stat = que_init(&self->errors);
             check_status(stat);
 
-            stat = OK;
             exit_when;
 
         } use {
 
-            object_set_error1(self, trace_errnum);
+            stat = ERR;
+            process_error(self);
 
         } end_when;
 
@@ -325,20 +325,35 @@ int _tracer_dtor(object_t *object) {
     error_trace_t *error = NULL;
     tracer_t *tracer = TRACER(object);
 
-    /* free local resources here */
+    when_error_in {
+        
+        /* free local resources here */
 
-    while ((error = que_pop_head(&tracer->errors))) {
+        while ((error = que_pop_head(&tracer->errors))) {
 
-        free(error->filename);
-        free(error->function);
-        free(error);
+            free(error->filename);
+            free(error->function);
+            free(error);
 
-    }
+        }
 
-    /* walk the chain, freeing as we go */
+        errno = 0;
+        stat = que_init(&tracer->errors);
+        check_status(stat);
 
-    object_demote(object, object_t);
-    object_destroy(object);
+        /* walk the chain, freeing as we go */
+
+        object_demote(object, object_t);
+        object_destroy(object);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(tracer);
+
+    } end_when;
 
     return stat;
 
@@ -348,35 +363,51 @@ int _tracer_override(tracer_t *self, item_list_t *items) {
 
     int stat = ERR;
 
-    if (items != NULL) {
+    when_error_in {
+        
+        if (items != NULL) {
 
-        int x;
-        for (x = 0;; x++) {
+            errno = E_UNKOVER;
 
-            if ((items[x].buffer_length == 0) &&
-                (items[x].item_code == 0)) break;
+            int x;
+            for (x = 0;; x++) {
 
-            switch(items[x].item_code) {
-                case TRACER_M_DESTRUCTOR: {
-                    self->dtor = items[x].buffer_address;
-                    stat = OK;
-                    break;
+                if ((items[x].buffer_length == 0) &&
+                    (items[x].item_code == 0)) break;
+
+                switch(items[x].item_code) {
+                    case TRACER_M_DESTRUCTOR: {
+                        self->dtor = NULL;
+                        self->dtor = items[x].buffer_address;
+                        check_null(self->dtor);
+                        break;
+                    }
+                    case TRACER_M_ADD: {
+                        self->_add = NULL;
+                        self->_add = items[x].buffer_address;
+                        check_null(self->_add);
+                        break;
+                    }
+                    case TRACER_M_DUMP: {
+                        self->_dump = NULL;
+                        self->_dump = items[x].buffer_address;
+                        check_null(self->_dump);
+                        break;
+                    }
                 }
-                case TRACER_M_ADD: {
-                    self->_add = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case TRACER_M_DUMP: {
-                    self->_dump = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
+
             }
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -384,19 +415,34 @@ int _tracer_override(tracer_t *self, item_list_t *items) {
 
 int _tracer_compare(tracer_t *self, tracer_t *other) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
-        (self->ctor == other->ctor) &&
-        (self->dtor == other->dtor) &&
-        (self->_compare == other->_compare) &&
-        (self->_override == other->_override) &&
-        (self->_add == other->_add) &&
-        (self->_dump == other->_dump)) {
+    when_error_in {
 
-        stat = OK;
+        if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
+            (self->ctor == other->ctor) &&
+            (self->dtor == other->dtor) &&
+            (self->_compare == other->_compare) &&
+            (self->_override == other->_override) &&
+            (self->_add == other->_add) &&
+            (self->_dump == other->_dump)) {
 
-    }
+            stat = OK;
+
+        } else {
+
+            cause_error(E_NOTSAME);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -406,13 +452,20 @@ int _tracer_add(tracer_t *self, error_trace_t *error) {
 
     int stat = OK;
 
-    errno = 0;
-    if ((stat = que_push_tail(&self->errors, error)) != OK) {
+    when_error_in {
+
+        errno = 0;
+        stat = que_push_tail(&self->errors, error);
+        check_status(stat);
+
+        exit_when;
+
+    } use {
 
         stat = ERR;
-        object_set_error1(self, errno);
+        process_error(self);
 
-    }
+    } end_when;
 
     return stat;
 
@@ -427,23 +480,37 @@ int _tracer_dump(tracer_t *self, int (*output)(char *)) {
     error_trace_t *error = NULL;
     char *format = "  %s - %s; line: %d, file: %s, function: %s";
 
-    output("error trace follows:");
+    when_error_in {
 
-    for (error = que_first(&self->errors);
-         error != NULL;
-         error = que_next(&self->errors)) {
+        output("error trace follows:");
 
-        err_get_text(self->errs, error->errnum, nemonic, 32);
-        err_get_message(self->errs, error->errnum, message, 1024);
+        for (error = que_first(&self->errors);
+             error != NULL;
+             error = que_next(&self->errors)) {
 
-        snprintf(text, 1024, format, nemonic, message, 
-                 error->lineno, error->filename, error->function);
+            stat = err_get_text(self->errs, error->errnum, nemonic, 32);
+            check_return(stat, self->errs);
 
-        output(text);
+            stat = err_get_message(self->errs, error->errnum, message, 1024);
+            check_return(stat, self->errs);
 
-    }
+            snprintf(text, 1024, format, nemonic, message, 
+                     error->lineno, error->filename, error->function);
 
-    output("error trace done.");
+            output(text);
+
+        }
+
+        output("error trace done.");
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 

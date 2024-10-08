@@ -25,6 +25,12 @@ int output_trace(char *buffer) {
 
 void capture_trace(error_trace_t *error) {
 
+printf("trace_errnum  : %d\n", error->errnum);
+printf("trace_linenum : %d\n", error->lineno);
+printf("trace_fileame : %s\n", error->filename);
+printf("trace_function: %s\n", error->function);
+printf("\n");    
+
     tracer_add(trace, error);
 
 }

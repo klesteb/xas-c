@@ -10,8 +10,6 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#include <errno.h>
-
 #include "template.h"
 #include "xas/errors_xas.h"
 #include "xas/error_handler.h"
@@ -64,9 +62,8 @@ int template_destroy(template_t *self) {
 
             if (object_assert(self, template_t)) {
 
-                errno = 0;
                 stat = self->dtor(OBJECT(self));
-                check_status(stat);
+                check_return(stat, self);
 
             } else {
 
@@ -101,9 +98,8 @@ int template_override(template_t *self, item_list_t *items) {
         
         if (self != NULL) {
 
-            errno = 0;
             stat = self->_override(self, items);
-            check_status(stat);
+            check_return(stat, self);
 
         } else {
 
@@ -134,9 +130,8 @@ int template_compare(template_t *us, template_t *them) {
 
             if (object_assert(them, template_t)) {
 
-                errno = 0;
                 stat = us->_compare(us, them);
-                check_status(stat);
+                check_return(stat, us);
 
             } else {
 
@@ -242,16 +237,25 @@ int _template_ctor(object_t *object, item_list_t *items) {
 int _template_dtor(object_t *object) {
 
     int stat = OK;
+    template_t *self = TEMPLATE(object);
 
-    errno = E_INVOPS;
+    when_error_in {
 
-    /* free local resources here */
+        /* free local resources here */
 
+        /* walk the chain, freeing as we go */
 
-    /* walk the chain, freeing as we go */
+        object_demote(object, object_t);
+        object_destroy(object);
 
-    object_demote(object, object_t);
-    object_destroy(object);
+        exit_when;
+
+    } use { 
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when; 
 
     return stat;
 
@@ -259,29 +263,41 @@ int _template_dtor(object_t *object) {
 
 int _template_override(template_t *self, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    errno = E_UNKOVER;
+    when_error_in {
 
-    if (items != NULL) {
+        if (items != NULL) {
 
-        int x;
-        for (x = 0;; x++) {
+            errno = E_UNKOVER;
 
-            if ((items[x].buffer_length == 0) &&
-                (items[x].item_code == 0)) break;
+            int x;
+            for (x = 0;; x++) {
 
-            switch(items[x].item_code) {
-                case TEMPLATE_M_DESTRUCTOR: {
-                    self->dtor = items[x].buffer_address;
-                    stat = OK;
-                    break;
+                if ((items[x].buffer_length == 0) &&
+                    (items[x].item_code == 0)) break;
+
+                switch(items[x].item_code) {
+                    case TEMPLATE_M_DESTRUCTOR: {
+                        self->dtor = NULL;
+                        self->dtor = items[x].buffer_address;
+                        check_null(self->dtor);
+                        break;
+                    }
                 }
+
             }
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -289,19 +305,32 @@ int _template_override(template_t *self, item_list_t *items) {
 
 int _template_compare(template_t *self, template_t *other) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    errno = E_NOTSAME;
+    when_error_in {
 
-    if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
-        (self->ctor == other->ctor) &&
-        (self->dtor == other->dtor) &&
-        (self->_compare == other->_compare) &&
-        (self->_override == other->_override)) {
+        if ((object_compare(OBJECT(self), OBJECT(other)) == OK) &&
+            (self->ctor == other->ctor) &&
+            (self->dtor == other->dtor) &&
+            (self->_compare == other->_compare) &&
+            (self->_override == other->_override)) {
 
-        stat = OK;
+            stat = OK;
 
-    }
+        } else {
+
+            cause_error(E_NOTSAME);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 

@@ -75,7 +75,8 @@ int fib_destroy(fib_t *self) {
 
             if (object_assert(self, fib_t)) {
 
-                self->dtor(OBJECT(self));
+                stat = self->dtor(OBJECT(self));
+                check_return(stat, self);
 
             } else {
 
@@ -543,67 +544,89 @@ int _fib_dtor(object_t *object) {
 
 int _fib_override(fib_t *self, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    if (items != NULL) {
+    when_error_in {
 
-        int x;
-        for (x = 0;; x++) {
+        if (items != NULL) {
 
-            if ((items[x].buffer_length == 0) &&
-                (items[x].item_code == 0)) break;
+            errno = E_UNKOVER;
 
-            switch(items[x].item_code) {
-                case FIB_M_DESTRUCTOR: {
-                    self->dtor = items[x].buffer_address;
-                    stat = OK;
-                    break;
+            int x;
+            for (x = 0;; x++) {
+
+                if ((items[x].buffer_length == 0) &&
+                    (items[x].item_code == 0)) break;
+
+                switch(items[x].item_code) {
+                    case FIB_M_DESTRUCTOR: {
+                        self->dtor = NULL;
+                        self->dtor = items[x].buffer_address;
+                        check_null(self->dtor);
+                        break;
+                    }
+                    case FIB_M_OPEN: {
+                        self->_open = NULL;
+                        self->_open = items[x].buffer_address;
+                        check_null(self->_open);
+                        break;
+                    }
+                    case FIB_M_CLOSE: {
+                        self->_close = NULL;
+                        self->_close = items[x].buffer_address;
+                        check_null(self->_close);
+                        break;
+                    }
+                    case FIB_M_EXISTS: {
+                        self->_exists = NULL;
+                        self->_exists = items[x].buffer_address;
+                        check_null(self->_exists);
+                        break;
+                    }
+                    case FIB_M_STAT: {
+                        self->_stat = NULL;
+                        self->_stat = items[x].buffer_address;
+                        check_null(self->_stat);
+                        break;
+                    }
+                    case FIB_M_SIZE: {
+                        self->_size = NULL;
+                        self->_size = items[x].buffer_address;
+                        check_null(self->_size);
+                        break;
+                    }
+                    case FIB_M_UNLINK: {
+                        self->_unlink = NULL;
+                        self->_unlink = items[x].buffer_address;
+                        check_null(self->_unlink);
+                        break;
+                    }
+                    case FIB_M_CREAT: {
+                        self->_creat = NULL;
+                        self->_creat = items[x].buffer_address;
+                        check_null(self->_creat);
+                        break;
+                    }
+                    case FIB_M_CHMOD: {
+                        self->_chmod = NULL;
+                        self->_chmod = items[x].buffer_address;
+                        check_null(self->_chmod);
+                        break;
+                    }
                 }
-                case FIB_M_OPEN: {
-                    self->_open = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_CLOSE: {
-                    self->_close = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_EXISTS: {
-                    self->_exists = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_STAT: {
-                    self->_stat = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_SIZE: {
-                    self->_size = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_UNLINK: {
-                    self->_unlink = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_CREAT: {
-                    self->_creat = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
-                case FIB_M_CHMOD: {
-                    self->_chmod = items[x].buffer_address;
-                    stat = OK;
-                    break;
-                }
+
             }
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -613,23 +636,38 @@ int _fib_compare(fib_t *self, fib_t *other) {
 
     int stat = ERR;
 
-    if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
-        (self->ctor == other->ctor) &&
-        (self->dtor == other->dtor) &&
-        (self->_compare == other->_compare) &&
-        (self->_override == other->_override) &&
-        (self->_open == other->_open) &&
-        (self->_close == other->_close) &&
-        (self->_exists == other->_exists) &&
-        (self->_stat == other->_stat) &&
-        (self->_size == other->_size) &&
-        (self->_creat == other->_creat) &&
-        (self->_chmod == other->_chmod) &&
-        (self->_unlink == other->_unlink)) {
+    when_error_in {
 
-        stat = OK;
+        if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
+            (self->ctor == other->ctor) &&
+            (self->dtor == other->dtor) &&
+            (self->_compare == other->_compare) &&
+            (self->_override == other->_override) &&
+            (self->_open == other->_open) &&
+            (self->_close == other->_close) &&
+            (self->_exists == other->_exists) &&
+            (self->_stat == other->_stat) &&
+            (self->_size == other->_size) &&
+            (self->_creat == other->_creat) &&
+            (self->_chmod == other->_chmod) &&
+            (self->_unlink == other->_unlink)) {
 
-    }
+            stat = OK;
+
+        } else {
+
+            cause_error(E_NOTSAME);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
