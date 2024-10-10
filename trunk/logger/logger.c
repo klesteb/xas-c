@@ -1,6 +1,6 @@
 
 /*---------------------------------------------------------------------------*/
-/*                Copyright (c) 2019 by Kevin L. Esteb                       */
+/*               Copyright (c) 2019 - 2024  by Kevin L. Esteb                */
 /*                                                                           */
 /*  Permission to use, copy, modify, and distribute this software and its    */
 /*  documentation for any purpose and without fee is hereby granted,         */
@@ -29,6 +29,8 @@ require_klass(OBJECT_KLASS);
 
 int _log_ctor(object_t *object, item_list_t *);
 int _log_dtor(object_t *);
+int _log_override(logger_t *, item_list_t *);
+int _log_compare(logger_t *, logger_t *);
 
 int _log_dispatch(logger_t *, int, int, char *, const char *, char *);
 
@@ -99,6 +101,82 @@ int log_destroy(logger_t *self) {
     } end_when;
 
     return stat;
+
+}
+
+int log_override(logger_t *self, item_list_t *items) {
+
+    int stat = OK;
+
+    when_error {
+        
+        if (self != NULL) {
+
+            stat = self->_override(self, items);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int log_compare(logger_t *us, logger_t *them) {
+
+    int stat = OK;
+
+    when_error {
+
+        if (us != NULL) {
+
+            if (object_assert(them, logger_t)) {
+
+                stat = us->_compare(us, them);
+                check_return(stat, us);
+
+            } else {
+
+                cause_error(E_INVOBJ);
+
+            }
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(us);
+
+    } end_when;
+
+    return stat;
+
+}
+
+char *log_version(logger_t *self) {
+
+    char *version = VERSION;
+
+    return version;
 
 }
 
@@ -379,7 +457,8 @@ int _log_ctor(object_t *object, item_list_t *items) {
 
         self->ctor = _log_ctor;
         self->dtor = _log_dtor;
-
+        self->_compare = _log_compare;
+        self->_override = _log_override;
         self->_dispatch = _log_dispatch;
 
         when_error_in {
@@ -453,6 +532,88 @@ int _log_dtor(object_t *object) {
 
     object_demote(object, object_t);
     object_destroy(object);
+
+    return stat;
+
+}
+
+int _log_override(logger_t *self, item_list_t *items) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if (items != NULL) {
+
+            errno = E_UNKOVER;
+
+            int x;
+            for (x = 0;; x++) {
+
+                if ((items[x].buffer_length == 0) &&
+                    (items[x].item_code == 0)) break;
+
+                switch(items[x].item_code) {
+                    case LOGGER_M_DESTRUCTOR: {
+                        self->dtor = NULL;
+                        self->dtor = items[x].buffer_address;
+                        check_null(self->dtor);
+                        break;
+                    }
+                    case LOGGER_M_DISPATCH: {
+                        self->_dispatch = NULL;
+                        self->_dispatch = items[x].buffer_address;
+                        check_null(self->_dispatch);
+                        break;
+                    }
+                }
+
+            }
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _log_compare(logger_t *self, logger_t *other) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((object_compare(OBJECT(self), OBJECT(other)) == OK) &&
+            (self->ctor == other->ctor) &&
+            (self->dtor == other->dtor) &&
+            (self->_compare == other->_compare) &&
+            (self->_override == other->_override) &&
+            (self->_dispatch == other->_dispatch)) {
+
+            stat = OK;
+
+        } else {
+
+            cause_error(E_NOTSAME);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 

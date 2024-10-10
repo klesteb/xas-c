@@ -5,14 +5,24 @@
 #
 # Makefile to build logger.
 #
+MAJOR=1
+MINOR=0
+PATCH=0
+VERSION="$(MAJOR).$(MINOR).$(PATCH)"
+#
 CC = gcc
-INCLUDE = -I ../
-CFLAGS = -Wall -c $(INCLUDE)
-OLBS =  ../lib/liblogger.a ../lib/libobjects.a ../lib/libmisc.a  -llog4c
 LINK = gcc
-LFLAGS = -o test
-LIBR = ar -r
-LIBS = ../lib/liblogger.a
+LIBR = ar rs
+WORKING = $(shell pwd)
+STATIC = ../lib/liblogger.a
+SHARED = ../lib/liblogger.so.$(VERSION)
+INCLUDE = -I ../
+CFLAGS = -DVERSION=\"$(VERSION)\" -Wall -c $(INCLUDE)
+LOPTS = -o 
+SOPTS = -shared -o 
+SFLAGS = -L$(WORKING) -Wl,-rpath=$(WORKING) -fPIC 
+#
+OLBS =  $(STATIC) ../lib/libobjects.a  -llog4c
 #
 INCS = ../xas/logger.h ../xas/log4c_extensions.h
 #
@@ -25,45 +35,56 @@ debug:
 clean:
 	rm -f *.o
 	rm -f *~
+	rm -f $(STATIC)
+	rm -f $(SHARED)
+	rm -f ../lib/liblogger.a
 	rm -f test1
 	rm -f test2
 	rm -f test3
 	rm -f test4
 	rm -f test5
-	rm -f ../lib/liblogger.a
 #
 #
 test1: test1.o
 	$(CC) $(CFLAGS) test1.c
-	$(LINK) -o test1 test1.o  $(OLBS)
+	$(LINK) $(LOPTS) test1 test1.o  $(OLBS)
 #
 test2: test2.o
 	$(CC) $(CFLAGS) test2.c
-	$(LINK) -o test2 test2.o  $(OLBS)
+	$(LINK) $(LOPTS) test2 test2.o  $(OLBS)
 #
 test3: test3.o
 	$(CC) $(CFLAGS) test3.c
-	$(LINK) -o test3 test3.o  $(OLBS)
+	$(LINK) $(LOPTS) test3 test3.o  $(OLBS)
 #
 test4: test4.o
 	$(CC) $(CFLAGS) test4.c
-	$(LINK) -o test4 test4.o  $(OLBS)
+	$(LINK) $(LOPTS) test4 test4.o  $(OLBS)
 #
 test5: test5.o
 	$(CC) $(CFLAGS) test5.c
-	$(LINK) -o test5 test5.o  $(OLBS)
+	$(LINK) $(LOPTS) test5 test5.o  $(OLBS)
 #
 test6: test6.o
 	$(CC) $(CFLAGS) test6.c
-	$(LINK) -o test6 test6.o  $(OLBS)
+	$(LINK) $(LOPTS) test6 test6.o  $(OLBS)
 #
 logger.o: logger.c $(INCS)
 	$(CC) $(CFLAGS) logger.c
-	$(LIBR) $(LIBS) logger.o
+	$(LIBR) $(STATIC) logger.o
 #
 log4c_extensions.o: log4c_extensions.c $(INCS)
 	$(CC) $(CFLAGS) log4c_extensions.c
-	$(LIBR) $(LIBS) log4c_extensions.o
+	$(LIBR) $(STATIC) log4c_extensions.o
+#
+man:
+	pod2man -c " " -r "logger(3)" -s 3 logger.pod logger.3
+#
+shared:
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) logger.o logger.c
+	$(LINK) $(SOPTS) $(SHARED) logger.o
+	$(CC) $(CFLAGS) $(SFLAGS) $(LOPTS) log4c_extensions.o log4c_extensions.c
+	$(LINK) $(SOPTS) $(SHARED) log4c_extensions.o
 #
 # eof
 #

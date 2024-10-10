@@ -17,6 +17,7 @@
 #include <log4c.h>
 
 #include "xas/object.h"
+#include "xas/types.h"
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
@@ -26,9 +27,11 @@ typedef struct _logger_s logger_t;
 
 struct _logger_s {
     object_t parent_klass;
-    int   (*ctor)(object_t *, item_list_t *);
-    int   (*dtor)(object_t *);
-    int   (*_dispatch)(logger_t *, int, int, char *, const char *, char *);
+    int (*ctor)(object_t *, item_list_t *);
+    int (*dtor)(object_t *);
+    int (*_compare)(logger_t *, logger_t *);
+    int (*_override)(logger_t *, item_list_t *);
+    int (*_dispatch)(logger_t *, int, int, char *, const char *, char *);
     int  pid;
     char *hostname;
     char *category;
@@ -52,6 +55,9 @@ struct _logger_s {
 #define LOGGER_K_FACILITY 1
 #define LOGGER_K_CATEGORY 2
 #define LOGGER_K_PROCESS  3
+
+#define LOGGER_M_DESTRUCTOR 1
+#define LOGGER_M_DISPATCH   2
 
 #define log_info(self, fmt, args...) \
     log_dispatch((self), INFO, __LINE__, __FILE__, __FUNCTION__, (fmt), ##args)
@@ -77,6 +83,10 @@ struct _logger_s {
 
 extern logger_t *log_create(char *, char *, char *);
 extern int log_destroy(logger_t *);
+extern int log_compare(logger_t *, logger_t *);
+extern int log_override(logger_t *, item_list_t *);
+extern char *log_version(logger_t *);
+
 extern int log_set_category(logger_t *, char *);
 extern int log_get_category(logger_t *, char *, int);
 extern int log_set_facility(logger_t *, char *);
@@ -84,6 +94,8 @@ extern int log_get_facility(logger_t *, char *, int);
 extern int log_set_process(logger_t *, char *);
 extern int log_get_process(logger_t *, char *, int);
 extern int log_dispatch(logger_t *, int, int, char *, const char *, char *, ...);
+
+#define log_set_trace(self, trace)    object_set_trace(OBJECT(self), trace)
 
 #endif
 

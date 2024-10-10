@@ -48,5 +48,7 @@ extern int template_compare(template_t *, template_t *);
 extern int template_override(template_t *, item_list_t *);
 extern char *template_version(template_t *);
 
+#define template_set_trace(self, trace)    object_set_trace(OBJECT(self), trace)
+
 #endif
 
