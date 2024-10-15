@@ -8,7 +8,7 @@ logger - A ANSI C class
 =head1 SYNOPSIS
 
  #include <stdio.h>
- #include "logger.h"
+ #include "xas/logger.h"
 
  int main(int argc, char **argv) {
 
@@ -29,8 +29,8 @@ logger - A ANSI C class
 
 =head1 DESCRIPTION
 
-This is a basic class written in ANSI C. It shows a way to implement
-object oriented programming. Why do this? It is a nice thought exercise. 
+This class is a thin wrapper around the log4c logging routines. This is an 
+attempt to make them more user friendly.
 
 The files logger.c and logger.h define the class. 
 
@@ -52,6 +52,21 @@ This implements the interface.
 
 This method initializes the class. 
 
+=over 4
+
+=item B<facility>
+
+The logging facility.
+
+=item B<category>
+
+The logging category.
+
+=item B<process>
+
+The process name.
+
+=back
 
 =head2 I<int log_destroy(logger_t *self)>
 
@@ -107,6 +122,284 @@ follows the guidelines from L<semver.org|https://semver.org/>.
 =item B<self>
 
 A pointer to the logger_t object.
+
+=back
+
+=head2 I<int log_set_category(logger_t *self, char *category)>
+
+The method allows you to set the category of the logger.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<category>
+
+The category to set.
+
+=back
+
+=head2 I<int log_get_category(logger_t *self, char *category, int size)>
+
+The method allows you to get the category of the logger.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<category>
+
+The buffer to write the category into.
+
+=item B<size>
+
+The size of the buffer.
+
+=back
+
+=head2 I<int log_set_facility(logger_t *self, char *facility)>
+
+The method allows you to set the facility of the logger.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<facility>
+
+The facility to set.
+
+=back
+
+=head2 I<int log_get_facility(logger_t *self, char *facility, int size)>
+
+The method allows you to get the current facility of the logger.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<facility>
+
+The buffer to write the facility into.
+
+=item B<size>
+
+The size of the buffer.
+
+=back
+
+=head2 I<int log_set_process(logger_t *self, char *process)>
+
+The method allows you to set the process of the logger.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<process>
+
+The process to set.
+
+=back
+
+=head2 I<int log_get_process(logger_t *self, char *process, int size)>
+
+This method allows you to get the current process of the logger.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<process>
+
+The buffer to write the process into.
+
+=item B<size>
+
+The size of the buffer.
+
+=back
+
+=head2 I<int log_dispatch(logger_t *self, int type, int lineno, char *filename, const char *function, char *fmt, ...)>
+
+This method write a line of output to the current log.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<type>
+
+The type of log entry. The currently supported types are: INFO, WARN,
+ERROR, FATAL, DEBUG, TRACE
+
+These mnemonics are defined in logger.h
+
+=item B<lineno>
+
+The current line in the source file.
+
+=item B<filename>
+
+The file name of the source file.
+
+=item B<function>
+
+The current function name.
+
+=item B<format>
+
+A sprintf style of format line. 
+
+=item B<...>
+
+The items used in the format line.
+
+=back
+
+=head1 MACROS
+
+The following macros have been defined to make logging easier. They
+use the mnemonics from logger.h and preprocessor definitions to fill in the
+necessary values needed by log_dispatch().
+
+=head2 I<log_info(self, format, ...)>
+
+This macro creates a INFO line in the current log.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<format>
+
+A sprintf style of format line. 
+
+=item B<...>
+
+The items used in the format line.
+
+=back
+
+=head2 I<log_warn(self, format, ...)>
+
+This macro creates a WARN line in the current log.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<format>
+
+A sprintf style of format line. 
+
+=item B<...>
+
+The items used in the format line.
+
+=back
+
+=head2 I<log_error(self, format, ...)>
+
+This macro creates an ERROR line in the current log.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<format>
+
+A sprintf style of format line. 
+
+=item B<...>
+
+The items used in the format line.
+
+=back
+
+=head2 I<log_fatal(self, format, ...)>
+
+This macro creates a FATAL line in the current log.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<format>
+
+A sprintf style of format line. 
+
+=item B<...>
+
+The items used in the format line.
+
+=back
+
+=head2 I<log_trace(self, format, ...)>
+
+This macro creates a TRACE line in the current log.
+
+=over 4
+
+=item B<self>
+
+A pointer to the logger_t object.
+
+=item B<format>
+
+A sprintf style of format line. 
+
+=item B<...>
+
+The items used in the format line.
+
+=back
+
+=head1 LOG4C Extensions
+
+They are a set of extension included with this class that defines an
+extra set of layouts. They are the following:
+
+=over 4
+
+=item B<logstash>
+
+This creates a log line in JSON format that is suitable for inclusion
+into a logging aggregate such as Elastic Search. This uses the familiar
+logstash format.
+
+=item B<console>
+
+This creates a simple log line that is suitable for display on a
+console.
+
+=item B<batch>
+
+This creates a simple log line that includes a date/time stamp.
+Suitable for simple log files.
 
 =back
 
