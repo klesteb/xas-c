@@ -1,0 +1,61 @@
+=pod
+
+=head1 INTRODUCTION
+
+The xas-c routines are written in a specific manner. That is to fail
+fast and nosily. They are also written in a class like style.
+Which in ANSI C is not easy to do. But supringly not that hard either.
+There is also a mixture of function libraries, written in a more
+tradition fashion.
+
+=head1 ERROR CHECKING
+
+There is comprehensive error checking. Each module in the class system
+returns either an ERR or OK. Which are nemonics of 0 for success and
+-1 for failure. Class initialization can return NULL on failure. This 
+follows tradional UNIX pratice. The class maintains the error condition
+which includes the function name, file name, error condition and the line 
+number within the file where it happened. This is done primarily with
+pre-processor magic, nothing fancy here.
+
+A set of macros allows for the capture of the error conditions. These 
+macros allows the errors to be propogated to a trace facility. The trace 
+facility can then use the error class to display error messages in an 
+organized fashion. This error class also handles system error messages and
+additional error messages can be added as needed.
+
+The function libraries are also included in this error checking. In this
+case the return code is checked for 0, -1 or NULL, and the error condition is 
+returned in ERRNO. Once again following traditional UNIX pratice.
+
+=head1 CLASS SYSTEM
+
+The class system was borrowed from another GIT repository. This system
+was extended to meet the needs of this project. This allows for simple
+inheritence, class extension and overriding methods within the class.
+Since this is C, none of this is done with magic keywords. You need to
+explicitly do each step by hand. 
+
+The class also includes methods to create, destroy, override and compare 
+classes with each other. There is also methods to return the error condition 
+and version of the class.
+
+This should allow you to follow whatever fashionable software
+engineering practice that you think is useful.
+
+=head1 AUTHOR
+
+Kevin L. Esteb, E<lt>kevin@kesteb.usE<gt>
+
+=head1 LICENSE AND COPYRIGHT
+
+Copyright (c) 2024 Kevin L. Esteb
+
+Permission to use, copy, modify, and distribute this software and its
+documentation for any purpose and without fee is hereby granted,
+provided that this copyright notice appears in all copies. The
+author makes no representations about the suitability of this software
+for any purpose. It is provided "as is" without express or implied
+warranty.
+
+=cut
