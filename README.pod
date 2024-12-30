@@ -4,35 +4,35 @@
 
 The xas-c routines are written in a specific manner. That is to fail
 fast and nosily. They are also written in a class like style.
-Which in ANSI C is not easy to do. But supringly not that hard either.
+Which in ANSI C is not easy to do. But surprisingly not that hard either.
 There is also a mixture of function libraries, written in a more
 tradition fashion.
 
 =head1 ERROR CHECKING
 
 There is comprehensive error checking. Each module in the class system
-returns either an ERR or OK. Which are nemonics of 0 for success and
+returns either an ERR or OK. Which are mnemonics of 0 for success and
 -1 for failure. Class initialization can return NULL on failure. This 
-follows tradional UNIX pratice. The class maintains the error condition
+follows traditional UNIX practice. The class maintains the error condition
 which includes the function name, file name, error condition and the line 
 number within the file where it happened. This is done primarily with
 pre-processor magic, nothing fancy here.
 
 A set of macros allows for the capture of the error conditions. These 
-macros allows the errors to be propogated to a trace facility. The trace 
+macros allows the errors to be propagated to a trace facility. The trace 
 facility can then use the error class to display error messages in an 
 organized fashion. This error class also handles system error messages and
 additional error messages can be added as needed.
 
 The function libraries are also included in this error checking. In this
 case the return code is checked for 0, -1 or NULL, and the error condition is 
-returned in ERRNO. Once again following traditional UNIX pratice.
+returned in ERRNO. Once again following traditional UNIX practice.
 
 =head1 CLASS SYSTEM
 
 The class system was borrowed from another GIT repository. This system
 was extended to meet the needs of this project. This allows for simple
-inheritence, class extension and overriding methods within the class.
+inheritance, class extension and overriding methods within the class.
 Since this is C, none of this is done with magic keywords. You need to
 explicitly do each step by hand. 
 
@@ -42,6 +42,84 @@ and version of the class.
 
 This should allow you to follow whatever fashionable software
 engineering practice that you think is useful.
+
+=head1 MODULES
+
+The following modules are available within the package:
+
+=head2 Function libraries
+
+=over 4 
+
+=item B<libgpl>
+
+These module were originally from Charles Measday L<http://www.geonius.com/software/|http://www.geonius.com/software/>.
+This is a very old version of his packages and have suffered from my
+modifications and extensions. I originally ported them to OpenVMS 7.1,
+Linux and maybe to AIX v4. Newer versions are available from the above web
+site.
+
+=item B<libmisc>
+
+A collection of functions that I have created over the years. They
+include date routines, hash routines, a hexdump and a complete DEC BASIC style 
+of string handling routines.
+
+=item B<libqueue>
+
+A collection of functions to implement linked lists, queues and stacks.
+This was evolved from the deque package by Peter Yardley from the old
+SNIPPETS collection.
+
+=back
+
+=head2 Class libraries
+
+=over 4 
+
+=item B<liberror>
+
+A class to handle error messages. Error messages can be added or
+removed and includes the system error messages. So you can have a
+consistent representation of error messages.
+
+=item B<libevent>
+
+A class to handle events. Events are defined as anything that can
+be selected by the select() system call. This includes the trick of
+using self pipes to capture signals and feed them thru select(). So
+you can define handlers for file I/O, timers, background tasks and
+signals. 
+
+=item B<liblogger>
+
+A class to handle logging. This uses the log4c package to display log
+messages.
+
+=item B<libmessages>
+
+A class to handle messages. Messages are any text that you want to
+display. Messages can be added or removed.
+
+=item B<libobjects>
+
+The base class for the class system.
+
+=item B<librms>
+
+A class to handle file I/O. Loosely based on the DEC RMS subsystem. This 
+includes sequential, block and relative files with automatic record locking 
+on block and relative files. Record locking is provided by the selective UNIX
+file locking routines. There is also a btree implementation to handle 
+indexing of files. This class is not compatible with actual DEC RMS files.
+
+=item B<libtracer>
+
+A class to handle traces. The error handling package can retrieve and
+store error conditions with a tracer. This is the class that provides that 
+capability.
+
+=back
 
 =head1 AUTHOR
 
