@@ -69,7 +69,12 @@ of string handling routines.
 
 A collection of functions to implement linked lists, queues and stacks.
 This was evolved from the deque package by Peter Yardley from the old
-SNIPPETS collection.
+SNIPPETS collection. 
+
+This package when compiled on OpenVMS would have memory access errors. 
+Those errors turned out to be uninitialized variables used within the 
+package. This package worked quit nicely under MS-DOS and the then currently 
+available C compilers. Memory protected operating systems are a good thing.
 
 =back
 
@@ -109,9 +114,10 @@ The base class for the class system.
 
 A class to handle file I/O. Loosely based on the DEC RMS subsystem. This 
 includes sequential, block and relative files with automatic record locking 
-on block and relative files. Record locking is provided by the selective UNIX
-file locking routines. There is also a btree implementation to handle 
-indexing of files. This class is not compatible with actual DEC RMS files.
+on block and relative files. Record locking is provided by the
+discretionary UNIX file locking routines. There is also a btree implementation
+to handle indexing of files. This class is not compatible with actual DEC 
+RMS files.
 
 =item B<libtracer>
 
