@@ -106,7 +106,7 @@ int err_override(err_t *self, item_list_t *items) {
 
     when_error_in {
 
-        if (self != NULL) {
+        if ((self != NULL) && (items != NULL)) {
 
             stat = self->_override(self, items);
             check_return(stat, self);
@@ -136,7 +136,7 @@ int err_compare(err_t *us, err_t *them) {
 
     when_error_in {
 
-        if (us != NULL) {
+        if ((us != NULL) && (them != NULL)) {
 
             if (object_assert(them, err_t)) {
 

@@ -89,16 +89,27 @@ int _template_ctor(object_t *object, item_list_t *items) {
 int _template_dtor(object_t *object) {
 
     int stat = OK;
+    template_t *self = TEMPLATE(object);
 
-    errno = E_INVOPS;
+    when_error_in {
 
-    /* free local resources here */
+        /* free local resources here */
 
+        /* walk the chain, freeing as we go */
 
-    /* walk the chain, freeing as we go */
+        object_demote(object, object_t);
 
-    object_demote(object, object_t);
-    object_destroy(object);
+        stat = object_destroy(object);
+        check_return(stat, object);
+
+        exit_when;
+
+    } use { 
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when; 
 
     return stat;
 
@@ -106,29 +117,41 @@ int _template_dtor(object_t *object) {
 
 int _template_override(template_t *self, item_list_t *items) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    errno = E_UNKOVER;
+    when_error_in {
+        
+        if (items != NULL) {
 
-    if (items != NULL) {
+            errno = E_UNKOVER;
 
-        int x;
-        for (x = 0;; x++) {
+            int x;
+            for (x = 0;; x++) {
 
-            if ((items[x].buffer_length == 0) &&
-                (items[x].item_code == 0)) break;
+                if ((items[x].buffer_length == 0) &&
+                    (items[x].item_code == 0)) break;
 
-            switch(items[x].item_code) {
-                case TEMPLATE_M_DESTRUCTOR: {
-                    self->dtor = items[x].buffer_address;
-                    stat = 0;
-                    break;
+                switch(items[x].item_code) {
+                    case TEMPLATE_M_DESTRUCTOR: {
+                        self->dtor = NULL;
+                        self->dtor = items[x].buffer_address;
+                        check_null(self->dtor);
+                        break;
+                    }
                 }
+
             }
 
         }
 
-    }
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 
@@ -136,19 +159,32 @@ int _template_override(template_t *self, item_list_t *items) {
 
 int _template_compare(template_t *self, template_t *other) {
 
-    int stat = ERR;
+    int stat = OK;
 
-    errno = E_NOTSAME;
+    when_error_in {
 
-    if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
-        (self->ctor == other->ctor) &&
-        (self->dtor == other->dtor) &&
-        (self->_compare == other->_compare) &&
-        (self->_override == other->_override)) {
+        if ((object_compare(OBJECT(self), OBJECT(other)) == 0) &&
+            (self->ctor == other->ctor) &&
+            (self->dtor == other->dtor) &&
+            (self->_compare == other->_compare) &&
+            (self->_override == other->_override)) {
 
-        stat = OK;
+            stat = OK;
 
-    }
+        } else {
+            
+            cause_error(E_NOTSAME);
+            
+        }
+        
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
 
     return stat;
 

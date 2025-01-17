@@ -96,7 +96,7 @@ int template_override(template_t *self, item_list_t *items) {
 
     when_error {
         
-        if (self != NULL) {
+        if ((self != NULL) && (items != NULL)) {
 
             stat = self->_override(self, items);
             check_return(stat, self);
@@ -126,7 +126,7 @@ int template_compare(template_t *us, template_t *them) {
 
     when_error {
 
-        if (us != NULL) {
+        if ((us != NULL) && (them != NULL)) {
 
             if (object_assert(them, template_t)) {
 
@@ -246,7 +246,9 @@ int _template_dtor(object_t *object) {
         /* walk the chain, freeing as we go */
 
         object_demote(object, object_t);
-        object_destroy(object);
+            
+        stat = object_destroy(object);
+        check_return(stat, object);
 
         exit_when;
 
