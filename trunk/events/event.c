@@ -158,7 +158,7 @@ int event_override(event_t *self, item_list_t *items) {
 
     when_error_in {
         
-        if (self == NULL) {
+        if ((self == NULL) || (items == NULL)) {
 
             cause_error(E_INVPARM);
             
@@ -186,7 +186,7 @@ int event_compare(event_t *us, event_t *them) {
 
     when_error_in {
 
-        if (us == NULL) {
+        if ((us == NULL) || (them == NULL)) {
 
             cause_error(E_INVPARM);
 

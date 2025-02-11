@@ -91,14 +91,22 @@
 #define check_status(status) {             \
     if ((status) != (OK)) {                \
         trace_lines = 1;                   \
-        cause_error(errno);                \
+        cause_error((errno));              \
     }                                      \
+}
+
+#define check_status2(status, condition, error) { \
+    if ((status) != (condition)) {                \
+        trace_lines = 1;                          \
+        errno = error;                            \
+        cause_error((errno));                     \
+    }                                             \
 }
 
 #define check_null(value) {                \
     if ((value) == NULL) {                 \
         trace_lines = 1;                   \
-        cause_error(errno);                \
+        cause_error((errno));              \
     }                                      \
 }
 
@@ -112,7 +120,8 @@
     if ((status) != (OK)) {                      \
         retrieve_error((self));                  \
         trace_lines = 1;                         \
-        cause_error(trace_errnum);               \
+        errno = trace_errnum;                    \
+        cause_error((errno));                    \
     }                                            \
 }
 
@@ -120,7 +129,8 @@
     retrieve_error((self));                      \
     if (trace_errnum != (OK)) {                  \
         trace_lines = 1;                         \
-        cause_error(trace_errnum);               \
+        errno = trace_errnum;                    \
+        cause_error((errno));                    \
     }                                            \
 }
 
