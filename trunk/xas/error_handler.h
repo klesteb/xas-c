@@ -99,30 +99,32 @@
 /*                                                            */
 /* The standard form is to return a success/failure           */
 /* status from the function call and on failure, check        */ 
-/* the global variable errno to retireve the error code.      */
+/* the global variable errno to retrieve the error code.      */
 /*                                                            */
-/* This is how the kernel and the orignal utilities did it.   */
+/* This is how the kernel and the original utilities did it.  */
 /* Those utilities would then return a success/failure status */
 /* to the command line and the reason on stderr. This is the  */
 /* proper way to write robust systems and the only way to     */
-/* code in C, whch has no built in error handling.            */
+/* code in C, which has no built in error handling.           */
 /*                                                            */
-/* Since errno is a global variable, there is preceived       */
+/* Since errno is a global variable, there is perceived       */
 /* problems with this approach. Especially in threaded        */
 /* code. Those problems have been resolved over the years,    */
-/* but some things never change or have been standardiszed    */
+/* but some things never change or have been standardized     */
 /* in a certain way.                                          */
 /*                                                            */ 
 /* Ncurses is a prime example. The main routines as           */
-/* defined in ncurses.h return success/failure and don't      */
+/* defined in ncurses.h return success/failure and dosen't    */
 /* bother to set errno. The companion routines as defined     */
 /* in menu.h, panel.h and form.h. return success or an        */
-/* error code. Why? Just the whim of the orignal authors.     */
+/* error code. Why? Just the whim of the original authors.    */
 /* I am sure they had their reasons. But consistence would    */
 /* have been nice.                                            */
 /*                                                            */
 /* This is what happens when nobody enforces a set of rules   */
 /* and UNIX/Linux is full of this type of stuff.              */
+/*                                                            */
+/* Contrary to what Linus says, this is not a good thing.     */
 /*                                                            */
 
 #define check_status2(status, wanted, error) { \
