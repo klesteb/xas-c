@@ -15,9 +15,8 @@
 #include <errno.h>
 
 #include "objects/object.h"
-#include "widgets/component.h"
-#include "include/item_list.h"
-#include "widgets/components/forms/forms.h"
+#include "xas/widgets/component.h"
+#include "xas/widgets/components/forms/forms.h"
 
 require_klass(CONTAINER_KLASS);
 

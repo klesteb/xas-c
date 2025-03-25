@@ -26,5 +26,11 @@
 /* data strutures                                                 */
 /*----------------------------------------------------------------*/
 
+typedef struct _forms_data_s {
+    int ins;
+    FORM *form;
+    FIELD **fields;
+} forms_data_t;
+
 #endif
 

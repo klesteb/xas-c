@@ -1,0 +1,513 @@
+
+/*---------------------------------------------------------------------------*/
+/*                Copyright (c) 2021 by Kevin L. Esteb                       */
+/*                                                                           */
+/*  Permission to use, copy, modify, and distribute this software and its    */
+/*  documentation for any purpose and without fee is hereby granted,         */
+/*  provided that the above copyright notice appears in all copies. The      */
+/*  author makes no representations about the suitability of this software   */
+/*  for any purpose. It is provided "as is" without express or implied       */
+/*  warranty.                                                                */
+/*---------------------------------------------------------------------------*/
+
+#include <ncurses.h>
+#include <errno.h>
+
+#include "forms_priv.h"
+#include "xas/widgets/components/forms/forms.h"
+
+require_klass(CONTAINER_KLASS);
+
+/*----------------------------------------------------------------*/
+/* private methods                                                */
+/*----------------------------------------------------------------*/
+
+static int _focus_first_field(widget_t *self) {
+
+    int stat = OK;
+    component_t *temp = NULL;
+    field_data_t *data = NULL;
+    forms_data_t *forms = NULL;
+
+    when_error_in {
+        
+        if (self->data != NULL) {
+
+            forms = (forms_data_t *)self->data;
+
+            for (temp = que_first(&self->components);
+                 temp != NULL;
+                 temp = que_next(&self->components)) {
+
+                if (temp->type == COMPONENT_T_FORM_FIELD) {
+
+                    data = (field_data_t *)temp->data;
+
+                    if (data != NULL) {
+
+                        stat = set_current_field(forms->form, data->field);
+                        check_status2(stat, E_OK, stat);
+
+                        stat = form_driver(forms->form, REQ_END_LINE);
+                        check_status2(stat, E_OK, stat);
+
+                        stat = pos_form_cursor(forms->form);
+                        check_status2(stat, E_OK, stat);
+
+                        self->focus = (void *)data->field;
+                        stat = curs_set(1);
+                        check_status2(stat, E_OK, stat);
+                        break;
+
+                    }
+
+                }
+
+            }
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+    
+    return stat;
+
+}
+
+static int _form_remove(widget_t *self) {
+
+    int stat = OK;
+
+    when_error_in {
+        
+        if (self->data != NULL) {
+
+            forms_data_t *data = (forms_data_t *)self->data;
+
+            if (data->form != NULL) {
+
+                stat = unpost_form(data->form);
+                check_status2(stat, E_OK, stat);
+
+                stat = free_form(data->form);
+                check_status2(stat, E_OK, stat);
+
+            }
+
+            free(data->fields);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+static int _form_display(widget_t *self) {
+
+    int count = 0;
+    int stat = OK;
+    WINDOW *win = NULL;
+    FIELD **fields = NULL;
+    component_t *temp = NULL;
+    int size = que_size(&self->components);
+
+    when_error_in {
+        
+        forms_data_t *data = (forms_data_t *)self->data;
+
+        if (data != NULL) {
+
+            fields = calloc(size + 1, sizeof(FIELD));
+            check_null(fields);
+
+            for (temp = que_first(&self->components);
+                 temp != NULL;
+                 temp = que_next(&self->components)) {
+
+                stat = component_draw(temp);
+                check_return(stat, temp);
+
+                field_data_t *data = (field_data_t *)temp->data;
+
+                if (data != NULL) {
+
+                    fields[count] = data->field;
+                    count++;
+                    
+                }
+
+                fields[count] = NULL;
+                data->fields = fields;
+
+            }
+
+            errno = E_INVOPS;
+            data->form = new_form(data->fields);
+            check_null(data->form);
+
+            stat = set_form_win(data->form, self->area);
+            check_status2(stat, E_OK, stat);
+
+            errno = E_INVOPS;
+            win = derwin(self->area, self->height - 2, self->width - 2, 0, 0);
+            check_null(win);
+
+            stat = set_form_sub(data->form, win);
+            check_status2(stat, E_OK, stat);
+
+            stat = post_form(data->form);
+            check_status2(stat, E_OK, stat);
+
+            stat = _focus_first_field(self);
+            check_status(stat);
+
+            self->data = (void *)data;
+
+            stat = wnoutrefresh(self->area);
+            check_status2(stat, E_OK, E_INVOPS);
+
+            exit_when;
+
+        }
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+/*----------------------------------------------------------------*/
+/* klass overrides                                                */
+/*----------------------------------------------------------------*/
+
+int _form_dtor(object_t *object) {
+
+    int stat = OK;
+    component_t *component = NULL;
+    widget_t *self = WIDGET(object);
+
+    when_error_in {
+
+        /* free local resources here */
+
+        errno = 0;
+        stat = _form_remove(self);
+        check_status(stat);
+
+        while ((component = que_pop_head(&self->components))) {
+
+            component_destroy(component);
+
+        }
+
+        stat = que_init(&self->components);
+        check_status(stat, OK, E_NOQUEUE);
+
+        if (self->area != NULL) {
+
+            stat = werase(self->area);
+            check_status2(stat, OK, E_INVOPS);
+
+            stat = delwin(self->area);
+            check_status2(stat, OK, E_INVOPS);
+
+        }
+
+        /* walk the chain, freeing as we go */
+
+        object_demote(object, object_t);
+
+        errno = 0;
+        stat = object_destroy(object);
+        check_status(stat);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    }
+
+    return stat;
+
+}
+
+int _form_draw(container_t *self) {
+
+    return _form_display(self);
+    
+}
+
+int _form_erase(container_t *self) {
+
+    return _form_remove(self);
+    
+}
+
+int _form_refresh(container_t *self) {
+
+    int stat = ERR;
+
+    stat = _form_remove(self);
+    if (stat == OK) {
+        
+        stat = _form_display(self);
+        
+    }
+
+    return stat;
+
+}
+
+int _form_remove_component(container_t *self, component_t *component) {
+
+    int stat = ERR;
+
+    return stat;
+
+}
+
+int _form_event(container_t *self, events_t *event) {
+
+    int stat = OK;
+    forms_data_t *data = (forms_data_t *)self->data;
+
+    when_error_in {
+        
+        if (data != NULL) {
+
+            if (event->type == EVENT_K_KEYBOARD) {
+
+                KEVENT *kevent = (KEVENT *)event->data;
+
+                switch(kevent->keycode) {
+                    case KEY_UP: {
+                        self->focus = (void *)current_field(data->form);
+                        /* sync the form to display */
+                        stat = form_driver(data->form, REQ_NEXT_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_PREV_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        /* move to the previous field */
+                        stat = form_driver(data->form, REQ_PREV_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_END_LINE);
+                        check_status2(stat, E_OK, stat);
+                        stat = pos_form_cursor(data->form);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_DOWN: {
+                        self->focus = (void *)current_field(data->form);
+                        /* sync the form to display */
+                        stat = form_driver(data->form, REQ_NEXT_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_PREV_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        /* move to the next field */
+                        stat = form_driver(data->form, REQ_NEXT_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_END_LINE);
+                        check_status2(stat, E_OK, stat);
+                        stat = pos_form_cursor(data->form);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_LEFT: {
+                        self->focus = (void *)current_field(data->form);
+                        stat = form_driver(data->form, REQ_PREV_CHAR);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_RIGHT: {
+                        self->focus = (void *)current_field(data->form);
+                        stat = form_driver(data->form, REQ_NEXT_CHAR);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_BACKSPACE: {
+                        self->focus = (void *)current_field(data->form);
+                        stat = form_driver(data->form, REQ_DEL_PREV);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_DC: {
+                        self->focus = (void *)current_field(data->form);
+                        stat = form_driver(data->form, REQ_DEL_CHAR);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_IC: {
+                        self->focus = (void *)current_field(data->form);
+                        data->ins = !data->ins;
+                        if (data->ins) {
+                            stat = form_driver(data->form, REQ_INS_MODE);
+                            check_status2(stat, E_OK, stat);
+                        } else {
+                            stat = form_driver(data->form, REQ_OVL_MODE);
+                            check_status2(stat, E_OK, stat);
+                        }
+                        break;
+                    }
+                    case KEY_HOME: {
+                        self->focus = (void *)current_field(data->form);
+                        /* sync the form to display */
+                        stat = form_driver(data->form, REQ_NEXT_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_PREV_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        /* move to the first field */
+                        stat = form_driver(data->form, REQ_FIRST_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_END_LINE);
+                        check_status2(stat, E_OK, stat);
+                        stat = pos_form_cursor(data->form);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_END: {
+                        self->focus = (void *)current_field(data->form);
+                        /* sync the form to display */
+                        stat = form_driver(data->form, REQ_NEXT_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_PREV_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        /* move to the last field */
+                        stat = form_driver(data->form, REQ_LAST_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_END_LINE);
+                        check_status2(stat, E_OK, stat);
+                        stat = pos_form_cursor(data->form);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_NPAGE: {
+                        self->focus = (void *)current_field(data->form);
+                        stat = form_driver(data->form, REQ_NEXT_PAGE);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case KEY_PPAGE: {
+                        self->focus = (void *)current_field(data->form);
+                        stat =form_driver(data->form, REQ_PREV_PAGE);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    case 10:
+                    case KEY_ENTER: {
+                        self->focus = (void *)current_field(data->form);
+                        /* sync the form to display */
+                        stat = form_driver(data->form, REQ_NEXT_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_PREV_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        /* move to the next field */
+                        stat = form_driver(data->form, REQ_NEXT_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_END_LINE);
+                        check_status2(stat, E_OK, stat);
+                        stat = pos_form_cursor(data->form);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                    default: {
+                        self->focus = (void *)current_field(data->form);
+                        stat = form_driver(data->form, kevent->keycode);
+                        check_status2(stat, E_OK, stat);
+                        /* sync the form to display */
+                        stat = form_driver(data->form, REQ_NEXT_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        stat = form_driver(data->form, REQ_PREV_FIELD);
+                        check_status2(stat, E_OK, stat);
+                        break;
+                    }
+                }
+
+                self->data = (void *)data;
+
+            }
+
+        }
+        
+        exit_when;
+        
+    } use {
+        
+        stat = ERR;
+        process_error(self);
+        
+    } end_when;
+
+    return stat;
+
+}
+
+/*----------------------------------------------------------------*/
+/* klass implementation                                           */
+/*----------------------------------------------------------------*/
+
+widget_t *forms_create(windows_t *win, int startx, int starty, int height, int width) {
+
+    int tab = 1;
+    int stat = OK;
+    int padding = FALSE;
+    item_list_t items[6];
+    widget_t *form = NULL;
+    forms_data_t *data = NULL;
+
+    when_error_in {
+
+        self = component_create(win, startx, starty, height, width, tab, padding, NULL, 0);
+        check_creation(form);
+        
+        errno = 0;
+        data = (forms_data_t *)calloc(1, sizeof(forms_data_t));
+        check_null(data);
+
+        data->ins = 0;
+        self->data = (void *)data;
+
+        SET_ITEM(items[0], WIDGET_M_DRAW, &_form_draw, 0, NULL);
+        SET_ITEM(items[1], WIDGET_M_EVENT, &_form_event, 0, NULL);
+        SET_ITEM(items[2], WIDGET_M_DESTROY, &_form_dtor, 0, NULL);
+        SET_ITEM(items[3], WIDGET_M_ERASE, &_form_erase, 0, NULL);
+        SET_ITEM(items[4], WIDGET_M_REMOVE, &_form_remove_component, 0, NULL);
+        SET_ITEM(items[5], 0, 0, 0, 0);
+
+        stat = component_override(form, items);
+        check_return(stat, form);
+
+        exit_when;
+
+    } use {
+
+        process_error(form);
+
+    } end_when;
+
+    return self;
+
+}
+
