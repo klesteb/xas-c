@@ -7,11 +7,11 @@ object - An ANSI C class system
 
 =head1 SYNOPSIS
 
- #include "object.h"
+ #include "xas/object.h"
 
 =head1 DESCRIPTION
 
-ANSI C has no concept of objects nor classes, but it does understand
+ANSI C has no concept of objects, nor classes, but it does understand
 abstract data types and callbacks. And from this base, we can construct
 a class system. That allows us to override methods and extend classes. Each 
 class must manage all memory that it consumes.

@@ -174,7 +174,7 @@ int log_compare(logger_t *us, logger_t *them) {
 
 char *log_version(logger_t *self) {
 
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
 

@@ -11,7 +11,7 @@ AUTOMAKE_OPTIONS = gnu
 
 # SUBDIRS takes a space delimited list of _all_ the subdirectories that
 # contain source code.
-SUBDIRS = src
+SUBDIRS = src 
 #
 ACLOCAL_AMFLAGS = -I m4
 

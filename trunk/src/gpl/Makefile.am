@@ -9,7 +9,7 @@
 # and type of library we want to build - in this case we are building
 # both a shared and static library. A shared library ends with '.la' 
 # instead of '.a' which is for a non-shared (static) library.
-lib_LTLIBRARIES = libxas-c.la
+lib_LTLIBRARIES = libgpl.la
 
 # This specially named variable contains a space delimited list of the
 # source code files that must be compiled in order to create the library. 
@@ -25,5 +25,5 @@ libxas-c_la_LDFLAGS = -version-info 1:0:0
 # files are located if they aren't in the default paths. In this case it's
 # a subdirectory in the source code directory where all the header files 
 # are centrally located.
-AM_CPPFLAGS = -I../include
+AM_CPPFLAGS = -I../../../include
 

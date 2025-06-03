@@ -105,6 +105,14 @@ int object_compare(object_t *us, object_t *them) {
 
 }
 
+char *object_version(object_t *self) {
+
+        char *version = PACKAGE_VERSION;
+
+        return version;
+
+}
+
 int object_get_error(object_t *self, error_trace_t *error) {
 
     int stat = ERR;

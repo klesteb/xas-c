@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+# Date: 2024-23-05
+# By  : Kevin L. Esteb
+#
+# Push a "release" to github.
+#
+TEST="false"
+VERSION=
+#
+usage() {
+cat << EOF
+
+usage $0 <version>
+ 
+This script pushes a release to github.
+ 
+ARGUMENTS
+  <version>    The version of the release.
+
+OPTIONS
+  -h    Show this message.
+  -t    Test. Show what would be done.
+
+EOF
+}
+#
+while getopts "ht" OPTION
+do
+  case $OPTION in
+    h)
+      usage
+      exit 1
+      ;;
+    t)
+      TEST="true"
+      ;;
+    ?)
+      usage
+      exit 1
+      ;;
+  esac
+done
+#
+if [ "$OPTIND" -gt "$#" ]; then
+  usage
+  exit 2
+fi
+#
+shiftcount=`expr $OPTIND - 1`
+shift $shiftcount
+VERSION=$1
+#
+if [ "$TEST" = "true" ]; then
+    echo "git push github $VERSION\n"
+else
+    git push github $VERSION
+fi
+#

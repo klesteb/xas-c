@@ -10,7 +10,7 @@ AC_INIT([xas-c], [1.0])
 
 # AC_CONFIG_SRCDIR takes one parameter, the path and filename
 # for one of the source code files.
-AC_CONFIG_SRCDIR([src/xas-c.c])
+#AC_CONFIG_SRCDIR([src/xas-c.c])
 AC_CONFIG_MACRO_DIRS([m4])
 AM_INIT_AUTOMAKE
 AC_PROG_LIBTOOL
@@ -24,5 +24,10 @@ LIBS=
 # be created. You need to pass all directories where there is source code
 # including the base directory containing all of the source code (which won't
 # need a path pre-pended to the 'Makefile' keyword).
-AC_OUTPUT(Makefile src/Makefile)
+AC_OUTPUT(Makefile 
+          src/Makefile
+          src/objects/Makefile
+          src/errors/Makefile 
+          src/events/Makefile
+          src/logger/Makefile)
 

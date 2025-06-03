@@ -169,11 +169,11 @@ int err_compare(err_t *us, err_t *them) {
 }
 
 char *err_version(err_t *self) {
-    
-    char *version = VERSION;
+
+    char *version = PACKAGE_VERSION;
 
     return version;
-    
+
 }
 
 int err_get_text(err_t *self, int errnum, char *buffer, int size) {

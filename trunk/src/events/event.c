@@ -218,7 +218,7 @@ int event_compare(event_t *us, event_t *them) {
 
 char *event_version(event_t *self) {
 
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
 
