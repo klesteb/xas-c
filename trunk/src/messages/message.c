@@ -13,7 +13,7 @@
 #include "xas/message.h"
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
-#include "messages/message_priv.h"
+#include "message_priv.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -179,7 +179,7 @@ int message_compare(message_t *us, message_t *them) {
 
 char *message_version(message_t *self) {
 
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
 

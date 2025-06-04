@@ -51,7 +51,7 @@ REDISTRIBUTION OF THIS SOFTWARE.
 #include <memory.h>
 #include <string.h>
 
-#include "btree.h"
+#include "xas/rms/btree.h"
 
 //	internal functions
 

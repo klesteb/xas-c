@@ -14,12 +14,13 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "cclibs/que_util.h"
-#include "cclibs/misc/misc.h"
+#include "xas/queue.h"
+#include "xas/types.h"
+#include "xas/misc/misc.h"
 
 /*----------------------------------------------------------------*/
 
-static int add_word(char *temp, char *word, int width, queue *results) {
+static int add_word(char *temp, char *word, int width, queue_t *results) {
 
     int stat = -1;
 
@@ -34,7 +35,7 @@ static int add_word(char *temp, char *word, int width, queue *results) {
 
         char *line = strdup(temp);
 
-        if ((stat = que_push_tail(results, line)) == QUE_OK) {
+        if ((stat = que_push_tail(results, line)) == OK) {
 
             memset(temp, '\0',  width + 1);
             strcat(temp, word);
@@ -50,7 +51,7 @@ static int add_word(char *temp, char *word, int width, queue *results) {
 
 }
 
-int wordwrap(const char *buffer, int width, queue *results) {
+int wordwrap(const char *buffer, int width, queue_t *results) {
 
     int stat = 0;
     char *word = NULL;

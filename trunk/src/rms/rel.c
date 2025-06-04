@@ -222,7 +222,7 @@ int rel_compare(rel_t *us, rel_t *them) {
 
 char *rel_version(rel_t *self) {
 
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
 

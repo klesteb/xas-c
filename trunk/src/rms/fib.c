@@ -173,7 +173,7 @@ int fib_compare(fib_t *us, fib_t *them) {
 
 char *fib_version(fib_t *self) {
 
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
 

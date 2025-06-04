@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _LF_H
-#define _LF_H
+#ifndef _SEQ_H
+#define _SEQ_H
 
 #include "xas/rms/fib.h"
 
@@ -19,16 +19,16 @@
 /* klass defination                                            */
 /*-------------------------------------------------------------*/
 
-typedef struct _lf_s lf_t;
+typedef struct _seq_s seq_t;
 
-struct _lf_s {
+struct _seq_s {
     fib_t parent_klass;
     int (*ctor)(object_t *, item_list_t *);
     int (*dtor)(object_t *);
-    int (*_compare)(lf_t *, lf_t *);
-    int (*_override)(lf_t *, item_list_t *);
-    int (*_gets)(lf_t *, char *, size_t, ssize_t *);
-    int (*_puts)(lf_t *, char *, ssize_t *);
+    int (*_compare)(seq_t *, seq_t *);
+    int (*_override)(seq_t *, item_list_t *);
+    int (*_gets)(seq_t *, char *, size_t, ssize_t *);
+    int (*_puts)(seq_t *, char *, ssize_t *);
 
     char *eol;
 };
@@ -37,36 +37,36 @@ struct _lf_s {
 /* constants                                                   */
 /*-------------------------------------------------------------*/
 
-#define LF(x) ((lf_t *)(x))
+#define SEQ(x) ((seq_t *)(x))
 
-#define LF_M_DESTRUCTOR 18
-#define LF_M_GETS       9
-#define LF_M_PUTS       10
+#define SEQ_M_DESTRUCTOR 18
+#define SEQ_M_GETS       9
+#define SEQ_M_PUTS       10
 
 /*-------------------------------------------------------------*/
 /* interface                                                   */
 /*-------------------------------------------------------------*/
 
-extern lf_t *lf_create(char *);
-extern int lf_destroy(lf_t *);
-extern int lf_compare(lf_t *, lf_t *);
-extern int lf_override(lf_t *, item_list_t *);
-extern char *lf_version(lf_t *);
-extern int lf_gets(lf_t *, char *, size_t , ssize_t *);
-extern int lf_puts(lf_t *, char *, ssize_t *);
-extern int lf_get_eol(lf_t *, char *);
-extern int lf_set_eol(lf_t *, char *);
+extern seq_t *seq_create(char *);
+extern int seq_destroy(seq_t *);
+extern int seq_compare(seq_t *, seq_t *);
+extern int seq_override(seq_t *, item_list_t *);
+extern char *seq_version(seq_t *);
+extern int seq_gets(seq_t *, char *, size_t , ssize_t *);
+extern int seq_puts(seq_t *, char *, ssize_t *);
+extern int seq_get_eol(seq_t *, char *);
+extern int seq_set_eol(seq_t *, char *);
 
-#define lf_open(self, flags, mode) fib_open(FIB(self), flags, mode)
-#define lf_close(self)             fib_close(FIB(self))
-#define lf_exists(self, flag)      fib_exists(FIB(self), flag)
-#define lf_size(self, length)      fib_size(FIB(self), length)
-#define lf_stat(self, stat)        fib_stat(FIB(self), stat)
-#define lf_unlink(self)            fib_unlink(FIB(self))
-#define lf_get_fd(self, fd)        fib_get_fd(FIB(self), fd)
-#define lf_creat(self, mode)       fib_creat(FIB(self), mode)
-#define lf_chmod(self, mode)       fib_chmod(FIB(self). mode)
-#define lf_set_trace(self, trace)  object_set_trace(OBJECT(self), trace)
+#define seq_open(self, flags, mode) fib_open(FIB(self), flags, mode)
+#define seq_close(self)             fib_close(FIB(self))
+#define seq_exists(self, flag)      fib_exists(FIB(self), flag)
+#define seq_size(self, length)      fib_size(FIB(self), length)
+#define seq_stat(self, stat)        fib_stat(FIB(self), stat)
+#define seq_unlink(self)            fib_unlink(FIB(self))
+#define seq_get_fd(self, fd)        fib_get_fd(FIB(self), fd)
+#define seq_creat(self, mode)       fib_creat(FIB(self), mode)
+#define seq_chmod(self, mode)       fib_chmod(FIB(self). mode)
+#define seq_set_trace(self, trace)  object_set_trace(OBJECT(self), trace)
 
 #endif
 

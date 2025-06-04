@@ -17,7 +17,7 @@ On RSTS/E the fib was a runtime system that was used for basic low level
 access to disk devices. This class provides common methods for
 manipulating files. It is the base class for the rest of the classes.
 
-=item lf.c
+=item seq.c
 
 Sequential files under RMS were known as stream files. There were
 several types. One type used a line delimiter such as CR/LF, or possibly just

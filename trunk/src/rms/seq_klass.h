@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef LF_KLASS_H
-#define LF_KLASS_H
+#ifndef SEQ_KLASS_H
+#define SEQ_KLASS_H
 
 #include "xas/object.h"
 
@@ -19,14 +19,14 @@
 /* klass defination                                               */
 /*----------------------------------------------------------------*/
 
-struct _lf_s {
+struct _seq_s {
     fib_t parent_klass;
     int (*ctor)(object_t *, item_list_t *);
     int (*dtor)(object_t *);
-    int (*_compare)(lf_t *, lf_t *);
-    int (*_override)(lf_t *, item_list_t *);
-    int (*_gets)(lf_t *, char *, size_t, ssize_t *);
-    int (*_puts)(lf_t *, char *, ssize_t *);
+    int (*_compare)(seq_t *, seq_t *);
+    int (*_override)(seq_t *, item_list_t *);
+    int (*_gets)(seq_t *, char *, size_t, ssize_t *);
+    int (*_puts)(seq_t *, char *, ssize_t *);
 
     char *eol;
 };

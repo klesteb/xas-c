@@ -17,7 +17,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "xas/rms/lf.h"
+#include "xas/rms/seq.h"
 #include "xas/rms/fib.h"
 #include "xas/error_codes.h"
 #include "xas/error_handler.h"
@@ -30,45 +30,45 @@ require_klass(FIB_KLASS);
 /* klass methods                                                  */
 /*----------------------------------------------------------------*/
 
-int _lf_ctor(object_t *, item_list_t *);
-int _lf_dtor(object_t *);
-int _lf_compare(lf_t *, lf_t *);
-int _lf_override(lf_t *, item_list_t *);
+int _seq_ctor(object_t *, item_list_t *);
+int _seq_dtor(object_t *);
+int _seq_compare(seq_t *, seq_t *);
+int _seq_override(seq_t *, item_list_t *);
 
-int _lf_gets(lf_t *, char *, size_t, ssize_t *);
-int _lf_puts(lf_t *, char *, ssize_t *);
+int _seq_gets(seq_t *, char *, size_t, ssize_t *);
+int _seq_puts(seq_t *, char *, ssize_t *);
 
 /*----------------------------------------------------------------*/
 /* klass declaration                                              */
 /*----------------------------------------------------------------*/
 
-declare_klass(LF_KLASS) {
-    .size = KLASS_SIZE(lf_t),
-    .name = KLASS_NAME(lf_t),
-    .ctor = _lf_ctor,
-    .dtor = _lf_dtor,
+declare_klass(SEQ_KLASS) {
+    .size = KLASS_SIZE(seq_t),
+    .name = KLASS_NAME(seq_t),
+    .ctor = _seq_ctor,
+    .dtor = _seq_dtor,
 };
 
 /*----------------------------------------------------------------*/
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-lf_t *lf_create(char *filename) {
+seq_t *seq_create(char *filename) {
 
     int stat = ERR;
-    lf_t *self = NULL;
+    seq_t *self = NULL;
     item_list_t items[2];
 
     SET_ITEM(items[0], FIB_K_PATH, filename, strlen(filename), NULL);
     SET_ITEM(items[1], 0, 0, 0, 0);
 
-    self = (lf_t *)object_create(LF_KLASS, items, &stat);
+    self = (seq_t *)object_create(SEQ_KLASS, items, &stat);
 
     return self;
 
 }
 
-int lf_destroy(lf_t *self) {
+int seq_destroy(seq_t *self) {
 
     int stat = OK;
 
@@ -76,7 +76,7 @@ int lf_destroy(lf_t *self) {
 
         if (self != NULL) {
 
-            if (object_assert(self, lf_t)) {
+            if (object_assert(self, seq_t)) {
 
                 stat = self->dtor(OBJECT(self));
                 check_return(stat, self);
@@ -106,7 +106,7 @@ int lf_destroy(lf_t *self) {
 
 }
 
-int lf_override(lf_t *self, item_list_t *items) {
+int seq_override(seq_t *self, item_list_t *items) {
 
     int stat = OK;
 
@@ -136,7 +136,7 @@ int lf_override(lf_t *self, item_list_t *items) {
 
 }
 
-int lf_compare(lf_t *us, lf_t *them) {
+int seq_compare(seq_t *us, seq_t *them) {
 
     int stat = OK;
 
@@ -144,7 +144,7 @@ int lf_compare(lf_t *us, lf_t *them) {
 
         if (us != NULL) {
 
-            if (object_assert(them, lf_t)) {
+            if (object_assert(them, seq_t)) {
 
                 stat = us->_compare(us, them);
                 check_return(stat, us);
@@ -174,15 +174,15 @@ int lf_compare(lf_t *us, lf_t *them) {
 
 }
 
-char *lf_version(lf_t *self) {
+char *seq_version(seq_t *self) {
 
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
 
 }
 
-int lf_gets(lf_t *self, char *buffer, size_t size, ssize_t *count) {
+int seq_gets(seq_t *self, char *buffer, size_t size, ssize_t *count) {
 
     int stat = OK;
 
@@ -212,7 +212,7 @@ int lf_gets(lf_t *self, char *buffer, size_t size, ssize_t *count) {
 
 }
 
-int lf_puts(lf_t *self, char *buffer, ssize_t *count) {
+int seq_puts(seq_t *self, char *buffer, ssize_t *count) {
 
     int stat = OK;
 
@@ -242,7 +242,7 @@ int lf_puts(lf_t *self, char *buffer, ssize_t *count) {
 
 }
 
-int lf_get_eol(lf_t *self, char *eol) {
+int seq_get_eol(seq_t *self, char *eol) {
     
     int stat = OK;
 
@@ -271,7 +271,7 @@ int lf_get_eol(lf_t *self, char *eol) {
 
 }
 
-int lf_set_eol(lf_t *self, char *eol) {
+int seq_set_eol(seq_t *self, char *eol) {
 
     int stat = OK;
 
@@ -304,11 +304,11 @@ int lf_set_eol(lf_t *self, char *eol) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-int _lf_ctor(object_t *object, item_list_t *items) {
+int _seq_ctor(object_t *object, item_list_t *items) {
 
     int stat = ERR;
     char *eol = "\n";
-    lf_t *self = NULL;
+    seq_t *self = NULL;
 
     if (object != NULL) {
 
@@ -350,17 +350,17 @@ int _lf_ctor(object_t *object, item_list_t *items) {
 
             /* initialize our derived klass here */
 
-            self = LF(object);
+            self = SEQ(object);
 
             /* assign our methods here */
 
-            self->ctor = _lf_ctor;
-            self->dtor = _lf_dtor;
-            self->_compare = _lf_compare;
-            self->_override = _lf_override;
+            self->ctor = _seq_ctor;
+            self->dtor = _seq_dtor;
+            self->_compare = _seq_compare;
+            self->_override = _seq_override;
 
-            self->_gets = _lf_gets;
-            self->_puts = _lf_puts;
+            self->_gets = _seq_gets;
+            self->_puts = _seq_puts;
 
             /* initialize internal variables here */
 
@@ -381,7 +381,7 @@ int _lf_ctor(object_t *object, item_list_t *items) {
 
 }
 
-int _lf_dtor(object_t *object) {
+int _seq_dtor(object_t *object) {
 
     int stat = OK;
     fib_t *fib = FIB(object);
@@ -398,7 +398,7 @@ int _lf_dtor(object_t *object) {
 
 }
 
-int _lf_override(lf_t *self, item_list_t *items) {
+int _seq_override(seq_t *self, item_list_t *items) {
 
     int stat = OK;
 
@@ -418,19 +418,19 @@ int _lf_override(lf_t *self, item_list_t *items) {
                     (items[x].item_code == 0)) break;
 
                 switch(items[x].item_code) {
-                    case LF_M_DESTRUCTOR: {
+                    case SEQ_M_DESTRUCTOR: {
                         self->dtor = NULL;
                         self->dtor = items[x].buffer_address;
                         check_null(self->dtor);
                         break;
                     }
-                    case LF_M_GETS: {
+                    case SEQ_M_GETS: {
                         self->_gets = NULL;
                         self->_gets = items[x].buffer_address;
                         check_null(self->_gets);
                         break;
                     }
-                    case LF_M_PUTS: {
+                    case SEQ_M_PUTS: {
                         self->_puts = NULL;
                         self->_puts = items[x].buffer_address;
                         check_null(self->_puts);
@@ -455,7 +455,7 @@ int _lf_override(lf_t *self, item_list_t *items) {
 
 }
 
-int _lf_compare(lf_t *self, lf_t *other) {
+int _seq_compare(seq_t *self, seq_t *other) {
 
     int stat = OK;
 
@@ -490,7 +490,7 @@ int _lf_compare(lf_t *self, lf_t *other) {
 
 }
 
-int _lf_puts(lf_t *self, char *buffer, ssize_t *count) {
+int _seq_puts(seq_t *self, char *buffer, ssize_t *count) {
 
     int fd;
     int stat = OK;
@@ -533,7 +533,7 @@ int _lf_puts(lf_t *self, char *buffer, ssize_t *count) {
 
 }
 
-int _lf_gets(lf_t *self, char *buffer, size_t length, ssize_t *count) {
+int _seq_gets(seq_t *self, char *buffer, size_t length, ssize_t *count) {
 
     int fd;
     int stat = OK;

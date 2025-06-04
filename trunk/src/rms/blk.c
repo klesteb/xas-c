@@ -179,7 +179,7 @@ int blk_compare(blk_t *us, blk_t *them) {
 
 char *blk_version(blk_t *self) {
 
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
 

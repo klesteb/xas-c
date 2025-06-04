@@ -3,24 +3,24 @@
 
 =head1 NAME
 
-lf - A class for manipulating files
+seq - A class for manipulating files
 
 =head1 SYNOPSIS
 
  #include <stdio.h>
- #include "xas/rms/lf.h"
+ #include "xas/rms/seq.h"
 
  int main(int argc, char **argv) {
 
-     lf_t *temp = NULL;
+     seq_t *temp = NULL;
      char *filename = "files.pod";
      
-     if ((temp = lf_create(filename))) {
+     if ((temp = seq_create(filename))) {
 
-         lf_open(temp, O_RDONLY, 0);
-         lf_close(temp);
+         seq_open(temp, O_RDONLY, 0);
+         seq_close(temp);
 
-         lf_destroy(temp);
+         seq_destroy(temp);
 
      }
 
@@ -34,15 +34,15 @@ This is a class to perform file I/O. It reads a file a line at a time.
 Where the line uses a termination sequence such as a line feed(LF). It uses 
 standard Unix file I/O to perform its functions.
 
-The files lf.c and lf.h define the class. 
+The files seq.c and seq.h define the class. 
 
 =over 4
 
-=item B<xas/rms/lf.h>
+=item B<xas/rms/seq.h>
 
 This defines the interface to the class. 
 
-=item B<lf.c> 
+=item B<seq.c> 
 
 This implements the interface.
 
@@ -50,7 +50,7 @@ This implements the interface.
 
 =head1 METHODS
 
-=head2 I<lf_t *lf_create(char *filename, int retries, int timeout)>
+=head2 I<seq_t *seq_create(char *filename, int retries, int timeout)>
 
 This method initializes the class. 
 
@@ -62,7 +62,7 @@ The name of the file to manipulate.
 
 =back
 
-=head2 I<int lf_destroy(lf_t *self)>
+=head2 I<int seq_destroy(seq_t *self)>
 
 This destroys the object. 
 
@@ -70,11 +70,11 @@ This destroys the object.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =back
 
-=head2 I<int lf_override(lf_t *self, item_list_t *items)>
+=head2 I<int seq_override(seq_t *self, item_list_t *items)>
 
 This method allows you to override methods. 
 
@@ -82,7 +82,7 @@ This method allows you to override methods.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<items>
 
@@ -90,23 +90,23 @@ An array of item_list_t types. The array is 0 terminated.
 
 =back
 
-=head2 I<int lf_compare(lf_t *this, lf_t *that)>
+=head2 I<int seq_compare(seq_t *this, seq_t *that)>
 
-This method allows you to compare one lf_t object to another. 
+This method allows you to compare one seq_t object to another. 
 
 =over 4
 
 =item B<this>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<that>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =back
 
-=head2 I<char *lf_version(lf_t *self)>
+=head2 I<char *seq_version(seq_t *self)>
 
 This method returns the version of the library. The version number
 follows the guidelines from L<semver.org|https://semver.org/>.
@@ -115,11 +115,11 @@ follows the guidelines from L<semver.org|https://semver.org/>.
 
 =item B<self>
 
-A pointer to the lf_t object.
+A pointer to the seq_t object.
 
 =back
 
-=head2 I<int lf_open(lf_t *self, int flags, mode_t mode)>
+=head2 I<int seq_open(seq_t *self, int flags, mode_t mode)>
 
 This method allows you to open the file. This is a wrapper around
 L<open(2)>.
@@ -128,7 +128,7 @@ L<open(2)>.
 
 =item B<self>
 
-A pointer for a lf_t object.
+A pointer for a seq_t object.
 
 =item B<flags>
 
@@ -140,7 +140,7 @@ The mode to pass to open().
 
 =back
 
-=head2 I<int lf_close(lf_t *self)>
+=head2 I<int seq_close(seq_t *self)>
 
 This method allows you to close the file. This is a wrapper around
 L<close(2)>.
@@ -149,11 +149,11 @@ L<close(2)>.
 
 =item B<self>
 
-A pointer for a lf_t object.
+A pointer for a seq_t object.
 
 =back
 
-=head2 I<int lf_puts(lf_t *self, char *buffer, size_t size, ssize_t *count)>
+=head2 I<int seq_puts(seq_t *self, char *buffer, size_t size, ssize_t *count)>
 
 This method allows you to write a string to the file. The string will have a
 "\n" appended to the end. This is an emulation of L<puts(3)>.
@@ -162,7 +162,7 @@ This method allows you to write a string to the file. The string will have a
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<buffer>
 
@@ -179,7 +179,7 @@ was written.
 
 =back
 
-=head2 I<int lf_gets(lf_t *self, char *buffer, size_t size, ssize_t *count)>
+=head2 I<int seq_gets(seq_t *self, char *buffer, size_t size, ssize_t *count)>
 
 This method allows you to read a string from a file. The read will be up to 
 I<size> number of characters, EOF or when a '\n' has been reached. The string 
@@ -189,7 +189,7 @@ will have a '\0' appended to the end. This is an emulation of L<gets(3)>.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<buffer>
 
@@ -207,7 +207,7 @@ the file.
 
 =back
 
-=head2 I<int lf_exists(lf_t *self, int *exists)>
+=head2 I<int seq_exists(seq_t *self, int *exists)>
 
 This method allows you to check and see if a files exists. This is a
 wrapper around L<stat(2)>.
@@ -216,7 +216,7 @@ wrapper around L<stat(2)>.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<exists>
 
@@ -224,7 +224,7 @@ A pointer to wither the file exists. This is a TRUE/FALSE value.
 
 =back
 
-=head2 I<int lf_stat(lf_t *self, struct stat *buffer)>
+=head2 I<int seq_stat(seq_t *self, struct stat *buffer)>
 
 This method allows you to retrieve file information. This is a wrapper around 
 L<stat(2)>.
@@ -233,7 +233,7 @@ L<stat(2)>.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<buffer>
 
@@ -241,7 +241,7 @@ A pointer to a I<struct stat> data structure.
 
 =back
 
-=head2 I<int lf_unlink(lf_t *self)>
+=head2 I<int seq_unlink(seq_t *self)>
 
 This method allows you to unlink a file. This is a wrapper around 
 L<unlink(2)>.
@@ -250,11 +250,11 @@ L<unlink(2)>.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =back
 
-=head2 I<int lf_size(lf_t *self, off_t *size)>
+=head2 I<int seq_size(seq_t *self, off_t *size)>
 
 This method allows you to retrieve the file size. This is a wrapper around 
 L<stat(2)>.
@@ -263,7 +263,7 @@ L<stat(2)>.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<size>
 
@@ -273,7 +273,7 @@ A pointer to where to write the file size.
 
 =head1 MUTATORS
 
-=head2 I<int lf_get_fd(lf_t *self, int *fd)>
+=head2 I<int seq_get_fd(seq_t *self, int *fd)>
 
 This method returns the file descriptor.
 
@@ -281,7 +281,7 @@ This method returns the file descriptor.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<fd>
 
@@ -289,7 +289,7 @@ A pointer to store the file descriptor into.
 
 =back
 
-=head2 I<int lf_get_eol(lf_t *self, char *eol)>
+=head2 I<int seq_get_eol(seq_t *self, char *eol)>
 
 This method returns the current end of line.
 
@@ -297,7 +297,7 @@ This method returns the current end of line.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<eol>
 
@@ -305,7 +305,7 @@ A pointer to store the end of line into.
 
 =back
 
-=head2 I<int lf_set_eol(lf_t *self, char *eol)>
+=head2 I<int seq_set_eol(seq_t *self, char *eol)>
 
 This method sets the current end of line.
 
@@ -313,7 +313,7 @@ This method sets the current end of line.
 
 =item B<self>
 
-A pointer to a lf_t object.
+A pointer to a seq_t object.
 
 =item B<eol>
 
@@ -323,7 +323,7 @@ A pointer to the new end of line.
 
 =head1 RETURNS
 
-The method lf_create() returns a pointer to a lf_t object. All other 
+The method seq_create() returns a pointer to a seq_t object. All other 
 methods return either OK on success or ERR on failure. The extended 
 error description can be returned with object_get_error().
 

@@ -1,6 +1,6 @@
 
 #include <stdio.h>
-#include "xas/rms/lf.h"
+#include "xas/rms/seq.h"
 
 int main(int argc, char **argv) {
 
@@ -9,24 +9,24 @@ int main(int argc, char **argv) {
     int exists = 0;
     struct stat buf;
     char buffer[101];
-    lf_t *temp = NULL;
+    seq_t *temp = NULL;
     int flags = O_RDONLY;
-    char *filename = "lf.pod";
+    char *filename = "seq.pod";
 
-    if ((temp = lf_create(filename))) {
+    if ((temp = seq_create(filename))) {
 
-        lf_exists(temp, &exists);
+        seq_exists(temp, &exists);
         if (exists) {
 
-            lf_stat(temp, &buf);
+            seq_stat(temp, &buf);
             printf("file size = %ld\n", buf.st_size);
             printf("file mode = %ud\n", buf.st_mode);
 
-            if (lf_open(temp, flags, 0) == OK) {
+            if (seq_open(temp, flags, 0) == OK) {
 
                 do {
 
-                    stat = lf_gets(temp, buffer, 100, &count);
+                    stat = seq_gets(temp, buffer, 100, &count);
                     if (stat == OK) {
 
                         printf("%ld: %s\n", count, buffer);
@@ -35,7 +35,7 @@ int main(int argc, char **argv) {
 
                 } while ((stat == OK) && (count > 0));
 
-                lf_close(temp);
+                seq_close(temp);
 
             } else {
 
@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 
         }
 
-        lf_destroy(temp);
+        seq_destroy(temp);
 
     }
 
