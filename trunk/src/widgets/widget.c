@@ -13,10 +13,10 @@
 #include <string.h>
 #include <errno.h>
 
-#include "xas/widget.h"
 #include "xas/misc/misc.h"
 #include "xas/errors_xas.h"
 #include "xas/error_handler.h"
+#include "xas/widgets/widget.h"
 
 require_klass(OBJECT_KLASS);
 
@@ -50,12 +50,12 @@ declare_klass(WIDGET_KLASS) {
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-widget_t *widget_create(void) {
+widget_t *widget_create(item_list_t *items) {
 
     int stat = ERR;
     widget_t *self = NULL;
 
-    self = (widget_t *)object_create(WIDGET_KLASS, NULL, &stat);
+    self = (widget_t *)object_create(WIDGET_KLASS, items, &stat);
 
     return self;
 
@@ -69,7 +69,7 @@ int widget_destroy(widget_t *self) {
 
         if (self != NULL) {
 
-            if (object_assert(self, err_t)) {
+            if (object_assert(self, widget_t)) {
 
                 stat = self->dtor(OBJECT(self));
                 check_return(stat, self);
@@ -169,7 +169,7 @@ int widget_compare(widget_t *us, widget_t *them) {
 
 char *widget_version(widget_t *self) {
     
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
     
@@ -195,7 +195,7 @@ int widget_add(widget_t *self, void *thing) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -225,7 +225,7 @@ int widget_draw(widget_t *self) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -255,7 +255,7 @@ int widget_erase(widget_t *self) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -283,7 +283,7 @@ int widget_event(widget_t *self, events_t *event) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -314,7 +314,7 @@ int widget_refresh(widget_t *self) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -342,7 +342,7 @@ int widget_remove(widget_t *self, void *thing) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -373,7 +373,7 @@ int widget_set_theme(widget_t *self, theme_t *theme) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -404,7 +404,7 @@ int widget_get_theme(widget_t *self, theme_t *theme) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -436,7 +436,7 @@ int widget_set_coordinates(widget_t *self, coordinates_t *coordinates) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -468,7 +468,7 @@ int widget_get_coordinates(widget_t *self, coordinates_t *coordinates) {
     } use {
 
         stat = ERR;
-        process_error(us);
+        process_error(self);
 
     } end_when;
 
@@ -586,7 +586,7 @@ int _widget_ctor(object_t *object, item_list_t *items) {
         } use {
 
             stat = ERR;
-            process_error(us);
+            process_error(self);
 
         } end_when;
 
@@ -620,7 +620,7 @@ int _widget_dtor(object_t *object) {
     } use { 
 
         stat = ERR;
-        process_error(self);
+        process_error(object);
 
     } end_when; 
 

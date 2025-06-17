@@ -238,7 +238,7 @@ int tracer_dump(tracer_t *self, int (*output)(char *)) {
 
 char *tracer_version(tracer_t *self) {
     
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
     

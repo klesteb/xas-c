@@ -66,6 +66,7 @@ int _vline_draw(widget_t *widget) {
 component_t *vline_create(window_t *window, int startx, int starty, int height) {
 
     int tab = 0;
+    int stat = OK;
     int width = 1;
     int padding = FALSE;
     item_list_t items[2];

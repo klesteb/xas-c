@@ -20,7 +20,7 @@
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-extern window_t *list_menu(int, int, int, int, int (*display)(const char *, error_trace_t *), menus_list_t *, int);
+extern window_t *list_menu(int, int, int, int, int (*display)(const char *), menus_list_t *, int);
 
 #endif
 

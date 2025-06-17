@@ -107,7 +107,7 @@ int bell_compare(bell_t *us, bell_t *them) {
         if ((us != NULL) && (them != NULL)) {
 
             stat = us->_compare(us, them);
-            check_return(stat, self);
+            check_return(stat, us);
 
         } else {
 
@@ -197,7 +197,7 @@ int _bell_ctor(object_t *object, item_list_t *items) {
         } use {
 
             stat = ERR;
-            process_errors(self);
+            process_error(self);
 
         } end_when;
 
@@ -227,7 +227,7 @@ int _bell_dtor(object_t *object) {
     } use { 
 
         stat = ERR;
-        process_error(self);
+        process_error(widget);
 
     } end_when; 
 
@@ -260,7 +260,7 @@ int _bell_compare(bell_t *us, bell_t *them) {
     } use {
 
         stat = ERR;
-        process_error(self);
+        process_error(us);
 
     } end_when;
 

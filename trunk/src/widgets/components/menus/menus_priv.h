@@ -38,11 +38,11 @@ typedef struct _menus_data_s {
     int col;
     int items_count;
     int (*show_description)(widget_t *);
-    int (*callback)(const char *, error_trace_t *);
+    int (*callback)(const char *);
 } menus_data_t;
 
 typedef struct _userptr_data_s {
-        int (*callback)(void *, int, error_trace_t *);
+        int (*callback)(void *, int);
         int data_size;
         void *data;
 } userptr_data_t;

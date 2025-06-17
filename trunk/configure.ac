@@ -12,7 +12,7 @@ AC_INIT([xas-c], [1.0])
 # for one of the source code files.
 #AC_CONFIG_SRCDIR([src/xas-c.c])
 AC_CONFIG_MACRO_DIRS([m4])
-AM_INIT_AUTOMAKE
+AM_INIT_AUTOMAKE(subdir-objects)
 AC_PROG_LIBTOOL
 AC_PROG_CC
 LT_INIT
@@ -33,5 +33,7 @@ AC_OUTPUT(Makefile
           src/messages/Makefile
           src/misc/Makefile
           src/queue/Makefile
-          src/rms/Makefile)
+          src/rms/Makefile
+          src/tracer/Makefile
+          src/widgets/Makefile)
 

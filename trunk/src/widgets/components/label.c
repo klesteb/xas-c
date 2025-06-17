@@ -17,7 +17,7 @@
 #include "xas/errors_xas.h"
 #include "xas/error_handler.h"
 #include "xas/widgets/colors.h"
-#include "xas/widgets/components/lablel.h"
+#include "xas/widgets/components/label.h"
 
 require_klass(COMPONENT_KLASS);
 

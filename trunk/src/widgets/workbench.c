@@ -20,16 +20,16 @@
 #include <locale.h>
 
 #include "xas/queue.h"
-#include "xas/widget.h"
 #include "xas/misc/misc.h"
 #include "xas/errors_xas.h"
 #include "xas/error_handler.h"
 #include "xas/gpl/nix_util.h"
 
 #include "xas/widgets/keys.h"
-#include "xas/widgets/events.h"
-#include "xas/widgets/window.h"
 #include "xas/widgets/colors.h"
+#include "xas/widgets/events.h"
+#include "xas/widgets/widget.h"
+#include "xas/widgets/window.h"
 #include "xas/widgets/workbench.h"
 
 #define TIMEOUT 1.0
@@ -106,7 +106,7 @@ int workbench_destroy(workbench_t *self) {
             if (object_assert(self, workbench_t)) {
 
                 stat = self->dtor(OBJECT(self));
-                check_status(stat, OK, E_INVOPS);
+                check_return(stat, self);
 
             } else {
 
@@ -680,7 +680,7 @@ int _workbench_override(workbench_t *self, item_list_t *items) {
                         break;
                     }
                     case WORKBENCH_M_DISPATCH: {
-                        sefl->_dispatch = NULL;
+                        self->_dispatch = NULL;
                         self->_dispatch = items[x].buffer_address;
                         check_null(self->_dispatch);
                         break;
@@ -776,8 +776,7 @@ int _workbench_add(workbench_t *self, window_t *window) {
         stat = window_draw(window);
         check_return(stat, window);
 
-        stat = update_panels();
-        check_status(stat);
+        update_panels();
 
         stat = doupdate();
         check_status(stat);
@@ -817,8 +816,7 @@ int _workbench_draw(workbench_t *self) {
 
         }
 
-        stat = update_panels();
-        check_status(stat);
+        update_panels();
 
         stat = doupdate();
         check_status(stat);
@@ -858,8 +856,7 @@ int _workbench_erase(workbench_t *self) {
 
         }
 
-        stat = update_panels();
-        check_status(stat);
+        update_panels();
 
         stat = doupdate();
         check_status(stat);
@@ -964,8 +961,7 @@ int _workbench_event(workbench_t *self, events_t *event) {
 
         }
 
-        stat = update_panels();
-        check_status(stat);
+        update_panels();
 
         stat = doupdate();
         check_status(stat);
@@ -1132,7 +1128,7 @@ int _workbench_get_focus(workbench_t *self, window_t *window) {
 
     when_error_in {
 
-        errno = E_INVPOS;
+        errno = E_INVOPS;
 
         if (self->panel == NULL) {
 
@@ -1195,8 +1191,7 @@ int _workbench_init_terminal(workbench_t *self) {
         stat = has_colors();
         check_status2(stat, TRUE, E_NOCOLOR);
 
-        stat = init_colorpairs();
-        check_status(stat);
+        init_colorpairs();
 
         /* prep the terminal screen */
 
@@ -1330,7 +1325,7 @@ fprintf(stderr, "entering _workbench_read_stdin()\n");
             event->data = (void *)kevent;
 
             stat = self->_queue_event(self, event);
-            check_status(stat, QUE_OK, E_NOQUEUE);
+            check_status2(stat, OK, E_NOQUEUE);
 
         }
 
@@ -1339,8 +1334,8 @@ fprintf(stderr, "entering _workbench_read_stdin()\n");
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        stat = ERR;
+        process_error(self);
 
     } end_when;
 
@@ -1372,7 +1367,7 @@ static int _workbench_handle_f10(workbench_t *self) {
                     self->panel = panel;
 
                     stat = top_panel(panel);
-                    check_status(stat, OK, E_INVOPS);
+                    check_status2(stat, OK, E_INVOPS);
 
                     stat = window_refresh(self->main);
                     check_return(stat, self->main);
@@ -1390,8 +1385,7 @@ static int _workbench_handle_f10(workbench_t *self) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -1415,7 +1409,7 @@ static int _workbench_handle_f11(workbench_t *self) {
                 self->panel = current;
 
                 stat = top_panel(current);
-                check_status(stat, OK, E_INVOPS);
+                check_status2(stat, OK, E_INVOPS);
 
                 stat = window_refresh(window);
                 check_return(stat, window);
@@ -1429,8 +1423,7 @@ static int _workbench_handle_f11(workbench_t *self) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -1457,7 +1450,7 @@ static int _workbench_handle_f12(workbench_t *self) {
 
                 update_panels();
                 stat = doupdate();
-                check_status(stat, OK, E_INVOPS);
+                check_status2(stat, OK, E_INVOPS);
 
                 if ((current = panel_below(NULL)) != NULL) {
 
@@ -1484,8 +1477,7 @@ static int _workbench_handle_f12(workbench_t *self) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -1513,7 +1505,7 @@ fprintf(stderr, "entering _workbench_remove_all()\n");
         if (que_empty(&self->events)) {
 
             stat = que_init(&self->events);
-            check_status(stat, QUE_OK, E_INVOPS);
+            check_status2(stat, OK, E_INVOPS);
 
         }
 
@@ -1525,30 +1517,29 @@ fprintf(stderr, "entering _workbench_remove_all()\n");
             check_return(stat, window);
 
             stat = del_panel(panel);
-            check_status(stat, OK, E_INVOPS);
+            check_status2(stat, OK, E_INVOPS);
 
         }
 
         stat = werase(self->messages);
-        check_status(stat, OK, E_INVOPS);
+        check_status2(stat, OK, E_INVOPS);
 
         stat = wnoutrefresh(self->messages);
-        check_status(stat, OK, E_INVOPS);
+        check_status2(stat, OK, E_INVOPS);
 
         stat = delwin(self->messages);
-        check_status(stat, OK, E_INVOPS);
+        check_status2(stat, OK, E_INVOPS);
 
         update_panels();
         stat = doupdate();
-        check_status(stat, OK, E_INVOPS);
+        check_status2(stat, OK, E_INVOPS);
 
         exit_when;
 
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 
@@ -1579,8 +1570,7 @@ static int _workbench_queue_exit(workbench_t *self) {
     } use {
 
         stat = ERR;
-        object_set_error2(self, trace_errnum, trace_lineno, trace_filename, trace_function);
-        clear_error();
+        process_error(self);
 
     } end_when;
 

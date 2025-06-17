@@ -13,13 +13,11 @@
 #include <ncurses.h>
 #include <errno.h>
 
-#include "include/when.h"
-#include "include/item_list.h"
-#include "include/error_codes.h"
-
-#include "widgets/colors.h"
-#include "widgets/widget.h"
-#include "widgets/component.h"
+#include "xas/types.h"
+#include "xas/errors_xas.h"
+#include "xas/error_handler.h"
+#include "xas/widgets/colors.h"
+#include "xas/widgets/components/prompt.h"
 
 require_klass(COMPONENT_KLASS);
 
@@ -120,7 +118,7 @@ int _prompt_dtor(object_t *object) {
 
     when_error_in {
 
-        errono = E_INVOPS;
+        errno = E_INVOPS;
 
         /* free local resources here */
 

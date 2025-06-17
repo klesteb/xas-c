@@ -20,7 +20,7 @@
 /* klass interface                                                */
 /*----------------------------------------------------------------*/
 
-extern window_t *query_window(char *, int (*callback)(int, error_trace_t *), char *, ...);
+extern window_t *query_window(char *, int (*callback)(int), char *, ...);
 
 #endif
 

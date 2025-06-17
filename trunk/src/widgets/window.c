@@ -15,7 +15,7 @@
 
 #include "xas/misc/misc.h"
 #include "xas/errors_xas.h"
-#include "xax/error_handler.h"
+#include "xas/error_handler.h"
 
 #include "xas/widgets/keys.h"
 #include "xas/widgets/colors.h"
@@ -131,7 +131,7 @@ int window_compare(window_t *us, window_t *them) {
         if ((us != NULL) && (them != NULL)) {
 
             stat = us->_compare(us, them);
-            check_return(stat, self);
+            check_return(stat, us);
 
         } else {
 
@@ -144,7 +144,7 @@ int window_compare(window_t *us, window_t *them) {
     } use {
 
         stat = ERR;
-        process_error(self);
+        process_error(us);
 
     } end_when;
 
@@ -404,7 +404,7 @@ int _window_override(window_t *self, item_list_t *items) {
 
 char *window_version(window_t *self) {
     
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
     
@@ -575,7 +575,7 @@ int _window_remove(widget_t *widget, void *thing) {
     } use {
 
         stat = ERR;
-        process_error(self);
+        process_error(widget);
 
     } end_when;
 
@@ -631,7 +631,7 @@ int _window_event(widget_t *widget, events_t *event) {
     } use {
 
         stat = ERR;
-        process_error(self);
+        process_error(widget);
 
     } end_when;
 

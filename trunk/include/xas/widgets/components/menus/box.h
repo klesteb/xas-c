@@ -14,7 +14,7 @@
 #define _COMPONENTS_MENUS_BOX_MENU_H
 
 #include "xas/widgets/window.h"
-#include "xas/widget/component.h"
+#include "xas/widgets/component.h"
 #include "xas/widgets/components/menus/menus.h"
 
 /*----------------------------------------------------------------*/

@@ -79,7 +79,7 @@ static int _more_data_display(component_t *self) {
 
 }
 
-static int _more_data_create(component_t *more, queue *text) {
+static int _more_data_create(component_t *more, queue_t *text) {
 
     int len = 0;
     int stat = OK;
@@ -363,7 +363,7 @@ int _more_event(widget_t *widget, events_t *event) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-component_t *more_create(window_t *window, int startx, int starty, int height, int width, int tab, queue *text) {
+component_t *more_create(window_t *window, int startx, int starty, int height, int width, int tab, queue_t *text) {
 
     int stat = OK;
     int padding = FALSE;

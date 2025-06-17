@@ -31,17 +31,17 @@ int _hline_draw(widget_t *widget) {
     when_error_in {
 
         stat = wattron(self->area, widget->theme->attribute);
-        check_status(stat, OK, E_INVOPS);
+        check_status2(stat, OK, E_INVOPS);
     
         stat = wcoloron(self->area, 
                         widget->theme->foreground, widget->theme->background);
-        check_status(stat, OK, E_INVOPS);
+        check_status2(stat, OK, E_INVOPS);
     
         stat = mvwhline(self->area, 0, 0, ACS_HLINE, widget->coordinates->width);
-        check_status(stat, OK, E_INVOPS);
+        check_status2(stat, OK, E_INVOPS);
 
         stat = wstandend(self->area);
-        check_status(stat, OK, E_INVOPS);
+        check_status2(stat, OK, E_INVOPS);
 
         exit_when;
 

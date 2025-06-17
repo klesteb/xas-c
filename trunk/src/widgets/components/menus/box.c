@@ -88,7 +88,7 @@ int _box_menu_event(widget_t *widget, events_t *event) {
                         if (item != NULL) {
                             if ((userptr = item_userptr(item)) != NULL) {
                                 if (userptr->callback != NULL) {
-                                    errno = 0
+                                    errno = 0;
                                     stat = userptr->callback(userptr->data, userptr->data_size);
                                     check_status(stat);
                                 }
@@ -102,7 +102,7 @@ int _box_menu_event(widget_t *widget, events_t *event) {
                 check_return(stat, widget);
 
                 stat = pos_menu_cursor(data->menu);
-                check_status(stat, E_OK, stat);
+                check_status2(stat, E_OK, stat);
 
                 data->focus = (void *)current_item(data->menu);
 
@@ -132,7 +132,7 @@ int _box_menu_event(widget_t *widget, events_t *event) {
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-component_t *box_menu_create(window_t *window, int startx, int starty, int height, int width, int tab, int (*display)(const char *, error_trace_t *), menus_list_t *list, int list_size) {
+component_t *box_menu_create(window_t *window, int startx, int starty, int height, int width, int tab, int (*display)(const char *), menus_list_t *list, int list_size) {
 
     int x;
     int stat = OK;

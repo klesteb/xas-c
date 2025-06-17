@@ -281,6 +281,7 @@ int _textarea_erase(widget_t *widget) {
 
 component_t *textarea_create(window_t *window, int startx, int starty, int height, int width, int tab, char *value, int size) {
 
+    int stat = OK;
     int padding = FALSE;
     item_list_t items[5];
     wrapped_t *data = NULL;
@@ -377,7 +378,7 @@ static int _data_display(widget_t *widget) {
 
 static int _data_create(component_t *self, int width, char *value, int size, wrapped_t *data) {
 
-    queue lines;
+    queue_t lines;
     int stat = OK;
     char *line = NULL;
     char **buffer = NULL;

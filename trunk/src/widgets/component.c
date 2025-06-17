@@ -126,7 +126,7 @@ int component_compare(component_t *us, component_t *them) {
         if ((us != NULL) && (them != NULL)) {
 
             stat = us->_compare(us, them);
-            check_status(stat, us);
+            check_return(stat, us);
 
         } else {
 

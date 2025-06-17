@@ -264,7 +264,7 @@ int _input_event(widget_t *widget, events_t *event) {
 int _input_dtor(object_t *object) {
 
     int stat = OK;
-    widget_t = *widget = WIDGET(object);
+    widget_t *widget = WIDGET(object);
     component_t *self = COMPONENT(object);
 
     when_error_in {
@@ -301,6 +301,7 @@ int _input_dtor(object_t *object) {
 
 component_t *input_create(window_t *window, int startx, int starty, int width, int tab, char *value, int size) {
 
+    int stat = ERR;
     int height = 1;
     int padding = FALSE;
     item_list_t items[4];

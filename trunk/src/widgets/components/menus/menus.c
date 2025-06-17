@@ -13,8 +13,8 @@
 #include <ncurses.h>
 #include <errno.h>
 
+#include "menus_priv.h"
 #include "xas/widgets/components/menus/menus.h"
-#include "xas/widgets/components/menus/menus_priv.h"
 
 require_klass(COMPONENT_KLASS);
 
@@ -258,7 +258,7 @@ int _menus_draw(widget_t *widget) {
 
                 ITEM *item = data->focus;
                 stat = set_current_item(data->menu, item);
-                check_status(stat, E_OK, stat);
+                check_status2(stat, E_OK, stat);
 
             } else {
 
@@ -271,7 +271,7 @@ int _menus_draw(widget_t *widget) {
             check_return(stat, widget);
 
             stat = pos_menu_cursor(data->menu);
-            check_status(stat, E_OK, stat);
+            check_status2(stat, E_OK, stat);
 
             stat = curs_set(1);
             check_status2(stat, OK, E_INVOPS);

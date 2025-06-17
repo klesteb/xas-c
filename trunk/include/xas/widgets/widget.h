@@ -18,7 +18,7 @@
 #include "xas/object.h"
 
 #include "xas/widgets/theme.h"
-#include "xas'widgets/colors.h"
+#include "xas/widgets/colors.h"
 #include "xas/widgets/events.h"
 #include "xas/widgets/coordinates.h"
 

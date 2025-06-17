@@ -26,7 +26,7 @@ typedef struct _menus_list_s {
     void *data;
     int type;
     int data_size;
-    int (*callback)(void *, int, error_trace_t *);
+    int (*callback)(void *, int);
 } menus_list_t;
 
 /* macro to easily set up the structure */

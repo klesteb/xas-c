@@ -29,12 +29,12 @@
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-window_t *query_window(char *title, int (*callback)(int, error_trace_t *), char *fmt, ...) {
+window_t *query_window(char *title, int (*callback)(int), char *fmt, ...) {
 
     va_list ap;
-    queue lines;
     int col = 0;
     int row = 0;
+    queue_t lines;
     int stat = OK;
     char buf[1024];
     int startx = 0;

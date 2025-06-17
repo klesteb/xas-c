@@ -9,7 +9,7 @@
 # and type of library we want to build - in this case we are building
 # both a shared and static library. A shared library ends with '.la' 
 # instead of '.a' which is for a non-shared (static) library.
-lib_LTLIBRARIES = libxas-c.la
+lib_LTLIBRARIES = libxaswidgets.la
 
 # This specially named variable contains a space delimited list of the
 # source code files that must be compiled in order to create the library. 
@@ -18,12 +18,21 @@ lib_LTLIBRARIES = libxas-c.la
 # Where:
 # <library_name> = the name of the library specified in lib_LIBRARIES
 # <library_type> = either 'a' for non-shared library or 'la' for shared.
-libxas-c_la_SOURCES = xas-c.c
-libxas-c_la_LDFLAGS = -version-info 1:0:0
+libxaswidgets_la_SOURCES = colors.c component.c widget.c window.c \
+workbench.c components/bell.c components/hline.c components/input.c \
+components/label.c components/more.c components/prompt.c \
+components/textarea.c components/text.c components/vline.c \
+components/yesno.c components/menus/bar.h components/menus/box.c \
+components/menus/list.c components/menus/menus.c windows/alert.c \
+windows/bar_menu.c windows/base_window.c \
+windows/box_menu.c windows/list_menu.c \
+windows/query_window.c windows/status.c
+
+libxaswidgets_la_LDFLAGS = -version-info 1:0:0
 
 # The AM_CPPFLAGS macro allows us to tell the tools where needed header
 # files are located if they aren't in the default paths. In this case it's
 # a subdirectory in the source code directory where all the header files 
 # are centrally located.
-AM_CPPFLAGS = -I../include
+AM_CPPFLAGS = -I../../include
 

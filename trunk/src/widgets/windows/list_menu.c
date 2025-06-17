@@ -24,7 +24,7 @@
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
 
-window_t *list_menu(int startx, int starty, int height, int width, int (*display)(const char *, error_trace_t *), menus_list_t *list, int list_size) {
+window_t *list_menu(int startx, int starty, int height, int width, int (*display)(const char *), menus_list_t *list, int list_size) {
 
     int tab = 1;
     int stat = OK;
