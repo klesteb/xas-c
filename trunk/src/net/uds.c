@@ -160,7 +160,7 @@ int uds_compare(uds_t *us, uds_t *them) {
 
 char *uds_version(uds_t *self) {
 
-    char *version = VERSION;
+    char *version = PACKAGE_VERSION;
 
     return version;
 

@@ -97,7 +97,7 @@ int  strcasecmp(
 
             return(-1);
 
-        } else if (toupper(*this) > toupper(*that))
+        } else if (toupper(*this) > toupper(*that)) {
 
             return(1);
 

@@ -5,5 +5,5 @@
 # code it's included with, it may not be 100% correct so additional 
 # research/tweaking may be needed.
 
-SUBDIRS = objects errors events logger messages misc queue rms tracer widgets
+SUBDIRS = objects errors events gpl logger messages misc queue rms tracer widgets
 

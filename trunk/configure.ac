@@ -29,6 +29,7 @@ AC_OUTPUT(Makefile
           src/objects/Makefile
           src/errors/Makefile 
           src/events/Makefile
+          src/gpl/Makefile
           src/logger/Makefile
           src/messages/Makefile
           src/misc/Makefile
