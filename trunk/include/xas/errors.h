@@ -36,7 +36,7 @@ struct _err_s {
     int (*_set_error)(err_t *, int, char *, char *);
     int (*_load_errors)(err_t *, error_code_t *, int);
     int (*_load_system_errors)(err_t *);
-    queue_t error_codes;
+    queue_t errors;
 };
 
 /*-------------------------------------------------------------*/

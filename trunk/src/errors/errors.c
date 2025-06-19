@@ -420,7 +420,7 @@ int _err_ctor(object_t *object, item_list_t *items) {
             /* initialize internal variables here */
 
             errno = 0;
-            stat = que_init(&self->error_codes);
+            stat = que_init(&self->errors);
             check_status(stat);
 
             /* load the system error codes */
@@ -430,7 +430,7 @@ int _err_ctor(object_t *object, item_list_t *items) {
 
             /* load our error codes */
 
-            stat = self->_load_errors(self, error_codes, sizeof(error_codes));
+            stat = self->_load_errors(self, codes, sizeof(error_codes));
             check_return(stat, self);
 
             exit_when;
@@ -458,7 +458,7 @@ int _err_dtor(object_t *object) {
 
     when_error_in {
 
-        while ((error_code = que_pop_head(&self->error_codes))) {
+        while ((error_code = que_pop_head(&self->errors))) {
 
             free(error_code->text);
             free(error_code->message);
@@ -467,7 +467,7 @@ int _err_dtor(object_t *object) {
         }
 
         errno = 0;
-        stat = que_init(&self->error_codes);
+        stat = que_init(&self->errors);
         check_status(stat);
 
         /* walk the chain, freeing as we go */
@@ -613,9 +613,9 @@ int _err_get_text(err_t *self, int errnum, char *buffer, int bufsiz) {
 
     when_error_in {
 
-        for (error_code = que_first(&self->error_codes);
+        for (error_code = que_first(&self->errors);
              error_code != NULL;
-             error_code = que_next(&self->error_codes)) {
+             error_code = que_next(&self->errors)) {
 
             if (error_code->errnum == errnum) {
 
@@ -656,9 +656,9 @@ int _err_get_message(err_t *self, int errnum, char *buffer, int bufsiz) {
 
     when_error_in {
 
-        for (error_code = que_first(&self->error_codes);
+        for (error_code = que_first(&self->errors);
              error_code != NULL;
-             error_code = que_next(&self->error_codes)) {
+             error_code = que_next(&self->errors)) {
 
             if (error_code->errnum == errnum) {
 
@@ -707,7 +707,7 @@ int _err_add(err_t *self, int errnum, char *text, char *message) {
         error_code->message = strdup(message);
 
         errno = 0;
-        stat = que_push_tail(&self->error_codes, error_code);
+        stat = que_push_tail(&self->errors, error_code);
         check_status(stat);
 
         exit_when;
@@ -730,9 +730,9 @@ int _err_set(err_t *self, int errnum, char *text, char *message) {
 
     when_error_in {
 
-        for (error_code = que_first(&self->error_codes);
+        for (error_code = que_first(&self->errors);
              error_code != NULL;
-             error_code = que_next(&self->error_codes)) {
+             error_code = que_next(&self->errors)) {
 
             if (error_code->errnum == errnum) {
 
@@ -743,7 +743,7 @@ int _err_set(err_t *self, int errnum, char *text, char *message) {
                 error_code->message = strdup(message);
 
                 errno = 0;
-                stat = que_put(&self->error_codes, error_code);
+                stat = que_put(&self->errors, error_code);
                 check_status(stat);
 
             }
@@ -770,13 +770,13 @@ int _err_del(err_t *self, int errnum) {
 
     when_error_in {
         
-        for (error_code = que_first(&self->error_codes);
+        for (error_code = que_first(&self->errors);
              error_code != NULL;
-             error_code = que_next(&self->error_codes)) {
+             error_code = que_next(&self->errors)) {
 
             if (error_code->errnum == errnum) {
 
-                error_code = que_delete(&self->error_codes);
+                error_code = que_delete(&self->errors);
 
                 free(error_code->text);
                 free(error_code->message);
@@ -788,10 +788,10 @@ int _err_del(err_t *self, int errnum) {
 
         }
 
-        if (que_empty(&self->error_codes)) {
+        if (que_empty(&self->errors)) {
 
             errno = 0;
-            stat = que_init(&self->error_codes);
+            stat = que_init(&self->errors);
             check_status(stat);
 
         }

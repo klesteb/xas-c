@@ -6,7 +6,7 @@
 # research/tweaking may be needed.
 
 # AC_INIT takes two parameters, the package name and a version number.
-AC_INIT([xas-c], [1.0])
+AC_INIT([xaslib], [1.0])
 
 # AC_CONFIG_SRCDIR takes one parameter, the path and filename
 # for one of the source code files.

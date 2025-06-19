@@ -4,7 +4,7 @@
 
 #include <string.h>
 #include <ctype.h>
-
+#include "xas/queue.h"
 
 #ifndef TRUE
 #define TRUE (-1)
@@ -43,7 +43,7 @@ char *xstrtok(char *, char *);
 char *ltostr(long, char *, size_t, unsigned);
 
 int stricmp(const char *, const char *);
-/* int wordwrap(const char *, int, queue *); */
+int wordwrap(const char *, int, queue_t *);
 int strnicmp(const char *, const char *, int);
 
 void insert(char *, char *, int, int);
@@ -83,5 +83,4 @@ long pal_hash(const unsigned char *);
 unsigned long elf_hash(const unsigned char *);
 
 #endif
-
 
