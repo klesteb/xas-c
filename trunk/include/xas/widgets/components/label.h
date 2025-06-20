@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _LABEL_H
-#define _LABEL_H
+#ifndef _XAS_WIDGETS_COMPONENTS_LABEL_H_
+#define _XAS_WIDGETS_COMPONENTS_LABEL_H_
 
 #include "xas/widgets/window.h"
 #include "xas/widgets/component.h"

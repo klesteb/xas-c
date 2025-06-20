@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ALERT_H
-#define _ALERT_H
+#ifndef _XAS_WIDGETS_WINDOWS_ALERT_H_
+#define _XAS_WIDGETS_WINDOWS_ALERT_H_
 
 #include "xas/widgets/window.h"
 

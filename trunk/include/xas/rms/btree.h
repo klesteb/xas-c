@@ -22,8 +22,8 @@ REDISTRIBUTION OF THIS SOFTWARE.
 // Please see the project home page for documentation
 // code.google.com/p/high-concurrency-btree
 
-#ifndef BTREE_H
-#define BTREE_H
+#ifndef _XAS_RMS_BTREE_H_
+#define _XAS_RMS_BTREE_H_
 
 #include "xas/types.h"
 

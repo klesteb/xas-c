@@ -1,6 +1,6 @@
 
-#ifndef MISC_H
-#define MISC_H 1
+#ifndef _XAS_MISC_H_
+#define _XAS_MISC_H_
 
 #include <string.h>
 #include <ctype.h>

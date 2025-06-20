@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _WIDGET_H
-#define _WIDGET_H
+#ifndef _XAS_WIDGETS_WIDGET_H_
+#define _XAS_WIDGETS_WIDGET_H_
 
 #include "xas/queue.h"
 #include "xas/types.h"

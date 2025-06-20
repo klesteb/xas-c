@@ -10,8 +10,8 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _REL_H
-#define _REL_H
+#ifndef _XAS_RMS_REL_H_
+#define _XAS_RMS_REL_H_
 
 #include "xas/queue.h"
 #include "xas/rms/blk.h"

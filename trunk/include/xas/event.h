@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _EVENT_H_
-#define _EVENT_H_
+#ifndef _XAS_EVENT_H_
+#define _XAS_EVENT_H_
 
 #include "xas/types.h"
 #include "xas/queue.h"

@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _BLK_H
-#define _BLK_H
+#ifndef _XAS_RMS_BLK_H_
+#define _XAS_RMS_BLK_H_
 
 #include "xas/rms/fib.h"
 

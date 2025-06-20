@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef DATES_H
-#define DATES_H 1
+#ifndef _XAS_MISC_DATES_H_
+#define _XAS_MISC_DATES_H_
 
 #ifndef TRUE
 #define TRUE (-1)

@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _LOGGER_H
-#define _LOGGER_H
+#ifndef _XAS_LOGGER_H_
+#define _XAS_LOGGER_H_
 
 #include <stdarg.h>
 #include <log4c.h>

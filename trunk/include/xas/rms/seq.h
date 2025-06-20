@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _SEQ_H
-#define _SEQ_H
+#ifndef _XAS_RMS_SEQ_H_
+#define _XAS_RMS_SEQ_H_
 
 #include "xas/rms/fib.h"
 

@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _INPUT_H
-#define _INPUT_H
+#ifndef _XAS_WIDGETS_COMPONENTS_INPUT_H_
+#define _XAS_WIDGETS_COMPONENTS_INPUT_H_
 
 #include "xas/widgets/window.h"
 #include "xas/widgets/component.h"

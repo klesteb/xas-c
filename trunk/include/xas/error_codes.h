@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERROR_CODES_H_
-#define _ERROR_CODES_H_
+#ifndef _XAS_ERROR_CODES_H_
+#define _XAS_ERROR_CODES_H_
 
 /*-------------------------------------------------------------*/
 /* error code constants                                        */

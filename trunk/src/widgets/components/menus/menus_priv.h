@@ -16,7 +16,7 @@
 #include <menu.h>
 
 #include "xas/types.h"
-#include "xas/errors_xas.h"
+#include "xas/error_codes.h"
 #include "xas/error_handler.h"
 #include "xas/widgets/colors.h"
 #include "xas/widgets/window.h"

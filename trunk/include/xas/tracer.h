@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _TRACE_H
-#define _TRACE_H
+#ifndef _XAS_TRACER_H_
+#define _XAS_TRACER_H_
 
 #include "xas/types.h"
 #include "xas/object.h"

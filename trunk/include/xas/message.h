@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _MESSAGE_H
-#define _MESSAGE_H
+#ifndef _XAS_MESSAGE_H_
+#define _XAS_MESSAGE_H_
 
 #include "xas/object.h"
 #include "xas/types.h"

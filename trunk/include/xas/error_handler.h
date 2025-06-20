@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERROR_HANDLER_H_
-#define _ERROR_HANDLER_H_
+#ifndef _XAS_ERROR_HANDLER_H_
+#define _XAS_ERROR_HANDLER_H_
 
 #include <string.h>
 #include <stdlib.h>
@@ -114,7 +114,7 @@
 /* in a certain way.                                          */
 /*                                                            */ 
 /* Ncurses is a prime example. The main routines as           */
-/* defined in ncurses.h return success/failure and dosen't    */
+/* defined in ncurses.h return success/failure and don't      */
 /* bother to set errno. The companion routines as defined     */
 /* in menu.h, panel.h and form.h. return success or an        */
 /* error code. Why? Just the whim of the original authors.    */

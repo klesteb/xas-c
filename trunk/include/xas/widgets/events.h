@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _EVENTS_H_
-#define _EVENTS_H_
+#ifndef _XAS_WIDGETS_EVENTS_H_
+#define _XAS_WIDGETS_EVENTS_H_
 
 /*----------------------------------------------------------------*/
 /* defination                                                     */

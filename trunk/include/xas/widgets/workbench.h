@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _WORKBENCH_H
-#define _WORKBENCH_H
+#ifndef _XAS_WIDGETS_WORKBENCH_H_
+#define _XAS_WIDGETS_WORKBENCH_H_
 
 #include <ncurses.h>
 #include <panel.h>

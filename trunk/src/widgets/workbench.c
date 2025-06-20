@@ -21,7 +21,7 @@
 
 #include "xas/queue.h"
 #include "xas/misc/misc.h"
-#include "xas/errors_xas.h"
+#include "xas/error_codes.h"
 #include "xas/error_handler.h"
 #include "xas/gpl/nix_util.h"
 

@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _PROMPT_H
-#define _PROMPT_H
+#ifndef _XAS_WIDGETS_COMPONENTS_PROMPT_H_
+#define _XAS_WIDGETS_COMPONENTS_PROMPT_H_
 
 #include "xas/widgets/window.h"
 #include "xas/widgets/component.h"

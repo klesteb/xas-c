@@ -17,8 +17,8 @@
 /*                                                                           */
 /*---------------------------------------------------------------------------*/
 
-#ifndef QUE_UTIL_H
-#define QUE_UTIL_H 1
+#ifndef XAS_QUE_UTIL_H_
+#define XAS_QUE_UTIL_H_
 
 #ifdef __cplusplus
     extern  "C" {

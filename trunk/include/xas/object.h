@@ -15,8 +15,8 @@
 /* located at: https://github.com/TragicWarrior/libviper                     */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _OBJECT_H_
-#define _OBJECT_H_
+#ifndef _XAS_OBJECT_H_
+#define _XAS_OBJECT_H_
 
 #include <string.h>
 #include <stdlib.h>

@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _WINDOW_H
-#define _WINDOW_H
+#ifndef _XAS_WIDGETS_WINDOW_H_
+#define _XAS_WIDGETS_WINDOW_H_
 
 #include <ncurses.h>
 

@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERRORS_H
-#define _ERRORS_H
+#ifndef _XAS_ERRORS_H_
+#define _XAS_ERRORS_H_
 
 #include "xas/object.h"
 #include "xas/queue.h"

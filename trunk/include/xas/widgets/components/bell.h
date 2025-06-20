@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _BELL_H
-#define _BELL_H
+#ifndef _XAS_WIDGETS_COMPONENTS_BELL_H_
+#define _XAS_WIDGETS_COMPONENTS_BELL_H_
 
 #include <ncurses.h>
 

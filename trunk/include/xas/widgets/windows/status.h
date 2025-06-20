@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _STATUS_H
-#define _STATUS_H
+#ifndef _XAS_WIDGETS_WINDOWS_STATUS_H_
+#define _XAS_WIDGETS_WINDOWS_STATUS_H_
 
 #include "xas/widgets/window.h"
 

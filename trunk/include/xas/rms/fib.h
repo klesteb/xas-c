@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _FIB_H
-#define _FIB_H
+#ifndef _XAS_RMS_FIB_H_
+#define _XAS_RMS_FIB_H_
 
 #include <sys/types.h>
 #include <sys/stat.h>

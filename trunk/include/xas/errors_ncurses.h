@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERRORS_NCURSES_H_
-#define _ERRORS_NCURSES_H_
+#ifndef _XAS_ERRORS_NCURSES_H_
+#define _XAS_ERRORS_NCURSES_H_
 
 #include <eti.h>
 

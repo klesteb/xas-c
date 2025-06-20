@@ -1,6 +1,6 @@
 
-#ifndef BITOPS_H
-#define BITOPS_H 1
+#ifndef _XAS_MISC_BITOPS_H_
+#define _XAS_MISC_BITOPS_H_
 
 /*
 **  Bit set, clear, and test operations

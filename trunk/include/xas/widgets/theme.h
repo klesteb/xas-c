@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _THEME_H
-#define _THEME_H
+#ifndef _XAS_WIDGETS_THEME_H_
+#define _XAS_WIDGETS_THEME_H_
 
 typedef struct _theme_s {
     int foreground;

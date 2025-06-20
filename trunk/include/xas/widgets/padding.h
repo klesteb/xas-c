@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _PADDING_H_
-#define _PADDING_H_
+#ifndef _XAS_WIDGETS_PADDING_H_
+#define _XAS_WIDGETS_PADDING_H_
 
 /*----------------------------------------------------------------*/
 /* defination                                                     */

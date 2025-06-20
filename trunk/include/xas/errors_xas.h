@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _ERRORS_XAS_H_
-#define _ERRORS_XAS_H_
+#ifndef _XAS_ERRORS_XAS_H_
+#define _XAS_ERRORS_XAS_H_
 
 #include "xas/types.h"
 #include "xas/error_codes.h"
@@ -20,7 +20,7 @@
 /* error code definations                                      */
 /*-------------------------------------------------------------*/
 
-error_code_t error_codes[] = {
+error_code_t xas_codes[] = {
     { E_INVPARM,  "E_INVPARM",  "Invalid parameters" },
     { E_NODATA,   "E_NODATA",   "No data available" },
     { E_INVOPS,   "E_INVOPS",   "An invalid operation was tried" },

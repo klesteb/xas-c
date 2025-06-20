@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _COLORS_H
-#define _COLORS_H
+#ifndef _XAS_WIDGETS_COLORS_H_
+#define _XAS_WIDGETS_COLORS_H_
 
 #include <ncurses.h>
 

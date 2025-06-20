@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _MESSAGE_CODES_H_
-#define _MESSAGE_CODES_H_
+#ifndef _XAS_MESSAGE_CODES_H_
+#define _XAS_MESSAGE_CODES_H_
 
 /*-------------------------------------------------------------*/
 /* default message codes                                       */

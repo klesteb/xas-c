@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _LOG4C_EXTENSIONS_H
-#define _LOG4C_EXTENSIONS_H
+#ifndef _XAS_LOG4C_EXTENSIONS_H_
+#define _XAS_LOG4C_EXTENSIONS_H_
 
 extern int log4c_extensions_init(void);
 

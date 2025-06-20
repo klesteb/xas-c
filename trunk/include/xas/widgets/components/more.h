@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _MORE_H
-#define _MORE_H
+#ifndef _XAS_WIDGETS_COMPONENTS_MORE_H_
+#define _XAS_WIDGETS_COMPONENTS_MORE_H_
 
 #include "xas/queue.h"
 

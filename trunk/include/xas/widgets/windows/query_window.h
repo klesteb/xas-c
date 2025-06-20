@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _QUERY_WINDOW_H
-#define _QUERY_WINDOW_H
+#ifndef _XAS_WIDGETS_WINDOWS_QUERY_WINDOW_H_
+#define _XAS_WIDGETS_WINDOWS_QUERY_WINDOW_H_
 
 #include "xas/types.h"
 #include "xas/widgets/window.h"

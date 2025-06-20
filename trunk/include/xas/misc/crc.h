@@ -6,8 +6,8 @@
  *	This file conatins the defines and prototypes for crc.c
  */
 
-#ifndef CRC_H
-#define CRC_H 1
+#ifndef _XAS_MISC_CRC_H_
+#define _XAS_MISC_CRC_H_
 
 #define CRC_32_RESIDUAL    0xDEBB20E3L
 #define CRC_32_PRECON      0xFFFFFFFFL

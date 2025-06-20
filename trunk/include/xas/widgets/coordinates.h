@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _COORDINATES_H
-#define _COORDINATES_H
+#ifndef _XAS_WIDGETS_COORDINATES_H_
+#define _XAS_WIDGETS_COORDINATES_H_
 
 typedef struct _coordiantes_s {
     int width;

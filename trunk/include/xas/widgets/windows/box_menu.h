@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _BOX_MENU_H
-#define _BOX_MENU_H
+#ifndef _XAS_WIDGETS_WINDOWS_BOX_MENU_H_
+#define _XAS_WIDGETS_WINDOWS_BOX_MENU_H_
 
 #include "xas/widgets/window.h"
 #include "xas/widgets/components/menus/menus.h"

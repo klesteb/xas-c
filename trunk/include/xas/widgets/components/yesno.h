@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _YESNO_H
-#define _YESNO_H
+#ifndef _XAS_WIDGETS_COMPONENTS_YESNO_H_
+#define _XAS_WIDGETS_COMPONENTS_YESNO_H_
 
 #include "xas/widgets/window.h"
 #include "xas/widgets/component.h"

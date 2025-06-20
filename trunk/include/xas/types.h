@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _TYPES_H
-#define _TYPES_H
+#ifndef _XAS_TYPES_H_
+#define _XAS_TYPES_H_
 
 /* 
  * Create some new data types. Mainly for easier reading and 

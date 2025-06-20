@@ -10,8 +10,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _COMPONENT_VLINE_H
-#define _COMPONENT_VLINE_H
+#ifndef _XAS_WIDGETS_COMPONENTS_VLINE_H_
+#define _XAS_WIDGETS_COMPONENTS_VLINE_H_
 
 #include "xas/widgets/window.h"
 #include "xas/widgets/component.h"

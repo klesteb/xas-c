@@ -13,9 +13,9 @@
 #include <ncurses.h>
 #include <errno.h>
 
-#include "xas/widgets/component.h"
-#include "xas/errors_xas.h"
+#include "xas/error_codes.h"
 #include "xas/error_handler.h"
+#include "xas/widgets/component.h"
 
 require_klass(WIDGET_KLASS);
 

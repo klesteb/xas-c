@@ -430,7 +430,7 @@ int _err_ctor(object_t *object, item_list_t *items) {
 
             /* load our error codes */
 
-            stat = self->_load_errors(self, codes, sizeof(error_codes));
+            stat = self->_load_errors(self, codes, sizeof(codes));
             check_return(stat, self);
 
             exit_when;

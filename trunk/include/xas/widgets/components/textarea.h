@@ -1,4 +1,5 @@
 
+
 /*---------------------------------------------------------------------------*/
 /*                Copyright (c) 2021 by Kevin L. Esteb                       */
 /*                                                                           */
@@ -10,8 +11,8 @@
 /*  warranty.                                                                */
 /*---------------------------------------------------------------------------*/
 
-#ifndef _TEXTAREA_H
-#define _TEXTAREA_H
+#ifndef _XAS_WIDGETS_COMPONENTS_TEXTAREA_H_
+#define _XAS_WIDGETS_COMPONENTS_TEXTAREA_H_
 
 #include "xas/widgets/window.h"
 #include "xas/widgets/component.h"
