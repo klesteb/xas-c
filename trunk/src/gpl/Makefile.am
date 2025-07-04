@@ -26,7 +26,7 @@ fnm/fnm_vms2unix.c get/get_arg.c get/get_field.c get/get_string.c \
 get/get_word.c hash/hash_add.c hash/hash_delete.c hash/hash_search.c \
 hash/hash_core.c hash/hash_destroy.c hash/hash_set_debug.c \
 hash/hash_count.c hash/hash_dump.c hash/hash_statistics.c hash/hash_create.c \
-hash/hash_get.c lfn/lfn_create.c lfn/lfn_getline.c lfn/lfn_iswriteable.c \  
+hash/hash_get.c lfn/lfn_create.c lfn/lfn_getline.c lfn/lfn_iswriteable.c \
 lfn/lfn_read.c lfn/lfn_destroy.c lfn/lfn_isreadable.c lfn/lfn_name.c \
 lfn/lfn_write.c lfn/lfn_fd.c lfn/lfn_isup.c lfn/lfn_putline.c \
 meo/meo_core.c meo/meo_load.c meo/meo_dump.c meo/meo_save.c \

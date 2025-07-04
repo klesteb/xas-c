@@ -30,8 +30,8 @@ AM_CPPFLAGS = -I../../include
 # 
 # local stuff
 #
-dist_man3_MANS = xas_queue.3
-CLEANFILES = $(dist_man3_MANS)
+#dist_man3_MANS = xas_queue.3
+#CLEANFILES = $(dist_man3_MANS)
 
 #
 # Build the man page from pod
