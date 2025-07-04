@@ -30,12 +30,12 @@ AM_CPPFLAGS = -I../../include
 # 
 # local stuff
 #
-dist_man3_MANS = message.3
+dist_man3_MANS = xas_message.3
 CLEANFILES = $(dist_man3_MANS)
 
 #
 # Build the man page from pod
 #
-message.3: message.pod
-	pod2man -c " " -r "message(3)" -s 3 message.pod message.3
+xas_message.3: message.pod
+	pod2man -c " " -r "message(3)" -s 3 message.pod xas_message.3
 #

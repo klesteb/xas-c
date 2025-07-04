@@ -30,21 +30,21 @@ AM_CPPFLAGS = -I../../include
 # 
 # local stuff
 #
-dist_man3_MANS = fib.3 blk.3 seq.3 rel.3
+dist_man3_MANS = xas_fib.3 xas_blk.3 xas_seq.3 xas_rel.3
 CLEANFILES = $(dist_man3_MANS)
 
 #
 # Build the man page from pod
 #
-fib.3: fib.pod
-	pod2man -c " " -r "fib(3)" -s 3 fib.pod fib.3
+xas_fib.3: fib.pod
+	pod2man -c " " -r "fib(3)" -s 3 fib.pod xas_fib.3
 #
-seq.3: seq.pod
-	pod2man -c " " -r "seq(3)" -s 3 seq.pod seq.3
+xas_seq.3: seq.pod
+	pod2man -c " " -r "seq(3)" -s 3 seq.pod xas_seq.3
 #
-blk.3: blk.pod
-	pod2man -c " " -r "blk(3)" -s 3 blk.pod blk.3
+xas_blk.3: blk.pod
+	pod2man -c " " -r "blk(3)" -s 3 blk.pod xas_blk.3
 #
-rel.3: rel.pod
-	pod2man -c " " -r "rel(3)" -s 3 rel.pod rel.3
+xas_rel.3: rel.pod
+	pod2man -c " " -r "rel(3)" -s 3 rel.pod xas_rel.3
 #

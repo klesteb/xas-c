@@ -30,13 +30,13 @@ AM_CPPFLAGS = -I../../include
 # 
 # local stuff
 #
-dist_man3_MANS = logger.3
+dist_man3_MANS = xas_logger.3
 CLEANFILES = $(dist_man3_MANS)
 
 #
 # Build the man page from pod
 #
-logger.3: logger.pod
-	pod2man -c " " -r "logger(3)" -s 3 logger.pod logger.3
+xas_logger.3: logger.pod
+	pod2man -c " " -r "logger(3)" -s 3 logger.pod xas_logger.3
 #
 

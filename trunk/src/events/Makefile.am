@@ -30,12 +30,12 @@ AM_CPPFLAGS = -I../../include
 # 
 # local stuff
 #
-dist_man3_MANS = events.3
+dist_man3_MANS = xas_events.3
 CLEANFILES = $(dist_man3_MANS)
 
 #
 # Build the man page from pod
 #
-events.3: event.pod
-	pod2man -c " " -r "events(3)" -s 3 event.pod events.3
+xas_events.3: event.pod
+	pod2man -c " " -r "events(3)" -s 3 event.pod xas_events.3
 #

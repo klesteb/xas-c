@@ -27,15 +27,13 @@ libxaserrors_la_LDFLAGS = -version-info 1:0:0
 # are centrally located.
 AM_CPPFLAGS = -I../../include
 
-# 
 # local stuff
 #
-dist_man3_MANS = errors.3
+dist_man3_MANS = xas_errors.3
 CLEANFILES = $(dist_man3_MANS)
 
-#
 # Build the man page from pod
 #
-errors.3: errors.pod
-	pod2man -c " " -r "errors(3)" -s 3 errors.pod errors.3
+xas_errors.3: errors.pod
+	pod2man -c " " -r "errors(3)" -s 3 errors.pod xas_errors.3
 #

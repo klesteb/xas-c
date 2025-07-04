@@ -30,12 +30,12 @@ AM_CPPFLAGS = -I../../include
 # 
 # local stuff
 #
-dist_man3_MANS = object.3
+dist_man3_MANS = xas_object.3
 CLEANFILES = $(dist_man3_MANS)
 
 #
 # Build the man page from pod
 #
-object.3: object.pod
-	pod2man -c " " -r "object(3)" -s 3 object.pod object.3
+xas_object.3: object.pod
+	pod2man -c " " -r "object(3)" -s 3 object.pod xas_object.3
 #
