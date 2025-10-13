@@ -9,7 +9,7 @@
 # and type of library we want to build - in this case we are building
 # both a shared and static library. A shared library ends with '.la' 
 # instead of '.a' which is for a non-shared (static) library.
-lib_LTLIBRARIES = libxas-c.la
+lib_LTLIBRARIES = libxasnet.la
 
 # This specially named variable contains a space delimited list of the
 # source code files that must be compiled in order to create the library. 
@@ -18,7 +18,7 @@ lib_LTLIBRARIES = libxas-c.la
 # Where:
 # <library_name> = the name of the library specified in lib_LIBRARIES
 # <library_type> = either 'a' for non-shared library or 'la' for shared.
-libxas-c_la_SOURCES = xas-c.c
+libxas-c_la_SOURCES = net.c uds.c
 libxas-c_la_LDFLAGS = -version-info 1:0:0
 
 # The AM_CPPFLAGS macro allows us to tell the tools where needed header

@@ -27,6 +27,11 @@ libxaserrors_la_LDFLAGS = -version-info 1:0:0
 # are centrally located.
 AM_CPPFLAGS = -I../../include
 
+# build test programs
+#
+check_PROGRAMS = test1 test2
+check_LIBRARIES = -l../objects/libxasobjects.la -l../queue/libxasqueue.la -l../misc/libxasmisc.la
+
 # local stuff
 #
 dist_man3_MANS = xas_errors.3

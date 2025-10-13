@@ -7,7 +7,7 @@
 #
 CC = gcc
 CFLAGS = -Wall -c -I.. -I../misc -I../../gpl
-OLBS = libwindows.a ../lib/libmisc.a -l ncurses
+OLBS = libwindows.a -l xasmisc -l xasqueue -l ncurses
 LINK = gcc
 LFLAGS = 
 LIBR = ar -r
