@@ -180,6 +180,37 @@ char *net_version(net_t *self) {
 
 }
 
+int net_answer(net_t *self, double timeout) {
+
+    int stat = OK;
+
+    when_error_in {
+
+        if ((self != NULL) && (timeout > 0)) {
+
+            stat = self->_answer(self, timeout);
+            check_return(stat, self);
+
+        } else {
+
+            cause_error(E_INVPARM);
+
+        }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+
 /*----------------------------------------------------------------*/
 /* klass implementation                                           */
 /*----------------------------------------------------------------*/
@@ -228,6 +259,20 @@ int _net_ctor(object_t *object, item_list_t *items) {
         self->dtor = _net_dtor;
         self->_compare = _net_compare;
         self->_override = _net_override;
+
+        self->_answer = _net_answer;
+        self->_call = _net_call;
+        self->_complete = _net_complete;
+        self->_fd = _net_fd;
+        self->_isreadable = _net_isreadable;
+        self->_isup = _net_isup;
+        self->_iswriteable = _net_iswriteable;
+        self->_listen = _net_listen;
+        self->_name = _net_name;
+        self->_read = _net_read;
+        self->_request_pending = _net_request_pending;
+        self->_setbuf = _net_setbuf;
+        self->_write = _net_write;
 
         /* initialize internal variables here */
         
@@ -300,81 +345,81 @@ int _net_override(net_t *self, item_list_t *items) {
                         break;
                     }
                     case NET_M_ANSWER: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_answer = NULL;
+                        self->_answer = items[x].buffer_address;
+                        check_null(self->_answer);
                         break;
                     }
                     case NET_M_CALL: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_call = NULL;
+                        self->_call = items[x].buffer_address;
+                        check_null(self->_call);
                         break;
                     }
                     case NET_M_COMPLETE: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_complete = NULL;
+                        self->_complete = items[x].buffer_address;
+                        check_null(self->_complete);
                         break;
                     }
                     case NET_M_FD: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_fd = NULL;
+                        self->_fd = items[x].buffer_address;
+                        check_null(self->_fd);
                         break;
                     }
                     case NET_M_ISREADABLE: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_isreadable = NULL;
+                        self->_isreadable = items[x].buffer_address;
+                        check_null(self->_isreadable);
                         break;
                     }
                     case NET_M_ISUP: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_isup = NULL;
+                        self->_isup = items[x].buffer_address;
+                        check_null(self->_isup);
                         break;
                     }
                     case NET_M_ISWRITEABLE: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_iswriteable = NULL;
+                        self->_iswriteable = items[x].buffer_address;
+                        check_null(self->_writeable);
                         break;
                     }
                     case NET_M_LISTEN: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_listen = NULL;
+                        self->_listen = items[x].buffer_address;
+                        check_null(self->_listen);
                         break;
                     }
                     case NET_M_NAME: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_name = NULL;
+                        self->_name = items[x].buffer_address;
+                        check_null(self->_name);
                         break;
                     }
                     case NET_M_READ: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_read = NULL;
+                        self->_read = items[x].buffer_address;
+                        check_null(self->_read);
                         break;
                     }
                     case NET_M_REQUEST_PENDING: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_request_pending = NULL;
+                        self->_request_pending = items[x].buffer_address;
+                        check_null(self->_request_pending);
                         break;
                     }
                     case NET_M_SETBUF: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_setbuf = NULL;
+                        self->_setbuf = items[x].buffer_address;
+                        check_null(self->_setbuf);
                         break;
                     }
                     case NET_M_WRITE: {
-                        self->dtor = NULL;
-                        self->dtor = items[x].buffer_address;
-                        check_null(self->dtor);
+                        self->_write = NULL;
+                        self->_write = items[x].buffer_address;
+                        check_null(self->_write);
                         break;
                     }
                 }
@@ -428,6 +473,26 @@ int _net_compare(net_t *self, net_t *other) {
             cause_error(E_NOTSAME);
 
         }
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
+
+}
+
+int _net_answer(net_t *self, double timeout) {
+
+    int stat = OK;
+
+    when_error_in {
+
 
         exit_when;
 

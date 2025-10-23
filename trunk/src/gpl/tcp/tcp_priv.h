@@ -37,7 +37,7 @@
 #    include  <ucx$inetdef.h>           /* VMS/Ultrix Connection definitions. */
 #    include  <unixio.h>                /* VMS-emulation of UNIX I/O. */
 #    include  <ioctl.h>                 /* UNIX ioctl() socket definition. */
-#    include  "fd.h"                    /* File descriptor set definitions. */
+#    include  "xas/gpl/vms/fd.h"        /* File descriptor set definitions. */
 #    define  MAXHOSTNAMELEN  64
 #elif defined(VXWORKS)
 #    include  <hostLib.h>               /* Host library definitions. */
