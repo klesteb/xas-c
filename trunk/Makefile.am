@@ -29,6 +29,7 @@ xasinclude_HEADERS += include/xas/message.h
 xasinclude_HEADERS += include/xas/object.h
 xasinclude_HEADERS += include/xas/tracer.h
 xasinclude_HEADERS += include/xas/types.h
+xasinclude_HEADERS += include/xas/queue.h
 
 xasgplincludedir = $(includedir)/xas/gpl
 xasgplinclude_HEADERS = include/xas/gpl/ansi_setup.h
