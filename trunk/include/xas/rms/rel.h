@@ -53,6 +53,7 @@ struct _rel_s {
     int (*_master_lock)(rel_t *);
     int (*_master_unlock)(rel_t *);
     int (*_build)(rel_t *, void *, void *);
+    int (*_delete)(rel_t *, void *, void *);
     int (*_next)(rel_t *, rel_record_t *, ssize_t *);
     int (*_prev)(rel_t *, rel_record_t *, ssize_t *);
     int (*_last)(rel_t *, rel_record_t *, ssize_t *);
@@ -102,6 +103,7 @@ struct _rel_s {
 #define REL_M_WRITE_HEADER  37
 #define REL_M_READ_HEADER   38
 #define REL_M_UPDATE_HEADER 39
+#define REL_M_DEFAULT       40
 
 #define REL_F_MARK      1
 #define REL_F_DELETED   2

@@ -40,6 +40,7 @@ int _rel_read_header(rel_t *);
 int _rel_write_header(rel_t *);
 int _rel_update_header(rel_t *);
 int _rel_build(rel_t *, void *, void *);
+int _rel_default(rel_t *, void *, void *);
 int _rel_next(rel_t *, rel_record_t *, ssize_t *);
 int _rel_prev(rel_t *, rel_record_t *, ssize_t *);
 int _rel_last(rel_t *, rel_record_t *, ssize_t *);
@@ -618,6 +619,7 @@ int _rel_ctor(object_t *object, item_list_t *items) {
             self->_record = _rel_record;
             self->_remove = _rel_remove;
             self->_search = _rel_search;
+            self->_default = _rel_default;
             self->_normalize = _rel_normalize;
             self->_read_header = _rel_read_header;
             self->_write_header = _rel_write_header;
@@ -1941,6 +1943,32 @@ int _rel_init(rel_t *self) {
     /* this may need to be overridden, default is to do nothing */
 
     return OK;
+
+}
+
+int _rel_default(rel_t *self, void *ondisk, void *data) {
+
+    /* default behavior, this should to be overridden */
+
+    int stat = OK;
+    void *junk = NULL;
+
+    when_error_in {
+
+        errno = ENOMEM;
+        junk = memcpy(ondisk, data, self->recsize);
+        check_null(junk);
+
+        exit_when;
+
+    } use {
+
+        stat = ERR;
+        process_error(self);
+
+    } end_when;
+
+    return stat;
 
 }
 
